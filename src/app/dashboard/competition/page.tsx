@@ -8,11 +8,12 @@ import { useCompetitionAnalysis } from './components/use-competition-analysis';
 import ErrorBoundary from '@/components/error-boundary';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 export default function CompetitionAnalysisPage() {
   const { isLoading: loading, results, error, progress: analysisProgress, handleSubmit } = useCompetitionAnalysis();
+
+  const hasResults = results;
 
   return (
     <ErrorBoundary>
@@ -24,6 +25,7 @@ export default function CompetitionAnalysisPage() {
         <div className="space-y-6">
           <InputForm onSubmit={handleSubmit} isLoading={loading} />
           
+          {/* Estado de Carga */}
           {loading && (
             <Card>
               <CardContent className="p-6">
@@ -35,31 +37,45 @@ export default function CompetitionAnalysisPage() {
                   </div>
                 </div>
                 <Progress value={analysisProgress.percentage} className="w-full" />
+                <p className="text-sm text-muted-foreground mt-2">
+                  Se redirigirá automáticamente a los resultados.
+                </p>
               </CardContent>
             </Card>
           )}
           
-          {error && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
+          {/* Error */}
+          {error && !loading && (
+            <Card>
+              <CardContent className="p-6">
+                <div className="text-center text-red-600">
+                  <p>Error en el análisis: {error}</p>
+                </div>
+              </CardContent>
+            </Card>
           )}
           
-          {results && (
-            <Card className="border-green-200 bg-green-50">
-              <CardContent className="p-6">
-                <div className="text-center space-y-3">
-                  <div className="text-green-600 font-semibold">¡Análisis completado!</div>
-                  <p className="text-sm text-muted-foreground">
-                    Serás redirigido automáticamente a los resultados completos...
-                  </p>
+          {/* Mostrar mensaje de éxito y redirección */}
+          {hasResults && (
+            <Card className="bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800">
+              <CardContent className="pt-6 text-center">
+                <div className="text-green-600 text-6xl mb-4">✅</div>
+                <h3 className="text-xl font-semibold text-green-800 mb-2">
+                  ¡Análisis Completado!
+                </h3>
+                <p className="text-green-700 mb-4">
+                  Tu análisis de competencia ha sido procesado exitosamente. 
+                  Serás redirigido a la página de resultados en unos segundos.
+                </p>
+                <div className="text-sm text-green-600">
+                  Si no eres redirigido automáticamente, 
                   <a 
-                    href="/dashboard/competition/analysis-results" 
-                    className="text-blue-600 hover:text-blue-800 underline text-sm"
+                    href="/dashboard/competition/analysis-results"
+                    className="underline font-medium hover:text-green-800"
                   >
-                    O haz clic aquí para ir manualmente
+                    haz clic aquí
                   </a>
+                  .
                 </div>
               </CardContent>
             </Card>
