@@ -7,8 +7,7 @@ import { BacklinksResults } from './components/BacklinksResults';
 import { useBacklinksAnalysis } from './components/use-backlinks-analysis';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, CheckCircle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 export default function BacklinksAnalysisPage() {
   const {
@@ -24,14 +23,18 @@ export default function BacklinksAnalysisPage() {
     await handleSubmit(data);
   };
 
+  const hasResults = results;
+
   return (
     <ToolLayout
       title="Análisis de Backlinks"
       description="Analiza el perfil de enlaces entrantes de tu sitio web y descubre oportunidades de mejora"
+      icon="🔗"
     >
       <div className="space-y-6">
         <InputForm onSubmit={onSubmit} loading={loading} />
 
+        {/* Estado de Carga */}
         {loading && (
           <Card>
             <CardContent className="p-6">
@@ -45,42 +48,51 @@ export default function BacklinksAnalysisPage() {
                     {analysisProgress.message}
                   </p>
                   <Progress value={analysisProgress.progress} className="w-full" />
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Se redirigirá automáticamente a los resultados.
+                  </p>
                 </div>
               </div>
             </CardContent>
           </Card>
         )}
 
-        {results && (
-          <Alert className="border-green-200 bg-green-50">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-800">
-              <div className="font-medium mb-1">¡Análisis completado!</div>
-              <div className="text-sm">
-                Redirigiendo automáticamente a los resultados detallados...
-                <br />
-                <a 
-                  href="/dashboard/backlinks/analysis-results" 
-                  className="underline hover:no-underline"
-                >
-                  Haz clic aquí si no eres redirigido automáticamente
-                </a>
-              </div>
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {error && (
-          <Card className="border-red-200 bg-red-50">
-            <CardContent className="p-4">
-              <div className="text-red-800">
-                <h3 className="font-medium mb-1">Error en el análisis</h3>
-                <p className="text-sm">{error}</p>
+        {/* Error */}
+        {error && !loading && (
+          <Card>
+            <CardContent className="p-6">
+              <div className="text-center text-red-600">
+                <p>Error en el análisis: {error}</p>
               </div>
             </CardContent>
           </Card>
         )}
 
+        {/* Mostrar mensaje de éxito y redirección */}
+        {hasResults && (
+          <Card className="bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800">
+            <CardContent className="pt-6 text-center">
+              <div className="text-green-600 text-6xl mb-4">✅</div>
+              <h3 className="text-xl font-semibold text-green-800 mb-2">
+                ¡Análisis Completado!
+              </h3>
+              <p className="text-green-700 mb-4">
+                Tu análisis de backlinks ha sido procesado exitosamente. 
+                Serás redirigido a la página de resultados en unos segundos.
+              </p>
+              <div className="text-sm text-green-600">
+                Si no eres redirigido automáticamente, 
+                <a 
+                  href="/dashboard/backlinks/analysis-results"
+                  className="underline font-medium hover:text-green-800"
+                >
+                  haz clic aquí
+                </a>
+                .
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
       </div>
     </ToolLayout>
