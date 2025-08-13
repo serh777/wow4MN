@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { AlertTriangle, TrendingUp, Zap, Clock, DollarSign, Activity, Download, Share2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -225,79 +224,95 @@ export default function PerformanceAnalysisResults() {
   }));
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <Link href="/dashboard/performance" className="flex items-center text-sm text-muted-foreground hover:text-foreground mb-2">
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Volver al análisis
-          </Link>
-          <h1 className="text-3xl font-bold">Resultados del Análisis de Rendimiento</h1>
-          <p className="text-muted-foreground mt-1">
-            Contrato: {results.contractAddress} • Blockchain: {results.blockchain}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button onClick={handleExport} variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Exportar
-          </Button>
-          <Button onClick={handleShare} variant="outline">
-            <Share2 className="h-4 w-4 mr-2" />
-            Compartir
-          </Button>
-        </div>
-      </div>
-
-      {/* Overall Score */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Activity className="h-5 w-5" />
-            Puntuación General de Rendimiento
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-4">
-            <div className="text-4xl font-bold">{results.score}/100</div>
-            <Progress value={results.score} className="flex-1" />
-            <Badge variant={results.score >= 80 ? 'default' : results.score >= 60 ? 'secondary' : 'destructive'}>
-              {results.score >= 80 ? 'Excelente' : results.score >= 60 ? 'Bueno' : 'Necesita Mejoras'}
-            </Badge>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-6">
+      <div className="max-w-6xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <Link href="/dashboard/performance" className="flex items-center text-sm text-muted-foreground hover:text-foreground mb-2">
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              Volver al análisis
+            </Link>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Resultados del Análisis de Rendimiento</h1>
+            <p className="text-gray-600 dark:text-gray-300 mt-1">
+              Contrato: {results.contractAddress} • Blockchain: {results.blockchain}
+            </p>
           </div>
-        </CardContent>
-      </Card>
+          <div className="flex gap-2">
+            <Button onClick={handleExport} variant="outline">
+              <Download className="h-4 w-4 mr-2" />
+              Exportar
+            </Button>
+            <Button onClick={handleShare} variant="outline">
+              <Share2 className="h-4 w-4 mr-2" />
+              Compartir
+            </Button>
+          </div>
+        </div>
 
-      {/* Metrics Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {metricsData.map((metric, index) => {
-          const Icon = metric.icon;
-          return (
-            <Card key={index}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{metric.name}</CardTitle>
-                <Icon className="h-4 w-4 text-muted-foreground" />
+        {/* Puntuación General */}
+        <div className="flex justify-center mb-8">
+          <div className="w-full max-w-md">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 justify-center">
+                  <Activity className="h-5 w-5" />
+                  Puntuación General de Rendimiento
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{metric.value}%</div>
-                <Progress value={metric.value} className="mt-2" />
+                <div className="text-center">
+                  <div className="relative w-32 h-32 mx-auto mb-4">
+                    <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 36 36">
+                      <path
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        fill="none"
+                        stroke="#e5e7eb"
+                        strokeWidth="2"
+                      />
+                      <path
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        fill="none"
+                        stroke="#3b82f6"
+                        strokeWidth="2"
+                        strokeDasharray={`${results.score}, 100`}
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-2xl font-bold">{results.score}</span>
+                    </div>
+                  </div>
+                  <Badge variant={results.score >= 80 ? 'default' : results.score >= 60 ? 'secondary' : 'destructive'}>
+                    {results.score >= 80 ? 'Excelente' : results.score >= 60 ? 'Bueno' : 'Necesita Mejoras'}
+                  </Badge>
+                </div>
               </CardContent>
             </Card>
-          );
-        })}
-      </div>
+          </div>
+        </div>
 
-      {/* Detailed Analysis */}
-      <Tabs defaultValue="historical" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="historical">Datos Históricos</TabsTrigger>
-          <TabsTrigger value="issues">Problemas Detectados</TabsTrigger>
-          <TabsTrigger value="optimizations">Optimizaciones</TabsTrigger>
-          <TabsTrigger value="comparison">Comparación Red</TabsTrigger>
-        </TabsList>
+        {/* Métricas Generales */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {metricsData.map((metric, index) => {
+            const Icon = metric.icon;
+            return (
+              <Card key={index}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">{metric.name}</CardTitle>
+                  <Icon className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{metric.value}%</div>
+                  <Progress value={metric.value} className="mt-2" />
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
 
-        <TabsContent value="historical" className="space-y-4">
+        {/* Datos Históricos */}
+        <div className="space-y-6">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Datos Históricos</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
@@ -367,9 +382,11 @@ export default function PerformanceAnalysisResults() {
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
+        </div>
 
-        <TabsContent value="issues" className="space-y-4">
+        {/* Problemas Detectados */}
+        <div className="space-y-6">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Problemas Detectados</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="space-y-4">
               {results.issues.map((issue, index) => (
@@ -420,9 +437,11 @@ export default function PerformanceAnalysisResults() {
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
+        </div>
 
-        <TabsContent value="optimizations" className="space-y-4">
+        {/* Optimizaciones */}
+        <div className="space-y-6">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Optimizaciones Recomendadas</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
             {results.optimizations.map((optimization, index) => (
               <Card key={index}>
@@ -450,9 +469,11 @@ export default function PerformanceAnalysisResults() {
               </Card>
             ))}
           </div>
-        </TabsContent>
+        </div>
 
-        <TabsContent value="comparison" className="space-y-4">
+        {/* Comparación con la Red */}
+        <div className="space-y-6">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Comparación con la Red</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
@@ -502,21 +523,21 @@ export default function PerformanceAnalysisResults() {
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
-      </Tabs>
+        </div>
 
-      {/* Action Buttons */}
-      <div className="flex justify-center gap-4">
-        <Link href="/dashboard/performance">
-          <Button variant="outline">
-            Realizar Nuevo Análisis
-          </Button>
-        </Link>
-        <Link href="/dashboard">
-          <Button>
-            Volver al Dashboard
-          </Button>
-        </Link>
+        {/* Botones de Acción */}
+        <div className="flex justify-center gap-4">
+          <Link href="/dashboard/performance">
+            <Button variant="outline">
+              Realizar Nuevo Análisis
+            </Button>
+          </Link>
+          <Link href="/dashboard">
+            <Button>
+              Volver al Dashboard
+            </Button>
+          </Link>
+        </div>
       </div>
     </div>
   );
