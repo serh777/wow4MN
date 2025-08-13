@@ -1,0 +1,21 @@
+{
+  "css.validate": false,
+  "less.validate": false,
+  "scss.validate": false,
+  "tailwindCSS.includeLanguages": {
+    "plaintext": "html"
+  },
+  "tailwindCSS.experimental.classRegex": [
+    "class:\\\\s*?[\\\"\\\']([^\\\"\\\']*)[\\\"\\\']",
+    "(?:enter|leave)(?:From|To)?=\\\\s*?[\\\"\\\']([^\\\"\\\']*)[\\\"\\\']",
+    "(?:enter|leave)(?:From|To)?=\\\\s*?\\\\{([^\\\\}]*)\\\\}",
+    ":\\\\s*?[\\\"\\\']([^\\\"\\\']*)[\\\"\\\']"
+  ],
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "editor.quickSuggestions": {
+    "strings": true
+  },
+  "css.customData": [".vscode/css_custom_data.json"]
+}

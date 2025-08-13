@@ -1,0 +1,131 @@
+# Allow all search engines and analysis tools
+User-agent: *
+Allow: /
+Allow: /about
+Allow: /features
+Allow: /pricing
+Allow: /blog
+Allow: /contact
+Allow: /privacy
+Allow: /terms
+Allow: /cookies
+
+# Specific rules for Google bots and analysis tools
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Googlebot-News
+Allow: /
+
+User-agent: Googlebot-Video
+Allow: /
+
+# Allow Google PageSpeed Insights
+User-agent: Google-PageSpeed
+Allow: /
+
+# Allow Google Mobile-Friendly Test
+User-agent: Google-Mobile
+Allow: /
+
+# Allow Lighthouse and other Google tools
+User-agent: Chrome-Lighthouse
+Allow: /
+
+User-agent: Google-Site-Verification
+Allow: /
+
+# Allow other analysis tools
+User-agent: GTmetrix
+Allow: /
+
+User-agent: Pingdom
+Allow: /
+
+User-agent: WebPageTest
+Allow: /
+
+# Bloquear rutas sensibles y administrativas
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /login
+Disallow: /register
+Disallow: /_next/
+Disallow: /node_modules/
+Disallow: /.env
+Disallow: /.git/
+Disallow: /config/
+Disallow: /scripts/
+Disallow: /src/
+Disallow: /prisma/
+Disallow: /dist/
+Disallow: /cache/
+Disallow: /artifacts/
+Disallow: /contracts/
+Disallow: /indexer/
+Disallow: /hooks/
+Disallow: /services/
+Disallow: /utils/
+Disallow: /types/
+Disallow: /contexts/
+Disallow: /lib/
+Disallow: /components/
+Disallow: /*.json$
+Disallow: /*.ts$
+Disallow: /*.tsx$
+Disallow: /*.js$
+Disallow: /*.jsx$
+Disallow: /*.md$
+Disallow: /*.sql$
+Disallow: /*.log$
+Disallow: /*.env*
+Disallow: /package*
+Disallow: /tsconfig*
+Disallow: /next.config*
+Disallow: /tailwind.config*
+Disallow: /postcss.config*
+Disallow: /hardhat.config*
+Disallow: /.eslintrc*
+Disallow: /.gitignore
+Disallow: /middleware.ts
+Disallow: /netlify.toml
+
+# Bloquear bots maliciosos
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MegaIndex
+Disallow: /
+
+User-agent: BLEXBot
+Disallow: /
+
+User-agent: PetalBot
+Disallow: /
+
+User-agent: YandexBot
+Crawl-delay: 10
+
+User-agent: Bingbot
+Crawl-delay: 5
+
+User-agent: Googlebot
+Crawl-delay: 1
+
+# Sitemap
+Sitemap: https://wowseoweb3.com/sitemap.xml
+Sitemap: https://wowseoweb3.com/sitemap-blog.xml

@@ -1,0 +1,6 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="180" height="180" rx="40" fill="#3B82F6"/>
+  <path d="M90 45C112.091 45 130 62.909 130 85C130 107.091 112.091 125 90 125C67.909 125 50 107.091 50 85C50 62.909 67.909 45 90 45Z" fill="white"/>
+  <path d="M90 60C103.807 60 115 71.193 115 85C115 98.807 103.807 110 90 110C76.193 110 65 98.807 65 85C65 71.193 76.193 60 90 60Z" fill="#3B82F6"/>
+  <text x="90" y="150" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="white">W3</text>
+</svg>

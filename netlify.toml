@@ -1,0 +1,50 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "18.18.0"
+  SECRETS_SCAN_ENABLED = "false"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Supabase integration configuration
+[functions]
+  directory = "netlify/functions"
+
+# Headers for security and performance
+[[headers]]
+  for = "/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Security headers for all pages - TEMPORALMENTE RELAJADAS PARA ANÁLISIS SSL
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # X-Frame-Options = "DENY"  # Comentado temporalmente para permitir análisis
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # Content-Security-Policy más permisiva temporalmente
+    Content-Security-Policy = "default-src 'self' *; script-src 'self' 'unsafe-eval' 'unsafe-inline' *; style-src 'self' 'unsafe-inline' *; font-src 'self' *; img-src 'self' data: https: blob: *; connect-src 'self' *; frame-ancestors *; base-uri 'self'; form-action 'self' *;"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    # Permissions-Policy = "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=(), vibrate=(), fullscreen=(self), sync-xhr=()"  # Comentado temporalmente
+

@@ -1,0 +1,210 @@
+# =============================================================================
+# ARCHIVO DE SEGURIDAD ANTI-HACKING - WOWSEOWEB3
+# =============================================================================
+# Este archivo proporciona múltiples capas de protección contra ataques comunes
+# Configurado para servidores Apache
+
+# Habilitar el motor de reescritura
+RewriteEngine On
+
+# =============================================================================
+# PROTECCIÓN CONTRA ATAQUES DE INYECCIÓN SQL Y XSS
+# =============================================================================
+
+# Bloquear intentos de inyección SQL comunes
+RewriteCond %{QUERY_STRING} (\<|%3C).*script.*(\>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
+RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2}) [OR]
+RewriteCond %{QUERY_STRING} proc/self/environ [OR]
+RewriteCond %{QUERY_STRING} mosConfig_[a-zA-Z_]{1,21}(=|\%3D) [OR]
+RewriteCond %{QUERY_STRING} base64_(en|de)code\(.* [OR]
+RewriteCond %{QUERY_STRING} (\<|%3C).*iframe.*(\>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} (\<|%3C).*object.*(\>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} (\<|%3C).*embed.*(\>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} (\<|%3C).*marquee.*(\>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} (\<|%3C).*link.*(\>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} (\<|%3C).*meta.*(\>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} \.\./ [OR]
+RewriteCond %{QUERY_STRING} ftp\: [OR]
+RewriteCond %{QUERY_STRING} http\: [OR]
+RewriteCond %{QUERY_STRING} https\: [OR]
+RewriteCond %{QUERY_STRING} \=PHP[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12} [OR]
+RewriteCond %{QUERY_STRING} (\+|\%2B|\%20)(concat|delete|get|select|union|update|insert|drop|create|MD5|benchmark|script|javascript|vbscript|onload|onmouseover|onfocus|onerror) [NC]
+RewriteRule .* - [F,L]
+
+# =============================================================================
+# PROTECCIÓN CONTRA BOTS MALICIOSOS Y SCRAPERS
+# =============================================================================
+
+# Permitir herramientas de análisis legítimas
+RewriteCond %{HTTP_USER_AGENT} (googlebot|bingbot|slurp|duckduckbot|baiduspider|yandexbot|facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegram|google.*pagespeed|gtmetrix|pingdom|uptime|lighthouse) [NC]
+RewriteRule .* - [S:1]
+
+# Bloquear user agents maliciosos (excluyendo herramientas de análisis)
+RewriteCond %{HTTP_USER_AGENT} (ahrefs|semrush|mj12bot|dotbot|blexbot|petalbot|megaindex|scrapy|python-requests|curl|wget) [NC]
+RewriteCond %{HTTP_USER_AGENT} !(googlebot|bingbot|google.*pagespeed|gtmetrix|pingdom|uptime|lighthouse) [NC]
+RewriteRule .* - [F,L]
+
+# Bloquear intentos de acceso a archivos sensibles
+RewriteCond %{REQUEST_URI} (wp-config|wp-admin|xmlrpc|readme|license|changelog)
+RewriteRule .* - [F,L]
+
+# =============================================================================
+# PROTECCIÓN CONTRA HOTLINKING
+# =============================================================================
+
+RewriteCond %{HTTP_REFERER} !^$
+RewriteCond %{HTTP_REFERER} !^https?://(www\.)?wowseoweb3\.com [NC]
+RewriteCond %{REQUEST_URI} \.(jpe?g|png|gif|bmp|svg|webp|ico)$ [NC]
+RewriteRule \.(jpe?g|png|gif|bmp|svg|webp|ico)$ - [F,L]
+
+# =============================================================================
+# CABECERAS DE SEGURIDAD
+# =============================================================================
+
+<IfModule mod_headers.c>
+    # Prevenir clickjacking
+    Header always set X-Frame-Options "DENY"
+    
+    # Prevenir MIME type sniffing
+    Header always set X-Content-Type-Options "nosniff"
+    
+    # Habilitar protección XSS
+    Header always set X-XSS-Protection "1; mode=block"
+    
+    # Política de referrer estricta
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Política de permisos restrictiva
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()"
+    
+    # Content Security Policy
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://*.supabase.co wss://*.supabase.co; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';"
+    
+    # Strict Transport Security (HSTS)
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    
+    # Eliminar información del servidor
+    Header unset Server
+    Header unset X-Powered-By
+Header always unset X-Powered-By
+</IfModule>
+
+# =============================================================================
+# PROTECCIÓN CONTRA FUERZA BRUTA
+# =============================================================================
+
+# Limitar intentos de login (requiere mod_evasive)
+<IfModule mod_evasive24.c>
+    DOSHashTableSize    2048
+    DOSPageCount        2
+    DOSSiteCount        50
+    DOSPageInterval     1
+    DOSSiteInterval     1
+    DOSBlockingPeriod   600
+</IfModule>
+
+# =============================================================================
+# BLOQUEO DE ARCHIVOS SENSIBLES
+# =============================================================================
+
+# Proteger archivos de configuración
+<FilesMatch "\.(env|json|md|sql|log|conf|config|bak|backup|old|tmp|temp)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Proteger directorios sensibles
+RedirectMatch 403 ^/(\.git|\.env|node_modules|src|config|scripts|prisma|dist|cache|artifacts|contracts|indexer|hooks|services|utils|types|contexts|lib|components|migration|netlify)/
+
+# Permitir acceso público a rutas específicas (dashboard excluido por seguridad)
+RewriteCond %{REQUEST_URI} ^/(api|examples|features|pricing|about|blog|contact|login|register|wallet-register|privacy|terms|cookies)(/.*)?$ [NC]
+RewriteRule .* - [S:1]
+
+# Proteger archivos de configuración específicos en public
+<FilesMatch "\.(htaccess|htpasswd|ini|log|sh|sql|conf|config)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# =============================================================================
+# OPTIMIZACIÓN Y COMPRESIÓN
+# =============================================================================
+
+# Habilitar compresión GZIP
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
+</IfModule>
+
+# Cache de archivos estáticos
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/pdf "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType application/x-javascript "access plus 1 month"
+    ExpiresByType application/x-shockwave-flash "access plus 1 month"
+    ExpiresByType image/x-icon "access plus 1 year"
+    ExpiresDefault "access plus 2 days"
+</IfModule>
+
+# =============================================================================
+# REDIRECCIONES DE SEGURIDAD
+# =============================================================================
+
+# Forzar HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Redireccionar www a no-www
+RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+
+# =============================================================================
+# MONITOREO Y LOGGING
+# =============================================================================
+
+# Log de intentos de acceso sospechosos
+LogFormat "%h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\" %D" security
+CustomLog logs/security.log security
+
+# =============================================================================
+# CONFIGURACIÓN ADICIONAL DE SEGURIDAD
+# =============================================================================
+
+# Deshabilitar listado de directorios
+Options -Indexes
+
+# Deshabilitar ejecución de PHP en uploads
+<Directory "/uploads">
+    php_flag engine off
+</Directory>
+
+# Proteger contra ataques de inclusión de archivos
+php_flag allow_url_fopen off
+php_flag allow_url_include off
+
+# Limitar tamaño de uploads
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
+
+# Ocultar versión de PHP
+php_flag expose_php off
+
+# =============================================================================
+# FIN DEL ARCHIVO DE SEGURIDAD
+# =============================================================================

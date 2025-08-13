@@ -1,0 +1,270 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+  }
+
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  .circular-progress {
+    @apply relative inline-block;
+    width: var(--size, 120px);
+    height: var(--size, 120px);
+  }
+  
+  .circular-progress-svg {
+    @apply block;
+  }
+  
+  .circular-progress-120 {
+    @apply w-[120px] h-[120px];
+  }
+  
+  .circular-progress-100 {
+    @apply w-[100px] h-[100px];
+  }
+  
+  .circular-progress-80 {
+    @apply w-[80px] h-[80px];
+  }
+  
+  .circular-progress-80 {
+    @apply w-[80px] h-[80px];
+  }
+  
+  .score-display {
+    @apply absolute inset-0 flex items-center justify-center;
+  }
+  
+  .score-value {
+    @apply text-2xl font-bold text-gray-900 dark:text-white;
+  }
+  
+  .score-label {
+    @apply text-xs text-gray-500 dark:text-gray-400;
+  }
+  
+  .score-excellent {
+    @apply text-green-500;
+  }
+  
+  .score-good {
+    @apply text-yellow-500;
+  }
+  
+  .score-poor {
+    @apply text-red-500;
+  }
+
+  .gtm-iframe {
+    display: none;
+    visibility: hidden;
+  }
+
+  /* Clases para barras de progreso dinámicas */
+.progress-bar-green[data-progress] {
+  background: linear-gradient(90deg, #10b981, #34d399);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+  width: calc(attr(data-progress number, 0) * 1%);
+}
+
+.progress-bar-yellow[data-progress] {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+  width: calc(attr(data-progress number, 0) * 1%);
+}
+
+.progress-bar-red[data-progress] {
+  background: linear-gradient(90deg, #ef4444, #f87171);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+  width: calc(attr(data-progress number, 0) * 1%);
+}
+
+.progress-bar-animated {
+  transition: all 0.5s ease-in-out;
+}
+
+/* Fallback usando JavaScript para navegadores que no soportan attr() */
+.progress-bar-green[data-progress="0"] { width: 0%; }
+.progress-bar-green[data-progress="10"] { width: 10%; }
+.progress-bar-green[data-progress="20"] { width: 20%; }
+.progress-bar-green[data-progress="30"] { width: 30%; }
+.progress-bar-green[data-progress="40"] { width: 40%; }
+.progress-bar-green[data-progress="50"] { width: 50%; }
+.progress-bar-green[data-progress="60"] { width: 60%; }
+.progress-bar-green[data-progress="70"] { width: 70%; }
+.progress-bar-green[data-progress="80"] { width: 80%; }
+.progress-bar-green[data-progress="90"] { width: 90%; }
+.progress-bar-green[data-progress="100"] { width: 100%; }
+
+.progress-bar-yellow[data-progress="0"] { width: 0%; }
+.progress-bar-yellow[data-progress="10"] { width: 10%; }
+.progress-bar-yellow[data-progress="20"] { width: 20%; }
+.progress-bar-yellow[data-progress="30"] { width: 30%; }
+.progress-bar-yellow[data-progress="40"] { width: 40%; }
+.progress-bar-yellow[data-progress="50"] { width: 50%; }
+.progress-bar-yellow[data-progress="60"] { width: 60%; }
+.progress-bar-yellow[data-progress="70"] { width: 70%; }
+.progress-bar-yellow[data-progress="80"] { width: 80%; }
+.progress-bar-yellow[data-progress="90"] { width: 90%; }
+.progress-bar-yellow[data-progress="100"] { width: 100%; }
+
+.progress-bar-red[data-progress="0"] { width: 0%; }
+.progress-bar-red[data-progress="10"] { width: 10%; }
+.progress-bar-red[data-progress="20"] { width: 20%; }
+.progress-bar-red[data-progress="30"] { width: 30%; }
+.progress-bar-red[data-progress="40"] { width: 40%; }
+.progress-bar-red[data-progress="50"] { width: 50%; }
+.progress-bar-red[data-progress="60"] { width: 60%; }
+.progress-bar-red[data-progress="70"] { width: 70%; }
+.progress-bar-red[data-progress="80"] { width: 80%; }
+.progress-bar-red[data-progress="90"] { width: 90%; }
+.progress-bar-red[data-progress="100"] { width: 100%; }
+
+/* Estilos para CircularProgress */
+.circular-progress {
+  transform: rotate(-90deg);
+  transition: all 0.3s ease;
+}
+
+.circular-progress-background {
+  fill: none;
+  stroke: hsl(var(--muted));
+  stroke-width: 8;
+}
+
+.circular-progress-foreground {
+  fill: none;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 2s ease-in-out, stroke 0.3s ease;
+}
+
+.circular-progress-green {
+  stroke: #10b981;
+}
+
+.circular-progress-yellow {
+  stroke: #f59e0b;
+}
+
+.circular-progress-red {
+  stroke: #ef4444;
+}
+
+.circular-progress-text {
+  transform: rotate(90deg);
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+/* Progress color variants - used by ProgressOverlay component */
+
+/* Progress color variants */
+.progress-excellent {
+  @apply bg-green-500;
+}
+
+.progress-good {
+  @apply bg-yellow-500;
+}
+
+.progress-warning {
+  @apply bg-orange-500;
+}
+
+.progress-error {
+  @apply bg-red-500;
+}
+
+/* Dynamic progress bars */
+.progress-bar-container {
+  @apply h-2 w-full bg-gray-200 rounded-full overflow-hidden;
+}
+
+.progress-bar-fill {
+  @apply h-full transition-all duration-500;
+}
+
+.progress-bar-green {
+  @apply bg-green-500;
+}
+
+.progress-bar-yellow {
+  @apply bg-yellow-500;
+}
+
+.progress-bar-red {
+  @apply bg-red-500;
+}
+
+/* Progress bar width variants */
+.progress-width-20 {
+  width: 20%;
+}
+
+.progress-width-40 {
+  width: 40%;
+}
+
+.progress-width-dynamic {
+  width: 0%;
+}
+
+/* Resizable container */
+.resizable-container {
+  height: auto;
+}
+}

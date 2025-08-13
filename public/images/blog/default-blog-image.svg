@@ -1,0 +1,18 @@
+<svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="200" fill="url(#gradient)"/>
+  <g transform="translate(200,100)">
+    <!-- Blog icon -->
+    <circle cx="0" cy="-10" r="30" fill="white" fill-opacity="0.2"/>
+    <path d="M-15,-20 L15,-20 L15,10 L-15,10 Z" fill="white" fill-opacity="0.9"/>
+    <path d="M-10,-15 L10,-15" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/>
+    <path d="M-10,-10 L10,-10" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/>
+    <path d="M-10,-5 L5,-5" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/>
+    <text x="0" y="35" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="500">Blog Web3 SEO</text>
+  </g>
+</svg>

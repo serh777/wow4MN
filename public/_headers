@@ -1,0 +1,84 @@
+# Global headers for all routes
+/*
+  # Security headers that allow legitimate bots and analysis tools
+  X-Robots-Tag: index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: no-referrer-when-downgrade
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  
+  # Content Security Policy optimized for analysis tools
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://widget.chatwoot.com https://app.chatwoot.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://widget.chatwoot.com https://app.chatwoot.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://www.google-analytics.com https://vitals.vercel-analytics.com wss://widget.chatwoot.com wss://app.chatwoot.com https://app.chatwoot.com; frame-src 'self' https://www.google.com https://widget.chatwoot.com https://app.chatwoot.com
+  
+  # Performance and caching headers
+  Cache-Control: public, max-age=31536000, immutable
+  
+  # CORS headers for API access
+  Access-Control-Allow-Origin: https://wowseoweb3.com
+  Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS
+  Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With
+  
+  # Additional headers for bot access
+  X-Permitted-Cross-Domain-Policies: none
+  Cross-Origin-Embedder-Policy: unsafe-none
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
+  Cross-Origin-Resource-Policy: cross-origin
+
+# Specific headers for static assets
+/images/*
+  Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff
+
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# API routes with relaxed security for legitimate bots
+/api/*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-cache, no-store, must-revalidate
+  
+# Sitemap and robots.txt with bot-friendly headers
+/sitemap.xml
+  Content-Type: application/xml
+  Cache-Control: public, max-age=86400
+  X-Robots-Tag: index, follow
+
+/robots.txt
+  Content-Type: text/plain
+  Cache-Control: public, max-age=86400
+  X-Robots-Tag: index, follow
+
+# Special headers for analysis tools
+/*
+  # Allow Google PageSpeed Insights
+  X-PageSpeed-Insights: allowed
+  
+  # Allow Lighthouse analysis
+  X-Lighthouse: allowed
+  
+  # Allow mobile-friendly test
+  X-Mobile-Friendly: allowed
+  
+  # Performance monitoring
+  Server-Timing: total;dur=0
+  
+  # Web Vitals reporting
+  Report-To: {"group":"web-vitals","max_age":86400,"endpoints":[{"url":"https://vitals.vercel-analytics.com/v1/vitals"}]}
+  
+# Specific allowances for known analysis tools
+# These headers ensure tools can access the site properly
+/*
+  # Google tools
+  X-Allow-Googlebot: true
+  X-Allow-PageSpeed: true
+  X-Allow-Lighthouse: true
+  
+  # Other analysis tools
+  X-Allow-GTmetrix: true
+  X-Allow-Pingdom: true
+  X-Allow-WebPageTest: true
