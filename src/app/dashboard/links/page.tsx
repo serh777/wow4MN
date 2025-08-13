@@ -1,53 +1,89 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import { ToolLayout } from '@/app/dashboard/content/analysis-results/components/tool-components';
-import { LinksTool } from './components/links-tool';
+import { LinksForm } from './components/links-form';
 import { useLinksAnalysis } from './components/use-links-analysis';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { CheckCircle, ExternalLink } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function LinksAnalysisPage() {
-  const { results } = useLinksAnalysis();
+  const { loading, results, error, handleSubmit } = useLinksAnalysis();
 
-  // Si hay resultados, mostrar mensaje de finalización
-  if (results) {
-    return (
-      <ToolLayout 
-        title="Análisis de Enlaces" 
-        description="Análisis completado exitosamente"
-      >
-        <Card className="p-6">
-          <div className="text-center space-y-4">
-            <CheckCircle className="h-12 w-12 text-green-500 mx-auto" />
-            <h2 className="text-xl font-semibold">¡Análisis de Enlaces Completado!</h2>
-            <p className="text-muted-foreground">
-              Tu análisis de enlaces ha sido completado exitosamente. 
-              Serás redirigido automáticamente a los resultados detallados.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link href="/dashboard/links/analysis-results">
-                <Button className="w-full sm:w-auto">
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Ver Resultados Detallados
-                </Button>
-              </Link>
-              <Link href="/dashboard/links">
-                <Button variant="outline" className="w-full sm:w-auto">
-                  Realizar Nuevo Análisis
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </Card>
-      </ToolLayout>
-    );
-  }
+  const onSubmit = (data: {
+    websiteUrl: string;
+    scanDepth: number;
+    linkTypes: string[];
+    checkFrequency: string;
+    excludePatterns: string;
+  }) => {
+    handleSubmit(data);
+  };
 
-  // Si no hay resultados, mostrar la herramienta
+  const hasResults = results;
+
   return (
-    <LinksTool />
+    <ToolLayout
+      title="Análisis de Enlaces"
+      description="Analiza la salud, SEO y rendimiento de todos los enlaces en tu sitio web"
+      icon="🔗"
+    >
+      <div className="space-y-6">
+        {/* Formulario de Entrada */}
+        <LinksForm 
+          onSubmit={onSubmit}
+          loading={loading}
+        />
+
+        {/* Estado de Carga */}
+        {loading && (
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-center space-x-2">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                <span>Analizando enlaces... Se redirigirá automáticamente a los resultados.</span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Error */}
+        {error && !loading && (
+          <Card>
+            <CardContent className="p-6">
+              <div className="text-center text-red-600">
+                <p>Error en el análisis: {error}</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Mostrar mensaje de éxito y redirección */}
+        {hasResults && (
+          <Card className="bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800">
+            <CardContent className="pt-6 text-center">
+              <div className="text-green-600 text-6xl mb-4">✅</div>
+              <h3 className="text-xl font-semibold text-green-800 mb-2">
+                ¡Análisis Completado!
+              </h3>
+              <p className="text-green-700 mb-4">
+                Tu análisis de enlaces ha sido procesado exitosamente. 
+                Serás redirigido a la página de resultados en unos segundos.
+              </p>
+              <div className="text-sm text-green-600">
+                Si no eres redirigido automáticamente, 
+                <a 
+                  href="/dashboard/links/analysis-results"
+                  className="underline font-medium hover:text-green-800"
+                >
+                  haz clic aquí
+                </a>
+                .
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+      </div>
+    </ToolLayout>
   );
 }
