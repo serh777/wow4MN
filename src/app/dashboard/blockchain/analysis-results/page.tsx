@@ -358,25 +358,44 @@ function BlockchainAnalysisResultsPage() {
       </div>
 
       {/* Overall Score */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            Puntuación General
-            <Badge className={getRiskColor(results.riskLevel)}>
-              Riesgo {results.riskLevel}
-            </Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center">
-            <div className={`text-6xl font-bold ${getScoreColor(results.overallScore)}`}>
-              {results.overallScore}
-            </div>
-            <div className="text-xl text-muted-foreground">/ 100</div>
-            <Progress value={results.overallScore} className="mt-4" />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex justify-center mb-8">
+        <div className="w-full max-w-md">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 justify-center">
+                🔗 Puntuación General Blockchain
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center">
+                <div className="relative w-32 h-32 mx-auto mb-4">
+                  <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 36 36">
+                    <path
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none"
+                      stroke="#e5e7eb"
+                      strokeWidth="2"
+                    />
+                    <path
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none"
+                      stroke="#3b82f6"
+                      strokeWidth="2"
+                      strokeDasharray={`${results.overallScore}, 100`}
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-2xl font-bold">{results.overallScore}</span>
+                  </div>
+                </div>
+                <Badge className={getRiskColor(results.riskLevel)}>
+                  Riesgo {results.riskLevel === 'low' ? 'Bajo' : results.riskLevel === 'medium' ? 'Medio' : 'Alto'}
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
 
       {/* Blockchain Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
