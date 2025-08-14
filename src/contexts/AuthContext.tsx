@@ -216,10 +216,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 console.log('⚠️ Email no confirmado, creando sesión manual para usuario de wallet');
                 // Para usuarios de wallet, crear una sesión manual
                 setUser(signUpData.user);
-                // Forzar redirección manual ya que no hay sesión de Supabase
-                setTimeout(() => {
-                  router.push('/dashboard');
-                }, 100);
+                // Dejar que onAuthStateChange maneje la redirección
                 return;
               }
               
@@ -247,9 +244,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 console.warn('⚠️ Error en login post-confirmación:', postConfirmError.message);
                 // Aún así, permitir acceso para usuarios de wallet
                 setUser(signUpData.user);
-                setTimeout(() => {
-                  router.push('/dashboard');
-                }, 100);
+                // Dejar que onAuthStateChange maneje la redirección
                 return;
               }
             }
@@ -258,9 +253,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             // Para usuarios de wallet, permitir acceso incluso si falla la confirmación
             console.log('✅ Permitiendo acceso de emergencia para usuario de wallet');
             setUser(signUpData.user);
-            setTimeout(() => {
-              router.push('/dashboard');
-            }, 100);
+            // Dejar que onAuthStateChange maneje la redirección
             return;
           }
         }
@@ -279,9 +272,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             // Para usuarios de wallet, crear una sesión manual y redirigir
             if (signUpData.user) {
               setUser(signUpData.user);
-              setTimeout(() => {
-                router.push('/dashboard');
-              }, 100);
+              // Dejar que onAuthStateChange maneje la redirección
               console.log('✅ Sesión manual creada para usuario de wallet');
               return;
             }
@@ -333,9 +324,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             } as any;
             
             setUser(manualUser);
-            setTimeout(() => {
-              router.push('/dashboard');
-            }, 100);
+            // Dejar que onAuthStateChange maneje la redirección
             return;
             
           } catch (confirmError) {

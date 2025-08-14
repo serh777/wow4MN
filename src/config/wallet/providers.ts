@@ -43,7 +43,7 @@ export const baseAppKitConfig = {
   adapters: [ethersAdapter],
   networks: supportedNetworks as [any, ...any[]],
   defaultNetwork,
-  projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || process.env.NEXT_PUBLIC_REOWN_API_KEY || '717c912a-af06-42ea-817e-06d64c964a69',
+  projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || process.env.NEXT_PUBLIC_REOWN_API_KEY || '14d3760d5b3c4a8b416b23e1018b60bc',
   metadata: appMetadata,
   features: {
     analytics: false, // Disable analytics if no valid project ID

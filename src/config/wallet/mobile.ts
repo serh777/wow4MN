@@ -42,7 +42,21 @@ export const isMobileBrowser = (): boolean => {
 export const isMobileWalletApp = (): boolean => {
   if (typeof window === 'undefined') return false;
   
-  return isMobileDevice() && !!(window as any).ethereum;
+  // Verificar si hay ethereum provider
+  const hasEthereum = !!(window as any).ethereum;
+  
+  // Verificar EIP-6963 providers
+  const hasEIP6963 = !!(window as any).ethereum?.providers && Array.isArray((window as any).ethereum.providers);
+  
+  // Verificar user agent para wallets conocidas
+  const userAgent = navigator.userAgent.toLowerCase();
+  const walletUserAgents = [
+    'metamask', 'trust', 'coinbase', 'rainbow', 'imtoken', 
+    'tokenpocket', 'safepal', 'mathwallet', 'bitkeep'
+  ];
+  const hasWalletUserAgent = walletUserAgents.some(wallet => userAgent.includes(wallet));
+  
+  return isMobileDevice() && (hasEthereum || hasEIP6963 || hasWalletUserAgent);
 };
 
 // Configuración de timeouts para móvil
