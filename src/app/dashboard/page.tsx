@@ -13,6 +13,11 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/components/ui/use-toast';
 
 import { Web3Search } from '@/components/search/web3-search';
+import { Breadcrumbs } from '@/components/navigation/breadcrumbs';
+import { QuickAccessMenu } from '@/components/navigation/quick-access-menu';
+import { KeyboardShortcuts } from '@/components/navigation/keyboard-shortcuts';
+import { SystemStatusDashboard } from '@/components/system/system-status-dashboard';
+import { ProjectManager } from '@/components/projects/project-manager';
 import { UnifiedWalletConnect } from '@/components/wallet/unified-wallet-connect';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWeb3 } from '@/contexts/Web3Context';
@@ -206,13 +211,13 @@ export default function DashboardPage() {
 
   // Estados principales
   const [selectedTools, setSelectedTools] = useState<string[]>([]);
-  const [address, setAddress] = useState<string>('');
-  const [isCompleteAudit, setIsCompleteAudit] = useState<boolean>(false);
-  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
+  const [address, setAddress] = useState('');
+  const [isValidAddress, setIsValidAddress] = useState<boolean | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [showSystemStatus, setShowSystemStatus] = useState(false);
+  const [showProjectManager, setShowProjectManager] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  
-  // Estado para el panel lateral colapsible
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   
   // Estados para validación Web3
   const [addressError, setAddressError] = useState<string>('');
@@ -591,6 +596,38 @@ export default function DashboardPage() {
             </div>
             
             <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowSystemStatus(!showSystemStatus)}
+                className={`flex items-center gap-2 ${showSystemStatus ? 'bg-blue-50 border-blue-300' : ''}`}
+              >
+                <Activity className="h-4 w-4" />
+                <span className="hidden sm:inline">Estado Sistema</span>
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowProjectManager(!showProjectManager)}
+                className={`flex items-center gap-2 ${showProjectManager ? 'bg-green-50 border-green-300' : ''}`}
+              >
+                <FileText className="h-4 w-4" />
+                <span className="hidden sm:inline">Proyectos</span>
+              </Button>
+              <QuickAccessMenu onToolSelect={(toolId) => {
+                // Agregar herramienta seleccionada
+                setSelectedTools(prev => prev.includes(toolId) ? prev : [...prev, toolId]);
+              }} />
+              <KeyboardShortcuts 
+                onSearchFocus={() => {
+                  const searchInput = document.querySelector('input[placeholder*="Buscar"]') as HTMLInputElement;
+                  if (searchInput) {
+                    searchInput.focus();
+                  }
+                }}
+                onQuickAccessOpen={() => {
+                  // El componente QuickAccessMenu maneja su propio estado
+                }}
+                onSettingsOpen={() => router.push('/dashboard/settings')}
+              />
               <UnifiedWalletConnect onConnect={() => {}} />
               <Button variant="outline" onClick={() => router.push('/dashboard/settings')}>
                 <Settings className="h-4 w-4 mr-2" />
@@ -615,12 +652,51 @@ export default function DashboardPage() {
               showSuggestions={true}
             />
           </div>
-        </div>
-
-        {/* Contenido Principal */}
+          
+          {/* Breadcrumbs */}
+          <div className="mt-4">
+            <Breadcrumbs />
+          </div>
+            {/* Contenido Principal */}
         <div className="flex-1 p-6 space-y-6">
-          {/* Formulario de Análisis */}
-          <Card className="shadow-lg">
+          
+          {/* Dashboard de Estado del Sistema */}
+          {showSystemStatus && (
+            <div className="mb-6">
+              <SystemStatusDashboard />
+            </div>
+          )}
+
+          {/* Gestor de Proyectos */}
+          {showProjectManager && (
+            <div className="mb-6">
+              <ProjectManager 
+                onProjectSelect={(project) => {
+                  setAddress(project.address);
+                  setSelectedTools(project.tools);
+                  validateWeb3Address(project.address);
+                  setShowProjectManager(false);
+                  toast({
+                    title: 'Proyecto cargado',
+                    description: `Se ha cargado el proyecto "${project.name}"`,
+                    variant: 'default'
+                  });
+                }}
+                onTemplateApply={(template) => {
+                  setSelectedTools(template.tools);
+                  setShowProjectManager(false);
+                  toast({
+                    title: 'Plantilla aplicada',
+                    description: `Se han seleccionado ${template.tools.length} herramientas`,
+                    variant: 'default'
+                  });
+                }}
+              />
+            </div>
+          )}
+
+          {/* Estado del Indexador */}
+          <IndexerStatusCard />lassName="shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Target className="h-6 w-6 text-blue-500" />
