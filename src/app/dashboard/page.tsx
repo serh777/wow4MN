@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/components/ui/use-toast';
 
+import { Web3Search } from '@/components/search/web3-search';
 import { UnifiedWalletConnect } from '@/components/wallet/unified-wallet-connect';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWeb3 } from '@/contexts/Web3Context';
@@ -579,7 +580,7 @@ export default function DashboardPage() {
       <div className="flex-1 flex flex-col">
         {/* Header Principal */}
         <div className="bg-white shadow-sm border-b border-gray-200 p-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Dashboard Web3 SEO
@@ -600,6 +601,19 @@ export default function DashboardPage() {
                 Cerrar Sesión
               </Button>
             </div>
+          </div>
+          
+          {/* Buscador Web3 */}
+          <div className="max-w-2xl">
+            <Web3Search 
+              onSelect={(result) => {
+                setAddress(result.address);
+                validateWeb3Address(result.address);
+              }}
+              placeholder="🔍 Buscar dominios Web3, wallets, contratos inteligentes..."
+              className="w-full"
+              showSuggestions={true}
+            />
           </div>
         </div>
 
