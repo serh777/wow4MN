@@ -2,6 +2,10 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { EtherscanService } from '@/services/apis/etherscan';
+import { AlchemyService } from '@/services/apis/alchemy';
+import { AnthropicService } from '@/services/apis/anthropic';
+import { generateRealBlockchainResults } from './real-blockchain-helpers';
 
 interface FormData {
   contractAddress: string;
@@ -245,6 +249,100 @@ export function useBlockchainAnalysis() {
   const handleSubmit = useCallback(async (formData: FormData) => {
     try {
       setIsLoading(true);
+      setError(null);
+      setResults(null);
+      
+      // Validar dirección del contrato
+      if (!formData.contractAddress || !/^0x[a-fA-F0-9]{40}$/.test(formData.contractAddress)) {
+        throw new Error('Dirección de contrato inválida');
+      }
+
+      // Progreso inicial
+      setProgress({
+        percentage: 10,
+        currentStep: 'Inicializando análisis blockchain...',
+        message: 'Conectando con APIs de blockchain'
+      });
+
+      // Obtener información del contrato desde Etherscan
+      setProgress({
+        percentage: 25,
+        currentStep: 'Obteniendo información del contrato...',
+        message: 'Consultando Etherscan API'
+      });
+
+      const contractInfo = await EtherscanService.getContractInfo(formData.contractAddress);
+      const balance = await EtherscanService.getAccountBalance(formData.contractAddress);
+      const transactions = await EtherscanService.getContractTransactions(formData.contractAddress, 1, 100);
+      
+      // Obtener información adicional de Alchemy si es necesario
+      setProgress({
+        percentage: 50,
+        currentStep: 'Analizando transacciones y balances...',
+        message: 'Procesando datos de blockchain'
+      });
+
+      const tokenMetadata = await AlchemyService.getTokenMetadata(formData.contractAddress);
+      const assetTransfers = await AlchemyService.getAssetTransfers(formData.contractAddress);
+
+      // Análisis con IA si está habilitado
+      let aiAnalysis = null;
+      if (formData.checkSecurity && contractInfo) {
+        setProgress({
+          percentage: 75,
+          currentStep: 'Analizando seguridad con IA...',
+          message: 'Ejecutando análisis de seguridad con Claude'
+        });
+
+        try {
+          aiAnalysis = await AnthropicService.analyzeContract({
+            contractAddress: formData.contractAddress,
+            contractCode: contractInfo.contractName,
+            network: formData.network,
+            analysisType: 'security'
+          });
+        } catch (error) {
+          console.warn('Error en análisis IA:', error);
+        }
+      }
+
+      // Generar resultados combinando datos reales
+      setProgress({
+        percentage: 90,
+        currentStep: 'Generando resultados...',
+        message: 'Compilando análisis completo'
+      });
+
+      const realResults = generateRealBlockchainResults(
+        formData,
+        contractInfo,
+        balance,
+        transactions,
+        tokenMetadata,
+        assetTransfers,
+        aiAnalysis
+      );
+
+      setProgress({
+        percentage: 100,
+        currentStep: 'Análisis completado',
+        message: 'Redirigiendo a resultados...'
+      });
+
+      setResults(realResults);
+
+      // Redirigir a resultados después de un breve delay
+      setTimeout(() => {
+        router.push(`/dashboard/blockchain/analysis-results?address=${formData.contractAddress}&network=${formData.network}`);
+      }, 2000);
+
+    } catch (error) {
+      console.error('Error en análisis blockchain:', error);
+      setError(error instanceof Error ? error.message : 'Error desconocido en el análisis');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [router]);
       setError(null);
       setResults(null);
 

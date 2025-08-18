@@ -4,6 +4,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAnalysisNotifications } from '@/components/notifications/use-analysis-notifications';
 import { useIndexerService } from '@/hooks/useIndexerService';
+import { AnthropicService } from '@/services/apis/anthropic';
+import { EtherscanService } from '@/services/apis/etherscan';
+import { extractContractAddress, generateRealResults, generateRealAnalysisResponse } from './real-analysis-helpers';
 import type { AnalysisResult } from '@/types';
 
 // Tipos específicos para el análisis de IA
@@ -474,28 +477,74 @@ export function useAIAnalysis() {
         throw new Error('Debes seleccionar un indexador Web3 para el análisis');
       }
 
-      // Simular progreso
-      const analysisInterval = simulateAnalysisProgress();
-      const indexerInterval = simulateIndexerProgress();
+      // Iniciar progreso
+      setCurrentAnalysisStep('Inicializando análisis con IA...');
+      setAnalysisProgress(10);
 
-      // Simular tiempo de análisis
-      await new Promise(resolve => setTimeout(resolve, 6000));
+      // Extraer dirección del contrato de la URL si es posible
+      const contractAddress = extractContractAddress(params.url);
+      
+      let realAnalysisResults = null;
+      let contractInfo = null;
 
-      // Limpiar intervalos
-      clearInterval(analysisInterval);
+      if (contractAddress) {
+        // Análisis real con APIs
+        setCurrentAnalysisStep('Obteniendo información del contrato...');
+        setAnalysisProgress(30);
+        
+        // Obtener información del contrato desde Etherscan
+        contractInfo = await EtherscanService.getContractInfo(contractAddress);
+        
+        if (contractInfo) {
+          setCurrentAnalysisStep('Analizando con Claude IA...');
+          setAnalysisProgress(60);
+          
+          // Análizar con Claude
+          realAnalysisResults = await AnthropicService.analyzeContract({
+            contractAddress,
+            contractCode: contractInfo.contractName,
+            network: params.network || 'ethereum',
+            analysisType: params.analysisType as 'security' | 'optimization' | 'functionality' | 'comprehensive'
+          });
+        }
+      }
+
+      setCurrentAnalysisStep('Procesando resultados...');
+      setAnalysisProgress(80);
+
+      // Simular progreso del indexador
+      let indexerProgress = 0;
+      const indexerInterval = setInterval(() => {
+        indexerProgress += Math.random() * 20;
+        if (indexerProgress >= 100) {
+          indexerProgress = 100;
+          clearInterval(indexerInterval);
+        }
+        setIndexerProgress(Math.floor(indexerProgress));
+      }, 300);
+
+      // Esperar un poco más para completar
+      await new Promise(resolve => setTimeout(resolve, 2000));
       clearInterval(indexerInterval);
 
-      // Generar resultados
-      const specialResults = generateSpecialResults(params);
-      const indexerResults = generateIndexerResults(params);
+      setCurrentAnalysisStep('Finalizando análisis...');
+      setAnalysisProgress(100);
+
+      // Generar resultados combinando datos reales y mock
+      const specialResults = realAnalysisResults ? 
+        generateRealResults(realAnalysisResults, params) : 
+        generateSpecialResults(params);
+      
+      const indexerResults = generateIndexerResults(params, contractInfo);
 
       setAnalysisType(params.analysisType);
       setSpecialResults(specialResults);
       setIndexerResults(indexerResults);
 
       // Generar respuesta de texto
-      const analysisResponse = `
-# Análisis Completo Web3 - ${params.analysisType.toUpperCase()}
+      const analysisResponse = realAnalysisResults ? 
+        generateRealAnalysisResponse(realAnalysisResults, params) :
+        `# Análisis Completo Web3 - ${params.analysisType.toUpperCase()}
 
 ## 🎯 Resumen Ejecutivo
 Hemos completado un análisis exhaustivo de tu proyecto Web3. La puntuación general es **${specialResults.overallScore}/100** con un nivel de riesgo **${specialResults.riskLevel}**.
