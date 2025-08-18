@@ -185,7 +185,7 @@ export default function MobileWalletDebugPage() {
             <div className="space-y-4">
               <div className="border-l-4 border-red-500 pl-4">
                 <h4 className="font-medium text-red-900 mb-2">
-                  ❌ "No se detectaron wallets instaladas"
+                  ❌ &quot;No se detectaron wallets instaladas&quot;
                 </h4>
                 <div className="text-sm text-red-800 space-y-1">
                   <p><strong>Causa:</strong> Navegando desde navegador estándar en lugar del navegador de la wallet</p>
@@ -201,7 +201,7 @@ export default function MobileWalletDebugPage() {
 
               <div className="border-l-4 border-yellow-500 pl-4">
                 <h4 className="font-medium text-yellow-900 mb-2">
-                  ⚠️ "Wallet instalada pero no se conecta"
+                  ⚠️ &quot;Wallet instalada pero no se conecta&quot;
                 </h4>
                 <div className="text-sm text-yellow-800 space-y-1">
                   <p><strong>Causa:</strong> Problemas de compatibilidad o configuración</p>
@@ -217,7 +217,7 @@ export default function MobileWalletDebugPage() {
 
               <div className="border-l-4 border-blue-500 pl-4">
                 <h4 className="font-medium text-blue-900 mb-2">
-                  ℹ️ "QR de WalletConnect no aparece"
+                  ℹ️ &quot;QR de WalletConnect no aparece&quot;
                 </h4>
                 <div className="text-sm text-blue-800 space-y-1">
                   <p><strong>Causa:</strong> Configuración de WalletConnect o conectividad</p>
@@ -302,10 +302,10 @@ export default function MobileWalletDebugPage() {
                 <h4 className="font-medium mb-3">Método 1: Navegador de Wallet (Recomendado)</h4>
                 <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700">
                   <li>Abre tu app de wallet móvil (MetaMask, Trust Wallet, etc.)</li>
-                  <li>Busca la opción "Navegador" o "Browser" en la app</li>
+                  <li>Busca la opción &quot;Navegador&quot; o &quot;Browser&quot; en la app</li>
                   <li>Navega a esta página web desde el navegador de la wallet</li>
                   <li>La wallet se detectará automáticamente</li>
-                  <li>Haz clic en "Conectar Wallet" para establecer la conexión</li>
+                  <li>Haz clic en &quot;Conectar Wallet&quot; para establecer la conexión</li>
                 </ol>
               </div>
 
@@ -313,8 +313,8 @@ export default function MobileWalletDebugPage() {
                 <h4 className="font-medium mb-3">Método 2: WalletConnect</h4>
                 <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700">
                   <li>Usa cualquier navegador móvil (Chrome, Safari, etc.)</li>
-                  <li>Haz clic en "Conectar Wallet" en esta página</li>
-                  <li>Selecciona "WalletConnect" en el modal</li>
+                  <li>Haz clic en &quot;Conectar Wallet&quot; en esta página</li>
+                  <li>Selecciona &quot;WalletConnect&quot; en el modal</li>
                   <li>Escanea el código QR con tu app de wallet</li>
                   <li>Autoriza la conexión en tu wallet</li>
                 </ol>
@@ -323,7 +323,7 @@ export default function MobileWalletDebugPage() {
               <div>
                 <h4 className="font-medium mb-3">Método 3: Deep Links</h4>
                 <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700">
-                  <li>Haz clic en uno de los botones "Abrir" de las wallets arriba</li>
+                  <li>Haz clic en uno de los botones &quot;Abrir&quot; de las wallets arriba</li>
                   <li>Esto abrirá la página directamente en tu wallet</li>
                   <li>Autoriza la conexión cuando se solicite</li>
                 </ol>

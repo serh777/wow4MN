@@ -128,6 +128,7 @@ export default function AuthorityTrackingPage() {
                   <Label htmlFor="walletAddress">Dirección de Wallet</Label>
                   <Input
                     id="walletAddress"
+                    title="Ingresa la dirección de wallet para analizar"
                     placeholder="0x..."
                     value={formData.walletAddress}
                     onChange={(e) => handleInputChange('walletAddress', e.target.value)}
@@ -138,6 +139,7 @@ export default function AuthorityTrackingPage() {
                   <Label htmlFor="contractAddress">Dirección de Contrato (Opcional)</Label>
                   <Input
                     id="contractAddress"
+                    title="Dirección de contrato opcional para análisis específico"
                     placeholder="0x..."
                     value={formData.contractAddress}
                     onChange={(e) => handleInputChange('contractAddress', e.target.value)}
@@ -148,6 +150,7 @@ export default function AuthorityTrackingPage() {
                   <Label htmlFor="projectName">Nombre del Proyecto (Opcional)</Label>
                   <Input
                     id="projectName"
+                    title="Nombre del proyecto para contextualizar el análisis"
                     placeholder="Ej: Uniswap, Compound..."
                     value={formData.projectName}
                     onChange={(e) => handleInputChange('projectName', e.target.value)}
@@ -200,6 +203,7 @@ export default function AuthorityTrackingPage() {
                       <input
                         type="checkbox"
                         id="includeGovernance"
+                        title="Incluir análisis de participación en gobernanza"
                         checked={formData.includeGovernance}
                         onChange={(e) => handleInputChange('includeGovernance', e.target.checked)}
                         className="rounded border-gray-300"
@@ -213,6 +217,7 @@ export default function AuthorityTrackingPage() {
                       <input
                         type="checkbox"
                         id="includeReputation"
+                        title="Incluir análisis de reputación social"
                         checked={formData.includeReputation}
                         onChange={(e) => handleInputChange('includeReputation', e.target.checked)}
                         className="rounded border-gray-300"
@@ -226,6 +231,7 @@ export default function AuthorityTrackingPage() {
                       <input
                         type="checkbox"
                         id="includeInfluence"
+                        title="Incluir análisis de influencia técnica"
                         checked={formData.includeInfluence}
                         onChange={(e) => handleInputChange('includeInfluence', e.target.checked)}
                         className="rounded border-gray-300"

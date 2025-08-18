@@ -346,7 +346,8 @@ export function Web3Search({
       {/* Resultados de búsqueda */}
       {isOpen && (
         <Card className="absolute top-full left-0 right-0 mt-2 z-50 shadow-xl border-2">
-          <CardContent className="p-0 max-h-96 overflow-y-auto" ref={resultsRef}>
+          <CardContent className="p-0">
+            <div className="max-h-96 overflow-y-auto" ref={resultsRef}>
             
             {/* Cargando */}
             {isLoading && (
@@ -360,7 +361,7 @@ export function Web3Search({
             {!isLoading && query.trim() && results.length === 0 && (
               <div className="p-4 text-center text-gray-500">
                 <Search className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-                <p>No se encontraron resultados para "{query}"</p>
+                <p>No se encontraron resultados para &quot;{query}&quot;</p>
                 <p className="text-sm mt-1">Intenta con una dirección Web3 o dominio ENS</p>
               </div>
             )}
@@ -556,6 +557,7 @@ export function Web3Search({
                 })}
               </div>
             )}
+            </div>
           </CardContent>
         </Card>
       )}

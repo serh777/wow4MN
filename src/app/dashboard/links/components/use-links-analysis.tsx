@@ -45,6 +45,7 @@ interface LinkResults {
 export function useLinksAnalysis() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<LinkResults | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { notifyAnalysisStarted, notifyAnalysisCompleted, notifyAnalysisError } = useAnalysisNotifications();
 
@@ -190,8 +191,9 @@ export function useLinksAnalysis() {
         router.push('/dashboard/links/analysis-results');
       }, 2000);
       
-    } catch (error) {
-      console.error('Error en análisis de enlaces:', error);
+    } catch (err) {
+      console.error('Error en análisis de enlaces:', err);
+      setError('Error al realizar el análisis de enlaces');
       notifyAnalysisError('Enlaces', 'Error al realizar el análisis de enlaces');
     } finally {
       setLoading(false);
@@ -201,6 +203,7 @@ export function useLinksAnalysis() {
   return {
     loading,
     results,
+    error,
     handleSubmit
   };
 }

@@ -12,7 +12,7 @@ import {
   AreaChart, Area
 } from 'recharts';
 import { 
-  Cube, Gamepad2, Eye, Zap, Globe, Activity, 
+  Box, Gamepad2, Eye, Zap, Globe, Activity, 
   Download, Share2, ArrowUp, ArrowDown, Minus,
   CheckCircle, AlertTriangle, Info, Target, Monitor, Users, Image,
   Clock, Cpu, Palette, Navigation
@@ -153,13 +153,30 @@ export default function MetaverseOptimizerResults() {
   }, []);
 
   const exportResults = () => {
-    const dataStr = JSON.stringify(results, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `metaverse-optimization-${Date.now()}.json`;
-    link.click();
+    try {
+      // Crear un replacer para evitar referencias circulares
+      const seen = new WeakSet();
+      const replacer = (key: string, value: any) => {
+        if (typeof value === "object" && value !== null) {
+          if (seen.has(value)) {
+            return "[Circular Reference]"; // Reemplazar referencias circulares
+          }
+          seen.add(value);
+        }
+        return value;
+      };
+      
+      const dataStr = JSON.stringify(results, replacer, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `metaverse-optimization-${Date.now()}.json`;
+      link.click();
+    } catch (error) {
+      console.error('Error exporting results:', error);
+      alert('Error al exportar los resultados. Por favor, inténtalo de nuevo.');
+    }
   };
 
   const shareResults = async () => {
@@ -219,7 +236,7 @@ export default function MetaverseOptimizerResults() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg">
-            <Cube className="h-6 w-6 text-white" />
+            <Box className="h-6 w-6 text-white" />
           </div>
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">
@@ -382,12 +399,12 @@ export default function MetaverseOptimizerResults() {
               <p className="text-sm text-muted-foreground">Draw Calls</p>
             </div>
             <div className="text-center">
-              <Cube className="h-8 w-8 mx-auto mb-2 text-cyan-500" />
+              <Box className="h-8 w-8 mx-auto mb-2 text-cyan-500" />
               <div className="text-2xl font-bold">{results.performanceData.polygonCount.toLocaleString()}</div>
               <p className="text-sm text-muted-foreground">Polígonos</p>
             </div>
             <div className="text-center">
-              <Image className="h-8 w-8 mx-auto mb-2 text-pink-500" />
+              <Image className="h-8 w-8 mx-auto mb-2 text-pink-500" aria-label="Texture icon" />
               <div className="text-2xl font-bold">{results.performanceData.textureSize}MB</div>
               <p className="text-sm text-muted-foreground">Texturas</p>
             </div>
@@ -491,7 +508,10 @@ export default function MetaverseOptimizerResults() {
             <div className="grid grid-cols-2 gap-2 mt-4">
               {results.deviceDistribution.map((item: any, index: number) => (
                 <div key={index} className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
+                  <div 
+                    className="device-indicator" 
+                    style={{ '--indicator-color': item.color } as React.CSSProperties}
+                  ></div>
                   <span className="text-sm">{item.name}: {item.value}%</span>
                 </div>
               ))}

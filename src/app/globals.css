@@ -26,6 +26,14 @@
     --radius: 0.5rem;
   }
 
+/* Device indicator for charts */
+.device-indicator {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 9999px;
+  background-color: var(--indicator-color, #ccc);
+}
+
   .dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
@@ -267,4 +275,102 @@
 .resizable-container {
   height: auto;
 }
+
+/* Metaverse Optimizer Styles */
+.metaverse-header-icon {
+  @apply p-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg;
+}
+
+.metaverse-header-title {
+  @apply text-3xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent;
+}
+
+.metaverse-analyze-button {
+  @apply bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-8 py-3 text-lg;
+}
+
+.metaverse-checkbox {
+  @apply rounded border-gray-300;
+}
+
+/* Ecosystem Interactions Styles */
+.ecosystem-header-icon {
+  @apply p-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg;
+}
+
+.ecosystem-header-title {
+  @apply text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent;
+}
+
+/* Animaciones personalizadas para barras de progreso */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes progressFill {
+  0% {
+    width: 0%;
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes progressGlow {
+  0% {
+    box-shadow: 0 0 5px currentColor;
+  }
+  100% {
+    box-shadow: 0 0 20px currentColor, 0 0 30px currentColor;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+.animate-progress-fill {
+  animation: progressFill 2s ease-out forwards;
+}
+
+.animate-progress-glow {
+  animation: progressGlow 2s ease-in-out infinite alternate;
+}
+
+.ecosystem-header-title {
+  @apply text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent;
+}
+
+.ecosystem-analyze-button {
+  @apply bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white px-8 py-3 text-lg;
+}
+
+.ecosystem-checkbox {
+  @apply rounded border-gray-300;
+}
+
+/* Content Authenticity Styles */
+.authenticity-header-icon {
+  @apply p-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg;
+}
+
+.authenticity-header-title {
+  @apply text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent;
+}
+
+.authenticity-analyze-button {
+  @apply bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-8 py-3 text-lg;
+}
+
+.authenticity-checkbox {
+  @apply rounded border-gray-300;
+}
+
+
 }

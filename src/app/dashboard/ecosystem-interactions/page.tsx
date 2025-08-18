@@ -98,11 +98,11 @@ export default function EcosystemInteractionsPage() {
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg">
+        <div className="ecosystem-header-icon">
           <Network className="h-6 w-6 text-white" />
         </div>
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="ecosystem-header-title">
             Analizador de Interacciones en Ecosistemas
           </h1>
           <p className="text-muted-foreground">
@@ -223,9 +223,10 @@ export default function EcosystemInteractionsPage() {
                       <input
                         type="checkbox"
                         id="includeTransactions"
+                        title="Incluir análisis de transacciones on-chain"
                         checked={formData.includeTransactions}
                         onChange={(e) => handleInputChange('includeTransactions', e.target.checked)}
-                        className="rounded border-gray-300"
+                        className="ecosystem-checkbox"
                       />
                       <Label htmlFor="includeTransactions" className="text-sm">
                         Transacciones On-Chain
@@ -236,9 +237,10 @@ export default function EcosystemInteractionsPage() {
                       <input
                         type="checkbox"
                         id="includeProtocols"
+                        title="Incluir análisis de interacciones con protocolos"
                         checked={formData.includeProtocols}
                         onChange={(e) => handleInputChange('includeProtocols', e.target.checked)}
-                        className="rounded border-gray-300"
+                        className="ecosystem-checkbox"
                       />
                       <Label htmlFor="includeProtocols" className="text-sm">
                         Interacciones con Protocolos
@@ -249,9 +251,10 @@ export default function EcosystemInteractionsPage() {
                       <input
                         type="checkbox"
                         id="includeSocial"
+                        title="Incluir análisis de actividad social"
                         checked={formData.includeSocial}
                         onChange={(e) => handleInputChange('includeSocial', e.target.checked)}
-                        className="rounded border-gray-300"
+                        className="ecosystem-checkbox"
                       />
                       <Label htmlFor="includeSocial" className="text-sm">
                         Actividad Social
@@ -262,9 +265,10 @@ export default function EcosystemInteractionsPage() {
                       <input
                         type="checkbox"
                         id="includeGovernance"
+                        title="Incluir análisis de participación en gobernanza"
                         checked={formData.includeGovernance}
                         onChange={(e) => handleInputChange('includeGovernance', e.target.checked)}
-                        className="rounded border-gray-300"
+                        className="ecosystem-checkbox"
                       />
                       <Label htmlFor="includeGovernance" className="text-sm">
                         Participación en Gobernanza
@@ -275,9 +279,10 @@ export default function EcosystemInteractionsPage() {
                       <input
                         type="checkbox"
                         id="includeNFTs"
+                        title="Incluir análisis de trading de NFTs"
                         checked={formData.includeNFTs}
                         onChange={(e) => handleInputChange('includeNFTs', e.target.checked)}
-                        className="rounded border-gray-300"
+                        className="ecosystem-checkbox"
                       />
                       <Label htmlFor="includeNFTs" className="text-sm">
                         Trading de NFTs
@@ -293,7 +298,7 @@ export default function EcosystemInteractionsPage() {
             <Button 
               onClick={handleAnalyze}
               disabled={isAnalyzing || !formData.walletAddress}
-              className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white px-8 py-3 text-lg"
+              className="ecosystem-analyze-button"
             >
               {isAnalyzing ? (
                 <>

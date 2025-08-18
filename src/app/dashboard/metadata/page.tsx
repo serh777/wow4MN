@@ -227,7 +227,7 @@ export default function MetadataToolPage() {
                 <div className="text-sm text-green-600">
                   Si no eres redirigido automáticamente, 
                   <a 
-                    href={`/dashboard/metadata/results?address=${formData.contractAddress}&blockchain=${formData.blockchain}`}
+                    href={`/dashboard/metadata/analysis-results?address=${formData.contractAddress}&blockchain=${formData.blockchain}`}
                     className="underline font-medium hover:text-green-800"
                   >
                     haz clic aquí

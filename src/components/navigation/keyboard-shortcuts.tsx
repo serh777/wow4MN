@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -36,7 +36,7 @@ export function KeyboardShortcuts({
   const router = useRouter();
 
   // Definir atajos de teclado
-  const shortcuts: KeyboardShortcut[] = [
+  const shortcuts: KeyboardShortcut[] = useMemo(() => [
     // Navegación
     {
       key: 'Ctrl+H',
@@ -135,7 +135,7 @@ export function KeyboardShortcuts({
       category: 'general',
       icon: X
     }
-  ];
+  ], [router, onSearchFocus, onQuickAccessOpen, onSettingsOpen, setIsHelpOpen]);
 
   // Manejar teclas presionadas
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
@@ -178,7 +178,7 @@ export function KeyboardShortcuts({
       setPressedKeys(new Set([combination]));
       setTimeout(() => setPressedKeys(new Set()), 200);
     }
-  }, [shortcuts, router, onSearchFocus, onQuickAccessOpen, onSettingsOpen]);
+  }, [shortcuts]);
 
   // Registrar event listeners
   useEffect(() => {

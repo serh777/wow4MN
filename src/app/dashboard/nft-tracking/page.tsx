@@ -231,6 +231,7 @@ export default function NFTTrackingPage() {
                       <input
                         type="checkbox"
                         id="includePrice"
+                        title="Incluir análisis de precio del NFT"
                         checked={formData.includePrice}
                         onChange={(e) => handleInputChange('includePrice', e.target.checked)}
                         className="rounded border-gray-300"
@@ -244,6 +245,7 @@ export default function NFTTrackingPage() {
                       <input
                         type="checkbox"
                         id="includeRarity"
+                        title="Incluir análisis de rareza del NFT"
                         checked={formData.includeRarity}
                         onChange={(e) => handleInputChange('includeRarity', e.target.checked)}
                         className="rounded border-gray-300"
@@ -257,6 +259,7 @@ export default function NFTTrackingPage() {
                       <input
                         type="checkbox"
                         id="includeHistory"
+                        title="Incluir historial de transacciones del NFT"
                         checked={formData.includeHistory}
                         onChange={(e) => handleInputChange('includeHistory', e.target.checked)}
                         className="rounded border-gray-300"
@@ -270,6 +273,7 @@ export default function NFTTrackingPage() {
                       <input
                         type="checkbox"
                         id="includeMarketplace"
+                        title="Incluir análisis de marketplace del NFT"
                         checked={formData.includeMarketplace}
                         onChange={(e) => handleInputChange('includeMarketplace', e.target.checked)}
                         className="rounded border-gray-300"

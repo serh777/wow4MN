@@ -238,47 +238,25 @@ export function AnalysisResults({
 
   return (
     <div className="space-y-6">
-      {/* Resumen Ejecutivo */}
+      {/* Puntuación General - Movida al inicio */}
       {specialResults && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-blue-600" />
-                Resumen Ejecutivo
-              </CardTitle>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => response && copyToClipboard(response)}
-                >
-                  <Copy className="h-4 w-4 mr-1" />
-                  Copiar
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => response && downloadReport(response, `analisis-ia-${Date.now()}.md`)}
-                >
-                  <Download className="h-4 w-4 mr-1" />
-                  Descargar
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div className={`p-4 rounded-lg ${getScoreBgColor(specialResults.overallScore)}`}>
-                <div className="text-center">
-                  <div className={`text-3xl font-bold ${getScoreColor(specialResults.overallScore)}`}>
-                    {specialResults.overallScore}
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Puntuación General</div>
+        <Card className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950 dark:via-indigo-950 dark:to-purple-950 border-blue-200 dark:border-blue-800">
+          <CardContent className="pt-6">
+            <div className="text-center mb-6">
+              <div className="relative inline-block">
+                <div className={`text-6xl font-bold bg-gradient-to-r ${getProgressBarGradient(specialResults.overallScore)} bg-clip-text text-transparent animate-pulse`}>
+                  {specialResults.overallScore}
+                </div>
+                <div className="absolute -top-2 -right-2">
+                  <div className="w-4 h-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-bounce"></div>
                 </div>
               </div>
-              
-              <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+              <div className="text-xl font-semibold text-gray-700 dark:text-gray-300 mt-2">Puntuación General</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">Análisis IA Completo</div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 rounded-lg bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
                 <div className="text-center">
                   <Badge className={getRiskLevelColor(specialResults.riskLevel)}>
                     {specialResults.riskLevel}
@@ -287,14 +265,35 @@ export function AnalysisResults({
                 </div>
               </div>
               
-              <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+              <div className="p-4 rounded-lg bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">
+                  <div className="text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
                     +{specialResults.predictions.trafficGrowth}%
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">Crecimiento Proyectado</div>
                 </div>
               </div>
+            </div>
+            
+            <div className="flex justify-center gap-2 mt-6">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => response && copyToClipboard(response)}
+                className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm"
+              >
+                <Copy className="h-4 w-4 mr-1" />
+                Copiar
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => response && downloadReport(response, `analisis-ia-${Date.now()}.md`)}
+                className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm"
+              >
+                <Download className="h-4 w-4 mr-1" />
+                Descargar
+              </Button>
             </div>
           </CardContent>
         </Card>

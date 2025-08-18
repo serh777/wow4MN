@@ -10,7 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { Loader2 } from 'lucide-react';
 
 export default function SecurityAuditPage() {
-  const { loading, results, error, progress: analysisProgress, handleSubmit } = useSecurityAnalysis();
+  const { loading, results, handleSubmit } = useSecurityAnalysis();
 
   const hasResults = results;
 
@@ -31,11 +31,11 @@ export default function SecurityAuditPage() {
                 <div className="flex items-center gap-3 mb-4">
                   <Loader2 className="h-5 w-5 animate-spin" />
                   <div className="space-y-1">
-                    <span className="text-sm font-medium">{analysisProgress?.currentStep || 'Analizando seguridad...'}</span>
-                    <p className="text-xs text-muted-foreground">{analysisProgress?.message || 'Ejecutando verificaciones de seguridad'}</p>
+                    <span className="text-sm font-medium">Analizando seguridad...</span>
+                    <p className="text-xs text-muted-foreground">Ejecutando verificaciones de seguridad</p>
                   </div>
                 </div>
-                <Progress value={analysisProgress?.percentage || 0} className="w-full" />
+                <Progress value={0} className="w-full" />
                 <p className="text-sm text-muted-foreground mt-2">
                   Se redirigirá automáticamente a los resultados.
                 </p>
@@ -43,16 +43,7 @@ export default function SecurityAuditPage() {
             </Card>
           )}
           
-          {/* Error */}
-          {error && !loading && (
-            <Card>
-              <CardContent className="p-6">
-                <div className="text-center text-red-600">
-                  <p>Error en el análisis: {error}</p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+
           
           {/* Mostrar mensaje de éxito y redirección */}
           {hasResults && (

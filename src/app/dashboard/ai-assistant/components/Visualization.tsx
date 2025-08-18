@@ -439,6 +439,133 @@ export function Visualization({ specialResults, indexerResults, analysisType }: 
         </CardContent>
       </Card>
 
+      {/* Evolución de Auditoría */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5 text-blue-600" />
+            Evolución de Auditoría
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={[
+                { dia: 'Día 1', score: 45, vulnerabilidades: 12 },
+                { dia: 'Día 7', score: 52, vulnerabilidades: 10 },
+                { dia: 'Día 14', score: 61, vulnerabilidades: 8 },
+                { dia: 'Día 21', score: 73, vulnerabilidades: 5 },
+                { dia: 'Día 30', score: specialResults.overallScore, vulnerabilidades: specialResults.vulnerabilities.length }
+              ]}>
+                <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                <XAxis dataKey="dia" className="text-xs" />
+                <YAxis yAxisId="left" domain={[0, 100]} className="text-xs" />
+                <YAxis yAxisId="right" orientation="right" domain={[0, 15]} className="text-xs" />
+                <Tooltip 
+                  formatter={(value, name) => [
+                    name === 'score' ? `${value}%` : value,
+                    name === 'score' ? 'Puntuación de Seguridad' : 'Vulnerabilidades'
+                  ]}
+                  labelStyle={{ color: '#374151' }}
+                  contentStyle={{ 
+                    backgroundColor: '#F9FAFB', 
+                    border: '1px solid #E5E7EB',
+                    borderRadius: '6px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                  animationDuration={300}
+                />
+                <Line 
+                  yAxisId="left"
+                  type="monotone" 
+                  dataKey="score" 
+                  stroke="#10B981" 
+                  strokeWidth={3}
+                  dot={{ fill: '#10B981', strokeWidth: 2, r: 5, className: 'animate-pulse' }}
+                  activeDot={{ r: 7, className: 'animate-ping' }}
+                  strokeDasharray="0"
+                  animationDuration={2000}
+                  animationBegin={0}
+                />
+                <Line 
+                  yAxisId="right"
+                  type="monotone" 
+                  dataKey="vulnerabilidades" 
+                  stroke="#EF4444" 
+                  strokeWidth={3}
+                  dot={{ fill: '#EF4444', strokeWidth: 2, r: 5, className: 'animate-pulse' }}
+                  activeDot={{ r: 7, className: 'animate-ping' }}
+                  strokeDasharray="5 5"
+                  animationDuration={2000}
+                  animationBegin={500}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Distribución de Autoridad */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="h-5 w-5 text-purple-600" />
+            Distribución de Autoridad
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={[
+                    { name: 'Contratos Principales', value: 35, color: '#8B5CF6' },
+                    { name: 'Governance Tokens', value: 25, color: '#10B981' },
+                    { name: 'Staking Pools', value: 20, color: '#3B82F6' },
+                    { name: 'Treasury', value: 12, color: '#F59E0B' },
+                    { name: 'Otros', value: 8, color: '#EF4444' }
+                  ]}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`}
+                  outerRadius={100}
+                  innerRadius={40}
+                  fill="#8884d8"
+                  dataKey="value"
+                  animationBegin={0}
+                  animationDuration={1500}
+                >
+                  {[
+                    { name: 'Contratos Principales', value: 35, color: '#8B5CF6' },
+                    { name: 'Governance Tokens', value: 25, color: '#10B981' },
+                    { name: 'Staking Pools', value: 20, color: '#3B82F6' },
+                    { name: 'Treasury', value: 12, color: '#F59E0B' },
+                    { name: 'Otros', value: 8, color: '#EF4444' }
+                  ].map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={entry.color}
+                      className="hover:opacity-80 transition-opacity duration-300"
+                    />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  formatter={(value) => [`${value}%`, 'Distribución']}
+                  labelStyle={{ color: '#374151' }}
+                  contentStyle={{ 
+                    backgroundColor: '#F9FAFB', 
+                    border: '1px solid #E5E7EB',
+                    borderRadius: '6px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Tendencias del Mercado */}
       <Card>
         <CardHeader>

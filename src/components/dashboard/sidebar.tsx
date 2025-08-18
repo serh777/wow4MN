@@ -143,15 +143,92 @@ export function Sidebar() {
                 <span>Análisis Blockchain</span>
               </Link>
               <Link
-                href="/dashboard/security"
+                href="/dashboard/smart-contract"
                 className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/security') 
+                  isActive('/dashboard/smart-contract') 
                     ? 'bg-primary/10 text-primary' 
                     : 'hover:bg-primary/10'
                 }`}
               >
-                <IconWrapper icon="shield" className="h-4 w-4" />
-                <span>Auditoría de Seguridad</span>
+                <IconWrapper icon="cpu" className="h-4 w-4" />
+                <span>Smart Contract</span>
+              </Link>
+              <Link
+                href="/dashboard/authority-tracking"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
+                  isActive('/dashboard/authority-tracking') 
+                    ? 'bg-primary/10 text-primary' 
+                    : 'hover:bg-primary/10'
+                }`}
+              >
+                <IconWrapper icon="award" className="h-4 w-4" />
+                <span>Autoridad Descentralizada</span>
+              </Link>
+              <Link
+                href="/dashboard/nft-tracking"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
+                  isActive('/dashboard/nft-tracking') 
+                    ? 'bg-primary/10 text-primary' 
+                    : 'hover:bg-primary/10'
+                }`}
+              >
+                <IconWrapper icon="gem" className="h-4 w-4" />
+                <span>NFT Tracking</span>
+              </Link>
+              <Link
+                href="/dashboard/ecosystem-interactions"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
+                  isActive('/dashboard/ecosystem-interactions') 
+                    ? 'bg-primary/10 text-primary' 
+                    : 'hover:bg-primary/10'
+                }`}
+              >
+                <IconWrapper icon="network" className="h-4 w-4" />
+                <span>Interacciones Ecosistema</span>
+              </Link>
+              <Link
+                href="/dashboard/smart-contract"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
+                  isActive('/dashboard/smart-contract') 
+                    ? 'bg-primary/10 text-primary' 
+                    : 'hover:bg-primary/10'
+                }`}
+              >
+                <IconWrapper icon="cpu" className="h-4 w-4" />
+                <span>Smart Contract</span>
+              </Link>
+              <Link
+                href="/dashboard/authority-tracking"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
+                  isActive('/dashboard/authority-tracking') 
+                    ? 'bg-primary/10 text-primary' 
+                    : 'hover:bg-primary/10'
+                }`}
+              >
+                <IconWrapper icon="award" className="h-4 w-4" />
+                <span>Autoridad Descentralizada</span>
+              </Link>
+              <Link
+                href="/dashboard/nft-tracking"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
+                  isActive('/dashboard/nft-tracking') 
+                    ? 'bg-primary/10 text-primary' 
+                    : 'hover:bg-primary/10'
+                }`}
+              >
+                <IconWrapper icon="gem" className="h-4 w-4" />
+                <span>NFT Tracking</span>
+              </Link>
+              <Link
+                href="/dashboard/ecosystem-interactions"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
+                  isActive('/dashboard/ecosystem-interactions') 
+                    ? 'bg-primary/10 text-primary' 
+                    : 'hover:bg-primary/10'
+                }`}
+              >
+                <IconWrapper icon="network" className="h-4 w-4" />
+                <span>Interacciones Ecosistema</span>
               </Link>
               <Link
                 href="/dashboard/social-web3"
@@ -163,6 +240,53 @@ export function Sidebar() {
               >
                 <IconWrapper icon="social" className="h-4 w-4" />
                 <span>Social Web3</span>
+              </Link>
+            </div>
+          </div>
+
+          {/* Herramientas de Seguridad */}
+          <div className="mt-6">
+            <h4 className="mb-2 px-4 text-xs font-semibold text-muted-foreground">Seguridad</h4>
+            <div className="grid gap-1">
+              <Link
+                href="/dashboard/security"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
+                  isActive('/dashboard/security') 
+                    ? 'bg-primary/10 text-primary' 
+                    : 'hover:bg-primary/10'
+                }`}
+              >
+                <IconWrapper icon="shield" className="h-4 w-4" />
+                <span>Auditoría de Seguridad</span>
+              </Link>
+              <Link
+                href="/dashboard/content-authenticity"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
+                  isActive('/dashboard/content-authenticity') 
+                    ? 'bg-primary/10 text-primary' 
+                    : 'hover:bg-primary/10'
+                }`}
+              >
+                <IconWrapper icon="lock" className="h-4 w-4" />
+                <span>Autenticidad</span>
+              </Link>
+            </div>
+          </div>
+
+          {/* Herramientas de Metaverso */}
+          <div className="mt-6">
+            <h4 className="mb-2 px-4 text-xs font-semibold text-muted-foreground">Metaverso</h4>
+            <div className="grid gap-1">
+              <Link
+                href="/dashboard/metaverse-optimizer"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
+                  isActive('/dashboard/metaverse-optimizer') 
+                    ? 'bg-primary/10 text-primary' 
+                    : 'hover:bg-primary/10'
+                }`}
+              >
+                <IconWrapper icon="palette" className="h-4 w-4" />
+                <span>Optimizador Metaverso</span>
               </Link>
             </div>
           </div>
@@ -181,6 +305,24 @@ export function Sidebar() {
               >
                 <IconWrapper icon="ai" className="h-4 w-4" />
                 <span>Asistente IA Web3</span>
+              </Link>
+            </div>
+          </div>
+
+          {/* Herramientas de Análisis Histórico */}
+          <div className="mt-6">
+            <h4 className="mb-2 px-4 text-xs font-semibold text-muted-foreground">Análisis Histórico</h4>
+            <div className="grid gap-1">
+              <Link
+                href="/dashboard/historical"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
+                  isActive('/dashboard/historical') 
+                    ? 'bg-primary/10 text-primary' 
+                    : 'hover:bg-primary/10'
+                }`}
+              >
+                <IconWrapper icon="activity" className="h-4 w-4" />
+                <span>Análisis Histórico</span>
               </Link>
             </div>
           </div>

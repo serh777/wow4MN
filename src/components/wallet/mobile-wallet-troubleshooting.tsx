@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -30,7 +30,7 @@ export function MobileWalletTroubleshooting() {
   const [tests, setTests] = useState<DiagnosticTest[]>([]);
   const [isRunning, setIsRunning] = useState(false);
 
-  const runDiagnostics = async () => {
+  const runDiagnostics = useCallback(async () => {
     setIsRunning(true);
     const diagnosticTests: DiagnosticTest[] = [];
 
@@ -109,11 +109,11 @@ export function MobileWalletTroubleshooting() {
 
     setTests(diagnosticTests);
     setIsRunning(false);
-  };
+  }, [isMobile, detectedWallets, detectUserAgent]);
 
   useEffect(() => {
     runDiagnostics();
-  }, [isMobile, hasWalletApp, detectedWallets]);
+  }, [isMobile, hasWalletApp, detectedWallets, runDiagnostics]);
 
   const getStatusIcon = (status: DiagnosticTest['status']) => {
     switch (status) {

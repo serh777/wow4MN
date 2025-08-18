@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { IconWrapper } from '@/components/ui/icon-wrapper';
 import { useRouter } from 'next/navigation';
 import { 
-  Cube, 
+  Box, 
   Gamepad2, 
   Eye, 
   CheckCircle, 
@@ -107,11 +107,11 @@ export default function MetaverseOptimizerPage() {
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg">
-          <Cube className="h-6 w-6 text-white" />
+        <div className="metaverse-header-icon">
+          <Box className="h-6 w-6 text-white" />
         </div>
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">
+          <h1 className="metaverse-header-title">
             Optimizador de Contenido para Metaversos
           </h1>
           <p className="text-muted-foreground">
@@ -241,9 +241,10 @@ export default function MetaverseOptimizerPage() {
                       <input
                         type="checkbox"
                         id="includeVR"
+                        title="Incluir optimización para Realidad Virtual (VR)"
                         checked={formData.includeVR}
                         onChange={(e) => handleInputChange('includeVR', e.target.checked)}
-                        className="rounded border-gray-300"
+                        className="metaverse-checkbox"
                       />
                       <Label htmlFor="includeVR" className="text-sm">
                         Realidad Virtual (VR)
@@ -254,9 +255,10 @@ export default function MetaverseOptimizerPage() {
                       <input
                         type="checkbox"
                         id="includeAR"
+                        title="Incluir optimización para Realidad Aumentada (AR)"
                         checked={formData.includeAR}
                         onChange={(e) => handleInputChange('includeAR', e.target.checked)}
-                        className="rounded border-gray-300"
+                        className="metaverse-checkbox"
                       />
                       <Label htmlFor="includeAR" className="text-sm">
                         Realidad Aumentada (AR)
@@ -267,9 +269,10 @@ export default function MetaverseOptimizerPage() {
                       <input
                         type="checkbox"
                         id="include3D"
+                        title="Incluir optimización para Modelos 3D"
                         checked={formData.include3D}
                         onChange={(e) => handleInputChange('include3D', e.target.checked)}
-                        className="rounded border-gray-300"
+                        className="metaverse-checkbox"
                       />
                       <Label htmlFor="include3D" className="text-sm">
                         Modelos 3D
@@ -280,9 +283,10 @@ export default function MetaverseOptimizerPage() {
                       <input
                         type="checkbox"
                         id="includeInteractivity"
+                        title="Incluir optimización para Interactividad"
                         checked={formData.includeInteractivity}
                         onChange={(e) => handleInputChange('includeInteractivity', e.target.checked)}
-                        className="rounded border-gray-300"
+                        className="metaverse-checkbox"
                       />
                       <Label htmlFor="includeInteractivity" className="text-sm">
                         Interactividad
@@ -298,7 +302,7 @@ export default function MetaverseOptimizerPage() {
             <Button 
               onClick={handleAnalyze}
               disabled={isAnalyzing || !formData.contentUrl}
-              className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-8 py-3 text-lg"
+              className="metaverse-analyze-button"
             >
               {isAnalyzing ? (
                 <>
@@ -307,7 +311,7 @@ export default function MetaverseOptimizerPage() {
                 </>
               ) : (
                 <>
-                  <Cube className="mr-2 h-5 w-5" />
+                  <Box className="mr-2 h-5 w-5" />
                   Optimizar para Metaverso
                 </>
               )}

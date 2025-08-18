@@ -46,7 +46,7 @@ export function useSuperUser() {
     );
 
     return () => subscription.unsubscribe();
-  }, [supabase.auth]);
+  }, []);
 
   const isAuthenticated = !!user;
   const isSuperUser = user?.email === SUPERUSER_EMAIL;

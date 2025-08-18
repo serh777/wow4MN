@@ -294,7 +294,7 @@ export function ProjectManager({ onProjectSelect, onTemplateApply, className = "
       {/* Tabs */}
       <div className="flex items-center gap-4 border-b">
         <Button
-          variant={activeTab === 'projects' ? 'default' : 'ghost'}
+          variant={activeTab === 'projects' ? 'primary' : 'ghost'}
           onClick={() => setActiveTab('projects')}
           className="flex items-center gap-2"
         >
@@ -302,7 +302,7 @@ export function ProjectManager({ onProjectSelect, onTemplateApply, className = "
           Proyectos ({projects.length})
         </Button>
         <Button
-          variant={activeTab === 'templates' ? 'default' : 'ghost'}
+          variant={activeTab === 'templates' ? 'primary' : 'ghost'}
           onClick={() => setActiveTab('templates')}
           className="flex items-center gap-2"
         >
@@ -551,7 +551,7 @@ export function ProjectManager({ onProjectSelect, onTemplateApply, className = "
                   
                   <div className="flex items-center justify-between">
                     <Button
-                      variant="default"
+                      variant="primary"
                       size="sm"
                       onClick={() => handleApplyTemplate(template)}
                       className="flex items-center gap-2"

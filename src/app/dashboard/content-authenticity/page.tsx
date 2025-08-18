@@ -99,11 +99,11 @@ export default function ContentAuthenticityPage() {
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg">
+        <div className="content-auth-header-icon">
           <ShieldCheck className="h-6 w-6 text-white" />
         </div>
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+          <h1 className="content-auth-header-title">
             Verificador de Autenticidad de Contenido
           </h1>
           <p className="text-muted-foreground">
@@ -236,9 +236,10 @@ export default function ContentAuthenticityPage() {
                       <input
                         type="checkbox"
                         id="includeMetadata"
+                        title="Incluir análisis de metadatos del contenido"
                         checked={formData.includeMetadata}
                         onChange={(e) => handleInputChange('includeMetadata', e.target.checked)}
-                        className="rounded border-gray-300"
+                        className="content-auth-checkbox"
                       />
                       <Label htmlFor="includeMetadata" className="text-sm">
                         Verificar Metadatos
@@ -249,9 +250,10 @@ export default function ContentAuthenticityPage() {
                       <input
                         type="checkbox"
                         id="includeProvenance"
+                        title="Incluir verificación de procedencia del contenido"
                         checked={formData.includeProvenance}
                         onChange={(e) => handleInputChange('includeProvenance', e.target.checked)}
-                        className="rounded border-gray-300"
+                        className="content-auth-checkbox"
                       />
                       <Label htmlFor="includeProvenance" className="text-sm">
                         Verificar Procedencia
@@ -262,9 +264,10 @@ export default function ContentAuthenticityPage() {
                       <input
                         type="checkbox"
                         id="includeOwnership"
+                        title="Incluir verificación de propiedad del contenido"
                         checked={formData.includeOwnership}
                         onChange={(e) => handleInputChange('includeOwnership', e.target.checked)}
-                        className="rounded border-gray-300"
+                        className="content-auth-checkbox"
                       />
                       <Label htmlFor="includeOwnership" className="text-sm">
                         Verificar Propiedad
@@ -275,9 +278,10 @@ export default function ContentAuthenticityPage() {
                       <input
                         type="checkbox"
                         id="includeIntegrity"
+                        title="Incluir verificación de integridad del contenido"
                         checked={formData.includeIntegrity}
                         onChange={(e) => handleInputChange('includeIntegrity', e.target.checked)}
-                        className="rounded border-gray-300"
+                        className="content-auth-checkbox"
                       />
                       <Label htmlFor="includeIntegrity" className="text-sm">
                         Verificar Integridad
@@ -293,7 +297,7 @@ export default function ContentAuthenticityPage() {
             <Button 
               onClick={handleAnalyze}
               disabled={isAnalyzing || !formData.contentUrl}
-              className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-8 py-3 text-lg"
+              className="content-auth-analyze-button"
             >
               {isAnalyzing ? (
                 <>

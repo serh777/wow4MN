@@ -21,7 +21,7 @@ import { ProjectManager } from '@/components/projects/project-manager';
 import { UnifiedWalletConnect } from '@/components/wallet/unified-wallet-connect';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWeb3 } from '@/contexts/Web3Context';
-import { useIndexerOrchestrator, useIndexerStatus } from '@/hooks/useIndexerOrchestrator';
+import { useIndexerOrchestrator, useIndexerStatus, IndexerRequirement } from '@/hooks/useIndexerOrchestrator';
 import { IndexerStatusCard } from '@/components/dashboard/indexer-status-card';
 import { useRouter } from 'next/navigation';
 import { 
@@ -186,6 +186,15 @@ const AVAILABLE_TOOLS = [
     category: 'Web3',
     color: 'from-indigo-500 to-blue-500',
     price: 9
+  },
+  {
+    id: 'historical',
+    name: 'Análisis Histórico',
+    description: 'Análisis de evolución temporal de proyectos',
+    icon: Activity,
+    category: 'Technical',
+    color: 'from-slate-500 to-gray-500',
+    price: 8
   }
 ];
 
@@ -218,10 +227,12 @@ export default function DashboardPage() {
   const [showSystemStatus, setShowSystemStatus] = useState(false);
   const [showProjectManager, setShowProjectManager] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [isCompleteAudit, setIsCompleteAudit] = useState<boolean>(false);
   
   // Estados para validación Web3
   const [addressError, setAddressError] = useState<string>('');
   const [isValidatingAddress, setIsValidatingAddress] = useState<boolean>(false);
+  const [isActivating, setIsActivating] = useState<boolean>(false);
 
   // Integración del indexador
   const {
@@ -241,33 +252,52 @@ export default function DashboardPage() {
     totalDataPoints
   } = useIndexerStatus(selectedTools, address);
 
+  // Función para activar indexadores
+  const handleActivateIndexers = async () => {
+    setIsActivating(true);
+    try {
+      await activateIndexersForAnalysis(selectedTools, address);
+      await checkStatus();
+    } catch (error) {
+      console.error('Error activating indexers:', error);
+    } finally {
+      setIsActivating(false);
+    }
+  };
+
+  // Estado del indexador
+  const [requiredIndexers, setRequiredIndexers] = useState<IndexerRequirement[]>([]);
+  
+  useEffect(() => {
+    const loadRequiredIndexers = async () => {
+      try {
+        const required = await getRequiredIndexers(selectedTools);
+        setRequiredIndexers(required);
+      } catch (error) {
+        console.error('Error loading required indexers:', error);
+      }
+    };
+    
+    if (selectedTools.length > 0) {
+      loadRequiredIndexers();
+    }
+  }, [selectedTools, getRequiredIndexers]);
+  
+  const indexerState = {
+    required: requiredIndexers,
+    active: dataAvailability?.activeIndexers || [],
+    progress: dataAvailability?.progress || {},
+    dataReady: isDataReady,
+    isActivating,
+    error: null
+  };
+
   // Verificar autenticación
   useEffect(() => {
     if (!loading && !user) {
       router.push('/auth/email-login');
     }
   }, [user, loading, router]);
-
-  // Sincronizar dirección de wallet conectada
-  useEffect(() => {
-    if (isConnected && walletAddress && !address) {
-      setAddress(walletAddress);
-      validateWeb3Address(walletAddress);
-    }
-  }, [isConnected, walletAddress, address]);
-
-  // Cargar estado del sidebar desde localStorage
-  useEffect(() => {
-    const savedSidebarState = localStorage.getItem('dashboard_sidebar_collapsed');
-    if (savedSidebarState) {
-      setIsSidebarCollapsed(JSON.parse(savedSidebarState));
-    }
-  }, []);
-
-  // Guardar estado del sidebar en localStorage
-  useEffect(() => {
-    localStorage.setItem('dashboard_sidebar_collapsed', JSON.stringify(isSidebarCollapsed));
-  }, [isSidebarCollapsed]);
 
   // Función para validar direcciones Web3
   const validateWeb3Address = useCallback(async (inputAddress: string) => {
@@ -316,6 +346,27 @@ export default function DashboardPage() {
       return false;
     }
   }, []);
+
+  // Sincronizar dirección de wallet conectada
+  useEffect(() => {
+    if (isConnected && walletAddress && !address) {
+      setAddress(walletAddress);
+      validateWeb3Address(walletAddress);
+    }
+  }, [isConnected, walletAddress, address, validateWeb3Address]);
+
+  // Cargar estado del sidebar desde localStorage
+  useEffect(() => {
+    const savedSidebarState = localStorage.getItem('dashboard_sidebar_collapsed');
+    if (savedSidebarState) {
+      setSidebarCollapsed(JSON.parse(savedSidebarState));
+    }
+  }, []);
+
+  // Guardar estado del sidebar en localStorage
+  useEffect(() => {
+    localStorage.setItem('dashboard_sidebar_collapsed', JSON.stringify(sidebarCollapsed));
+  }, [sidebarCollapsed]);
 
   // Manejar cambio de dirección
   const handleAddressChange = useCallback(async (value: string) => {
@@ -451,12 +502,12 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex">
       {/* Panel Lateral Colapsible */}
       <div className={`bg-white shadow-xl transition-all duration-300 ease-in-out ${
-        isSidebarCollapsed ? 'w-16' : 'w-80'
+        sidebarCollapsed ? 'w-16' : 'w-80'
       } flex flex-col border-r border-gray-200`}>
         
         {/* Header del Sidebar */}
         <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-          {!isSidebarCollapsed && (
+          {!sidebarCollapsed && (
             <div>
               <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Herramientas Web3
@@ -467,15 +518,15 @@ export default function DashboardPage() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             className="p-2"
           >
-            {isSidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </Button>
         </div>
 
         {/* Categorías */}
-        {!isSidebarCollapsed && (
+        {!sidebarCollapsed && (
           <div className="p-4 border-b border-gray-200">
             <div className="flex flex-wrap gap-2">
               {TOOL_CATEGORIES.map((category) => {
@@ -483,7 +534,7 @@ export default function DashboardPage() {
                 return (
                   <Button
                     key={category.id}
-                    variant={selectedCategory === category.id ? "default" : "outline"}
+                    variant={selectedCategory === category.id ? "primary" : "outline"}
                     size="sm"
                     onClick={() => setSelectedCategory(category.id)}
                     className="text-xs"
@@ -515,14 +566,14 @@ export default function DashboardPage() {
               >
                 <div className="flex items-center gap-3">
                   <div className={`p-2 rounded-lg bg-gradient-to-r ${tool.color} ${
-                    isSidebarCollapsed ? 'w-8 h-8' : 'w-10 h-10'
+                    sidebarCollapsed ? 'w-8 h-8' : 'w-10 h-10'
                   } flex items-center justify-center`}>
                     <IconComponent className={`text-white ${
-                      isSidebarCollapsed ? 'h-4 w-4' : 'h-5 w-5'
+                      sidebarCollapsed ? 'h-4 w-4' : 'h-5 w-5'
                     }`} />
                   </div>
                   
-                  {!isSidebarCollapsed && (
+                  {!sidebarCollapsed && (
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <h4 className="font-medium text-gray-900">{tool.name}</h4>
@@ -546,7 +597,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Footer del Sidebar */}
-        {!isSidebarCollapsed && (
+        {!sidebarCollapsed && (
           <div className="p-4 border-t border-gray-200">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -628,7 +679,7 @@ export default function DashboardPage() {
                 }}
                 onSettingsOpen={() => router.push('/dashboard/settings')}
               />
-              <UnifiedWalletConnect onConnect={() => {}} />
+              <UnifiedWalletConnect onSuccess={() => {}} />
               <Button variant="outline" onClick={() => router.push('/dashboard/settings')}>
                 <Settings className="h-4 w-4 mr-2" />
                 Configuración
@@ -657,7 +708,9 @@ export default function DashboardPage() {
           <div className="mt-4">
             <Breadcrumbs />
           </div>
-            {/* Contenido Principal */}
+        </div>
+        
+        {/* Contenido Principal */}
         <div className="flex-1 p-6 space-y-6">
           
           {/* Dashboard de Estado del Sistema */}
@@ -696,7 +749,17 @@ export default function DashboardPage() {
           )}
 
           {/* Estado del Indexador */}
-          <IndexerStatusCard />lassName="shadow-lg">
+          <IndexerStatusCard 
+            indexerState={indexerState}
+            dataAvailability={dataAvailability}
+            selectedTools={selectedTools}
+            targetAddress={address}
+            onActivateIndexers={handleActivateIndexers}
+            isActivating={isActivating}
+          />
+          
+          {/* Configuración de Análisis */}
+          <Card className="shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Target className="h-6 w-6 text-blue-500" />
@@ -761,9 +824,12 @@ export default function DashboardPage() {
               {/* Estado del Indexador */}
               {address && selectedTools.length > 0 && (
                 <IndexerStatusCard 
-                  tools={selectedTools}
-                  address={address}
-                  className="mt-4"
+                  indexerState={indexerState}
+                  dataAvailability={dataAvailability}
+                  selectedTools={selectedTools}
+                  targetAddress={address}
+                  onActivateIndexers={handleActivateIndexers}
+                  isActivating={isActivating}
                 />
               )}
 

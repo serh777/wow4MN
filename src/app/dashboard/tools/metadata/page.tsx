@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Icons } from '@/components/icons';
 import Link from 'next/link';
 import { useToast } from '@/components/ui/use-toast';
+import { useRouter } from 'next/navigation';
 
 import { useContract } from '@/hooks/use-contract';
 
@@ -19,6 +20,7 @@ export default function MetadataToolPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const { toast } = useToast();
   const { emitToolAction } = useContract();
+  const router = useRouter();
   
   // Función para manejar el inicio del análisis después del pago
   const handleStartAnalysis = async () => {
@@ -37,8 +39,8 @@ export default function MetadataToolPage() {
         variant: 'default'
       });
       
-      // Redirigir a la página de resultados o mostrar resultados
-      // window.location.href = '/dashboard/tools/metadata/results';
+      // Redirigir a la página principal de la herramienta para iniciar análisis detallado
+      router.push(`/dashboard/metadata`);
     } catch (error) {
       console.error('Error al realizar el análisis:', error);
       toast({

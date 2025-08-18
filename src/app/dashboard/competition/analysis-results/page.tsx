@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, Suspense } from 'react';
+import React, { useEffect, useState, Suspense, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ToolLayout } from '@/app/dashboard/content/analysis-results/components/tool-components';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -93,23 +93,7 @@ function CompetitionAnalysisResultsContent() {
   const analysisType = searchParams.get('type') || 'comprehensive';
   const url = searchParams.get('url') || '';
 
-  useEffect(() => {
-    // Simular carga de datos desde sessionStorage
-    const timer = setTimeout(() => {
-      const storedResults = sessionStorage.getItem('competitionAnalysisResults');
-      if (storedResults) {
-        setResults(JSON.parse(storedResults));
-      } else {
-        // Generar datos mock si no hay datos guardados
-        setResults(generateMockResults());
-      }
-      setLoading(false);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  const generateMockResults = (): CompetitionAnalysisResults => {
+  const generateMockResults = useCallback((): CompetitionAnalysisResults => {
     return {
       overallScore: Math.floor(Math.random() * 40) + 60,
       analysisType,
@@ -129,38 +113,36 @@ function CompetitionAnalysisResultsContent() {
       competitorAnalysis: {
         topCompetitors: [
           {
-            name: 'CompetitorA',
-            domain: 'competitora.com',
-            marketShare: 25,
-            strengths: ['Fuerte presencia en redes sociales', 'Tecnología avanzada', 'Gran base de usuarios'],
-            weaknesses: ['Altos costos operativos', 'Interfaz compleja', 'Soporte limitado']
+            name: 'Competitor A',
+            domain: 'competidora.com',
+            marketShare: Math.floor(Math.random() * 20) + 15,
+            strengths: ['SEO fuerte', 'Contenido de calidad', 'Buena UX'],
+            weaknesses: ['Velocidad lenta', 'Poca presencia social']
           },
           {
-            name: 'CompetitorB',
-            domain: 'competitorb.com',
-            marketShare: 18,
-            strengths: ['Precios competitivos', 'Rápida implementación', 'Buena documentación'],
-            weaknesses: ['Funcionalidades limitadas', 'Escalabilidad cuestionable', 'Seguridad básica']
+            name: 'Competitor B', 
+            domain: 'competidorb.com',
+            marketShare: Math.floor(Math.random() * 15) + 10,
+            strengths: ['Tecnología avanzada', 'Buen marketing'],
+            weaknesses: ['Contenido limitado', 'Precios altos']
           }
         ],
         marketGaps: [
-          'Falta de herramientas de análisis avanzado',
-          'Integración limitada con DeFi',
-          'Ausencia de soporte multi-chain',
-          'Carencia de herramientas de automatización'
+          'Falta de contenido especializado en Web3',
+          'Herramientas de análisis limitadas',
+          'Poca integración con blockchain'
         ],
         threats: [
-          'Nuevos competidores con mejor tecnología',
-          'Cambios regulatorios en el sector',
-          'Volatilidad del mercado crypto',
-          'Competencia de precios agresiva'
+          'Nuevos competidores emergentes',
+          'Cambios en algoritmos de búsqueda',
+          'Evolución rápida del mercado Web3'
         ]
       },
       performanceComparison: {
-        trafficComparison: Math.floor(Math.random() * 40) + 50,
-        contentQuality: Math.floor(Math.random() * 30) + 60,
+        trafficComparison: Math.floor(Math.random() * 40) + 60,
+        contentQuality: Math.floor(Math.random() * 30) + 70,
         userEngagement: Math.floor(Math.random() * 35) + 55,
-        technicalPerformance: Math.floor(Math.random() * 25) + 65
+        technicalPerformance: Math.floor(Math.random() * 25) + 75
       },
       marketOpportunities: {
         score: Math.floor(Math.random() * 30) + 70,
@@ -168,74 +150,71 @@ function CompetitionAnalysisResultsContent() {
           {
             name: 'DeFi Analytics',
             potential: 'Alto',
-            difficulty: 'Media',
-            description: 'Herramientas especializadas para análisis DeFi'
+            difficulty: 'Medio',
+            description: 'Análisis especializado en protocolos DeFi'
           },
           {
-            name: 'NFT Tracking',
+            name: 'NFT Market Analysis',
             potential: 'Medio',
-            difficulty: 'Baja',
-            description: 'Seguimiento y análisis de colecciones NFT'
-          },
-          {
-            name: 'Cross-chain Analytics',
-            potential: 'Alto',
-            difficulty: 'Alta',
-            description: 'Análisis multi-blockchain integrado'
+            difficulty: 'Bajo',
+            description: 'Herramientas para análisis de mercados NFT'
           }
         ]
       },
       opportunities: [
         {
-          title: 'Mejora de UX/UI',
-          description: 'Optimizar la experiencia de usuario para superar a competidores',
-          solution: 'Rediseño completo de la interfaz con enfoque en usabilidad',
-          implementation: 'Fase de 3 meses con testing continuo',
-          estimatedImpact: 'Alto impacto (+25% engagement)',
-          difficulty: 'medium',
-          category: 'UX/UI'
+          title: 'Optimización de contenido Web3',
+          description: 'Mejorar el contenido relacionado con blockchain y criptomonedas',
+          solution: 'Crear guías especializadas y tutoriales técnicos',
+          implementation: 'Desarrollar un calendario de contenido Web3',
+          estimatedImpact: 'Alto - Incremento del 25% en tráfico orgánico',
+          difficulty: 'medium' as const,
+          category: 'Contenido'
         },
         {
-          title: 'Integración Multi-Chain',
-          description: 'Expandir soporte a múltiples blockchains',
-          solution: 'Desarrollo de conectores para Ethereum, BSC, Polygon',
-          implementation: 'Desarrollo incremental por blockchain',
-          estimatedImpact: 'Muy alto impacto (+40% usuarios)',
-          difficulty: 'hard',
+          title: 'Integración de herramientas DeFi',
+          description: 'Añadir funcionalidades de análisis DeFi avanzadas',
+          solution: 'Implementar APIs de protocolos DeFi principales',
+          implementation: 'Fase de desarrollo de 3 meses',
+          estimatedImpact: 'Muy Alto - Diferenciación competitiva',
+          difficulty: 'hard' as const,
           category: 'Tecnología'
-        },
-        {
-          title: 'Herramientas de Automatización',
-          description: 'Crear herramientas para automatizar análisis rutinarios',
-          solution: 'Bot de análisis automático con alertas personalizables',
-          implementation: 'MVP en 6 semanas, iteración continua',
-          estimatedImpact: 'Medio impacto (+15% retención)',
-          difficulty: 'easy',
-          category: 'Automatización'
         }
       ],
       diagnostics: [
         {
-          issue: 'Baja Visibilidad Online',
-          severity: 'high',
-          description: 'La presencia online está por debajo de competidores principales',
-          recommendation: 'Implementar estrategia SEO agresiva y marketing de contenidos'
+          issue: 'Velocidad de carga lenta en móviles',
+          severity: 'medium' as const,
+          description: 'Los tiempos de carga superan los 3 segundos en dispositivos móviles',
+          recommendation: 'Optimizar imágenes y implementar lazy loading'
         },
         {
-          issue: 'Posición Competitiva Débil',
-          severity: 'medium',
-          description: 'La posición en el mercado está por debajo del potencial',
-          recommendation: 'Implementar estrategias diferenciadas para destacar frente a competidores'
-        },
-        {
-          issue: 'Gaps en Contenido',
-          severity: 'high',
-          description: 'Existen oportunidades de contenido no aprovechadas',
-          recommendation: 'Desarrollar contenido especializado en áreas no cubiertas por competidores'
+          issue: 'Contenido duplicado detectado',
+          severity: 'low' as const,
+          description: 'Algunas páginas tienen contenido similar que puede afectar el SEO',
+          recommendation: 'Revisar y consolidar contenido duplicado'
         }
       ]
     };
-  };
+  }, [analysisType, url]);
+
+  useEffect(() => {
+    setLoading(true);
+    const timer = setTimeout(() => {
+      const storedResults = localStorage.getItem('competitionAnalysisResults');
+      if (storedResults) {
+        setResults(JSON.parse(storedResults));
+      } else {
+        // Generar datos mock si no hay datos guardados
+        setResults(generateMockResults());
+      }
+      setLoading(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [generateMockResults]);
+
+
 
   const handleExport = () => {
     console.log('Exportando resultados...');
@@ -717,14 +696,6 @@ function CompetitionAnalysisResultsContent() {
         </div>
       </div>
     </div>
-  );
-}
-
-export default function CompetitionAnalysisResultsPage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <CompetitionAnalysisResultsContent />
-    </Suspense>
   );
 }
 

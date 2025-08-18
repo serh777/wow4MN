@@ -217,7 +217,7 @@ export const useMobileWallet = (): MobileWalletDetection => {
         (window as any).ethereum.removeListener('disconnect', handleEthereumChange);
       }
     };
-  }, [detectMobileWallets]);
+  }, [detectMobileWallets, detectUserAgent]);
 
   return {
     ...detection,
