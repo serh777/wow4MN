@@ -24,6 +24,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useWeb3 } from '@/contexts/Web3Context';
 import { useIndexerOrchestrator, useIndexerStatus, IndexerRequirement } from '@/hooks/useIndexerOrchestrator';
 import { IndexerStatusCard } from '@/components/dashboard/indexer-status-card';
+import { dashboardOrchestrator, AnalysisRequest } from '@/services/dashboard-orchestrator';
 import { useRouter } from 'next/navigation';
 import { 
   Loader2, LogOut, User, MessageCircle, Info, Target, Zap, Shield, 
@@ -441,32 +442,83 @@ export default function DashboardPage() {
     setIsAnalyzing(true);
 
     try {
-      // Simular proceso de análisis
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Crear solicitud de análisis
+      const analysisRequest: AnalysisRequest = {
+        address,
+        tools: selectedTools,
+        isCompleteAudit,
+        options: {
+          timeframe: '30d',
+          includeAdvanced: true,
+          priority: 'comprehensive'
+        }
+      };
 
-      // Redirigir a página de resultados unificada
-      const toolsParam = selectedTools.join(',');
-      const resultsUrl = `/dashboard/unified-results?tools=${encodeURIComponent(toolsParam)}&address=${encodeURIComponent(address)}`;
-      
+      // Iniciar análisis real con el orchestrator
+      const requestId = await dashboardOrchestrator.startAnalysis(analysisRequest);
+
       toast({
-        title: 'Análisis completado',
-        description: 'Redirigiendo a los resultados...',
+        title: 'Análisis iniciado',
+        description: `Procesando ${selectedTools.length} herramientas para ${address}...`,
         variant: 'default'
       });
 
+      // Monitorear progreso del análisis
+      const progressInterval = setInterval(async () => {
+        const status = dashboardOrchestrator.getAnalysisStatus(requestId);
+        
+        if (status) {
+          const completedTools = status.progress.filter(p => p.status === 'completed').length;
+          const totalTools = status.progress.length;
+          
+          if (status.status === 'completed') {
+            clearInterval(progressInterval);
+            
+            toast({
+              title: 'Análisis completado',
+              description: `${completedTools}/${totalTools} herramientas procesadas exitosamente`,
+              variant: 'default'
+            });
+
+            // Redirigir a página de resultados con el requestId
+            const resultsUrl = `/dashboard/unified-results?requestId=${requestId}&address=${encodeURIComponent(address)}&tools=${encodeURIComponent(selectedTools.join(','))}`;
+            
+            setTimeout(() => {
+              router.push(resultsUrl);
+            }, 1000);
+            
+          } else if (status.status === 'error') {
+            clearInterval(progressInterval);
+            throw new Error('Error en el análisis');
+          }
+        }
+      }, 2000); // Verificar cada 2 segundos
+
+      // Timeout de seguridad (5 minutos)
       setTimeout(() => {
-        router.push(resultsUrl);
-      }, 1000);
+        clearInterval(progressInterval);
+        if (isAnalyzing) {
+          setIsAnalyzing(false);
+          toast({
+            title: 'Análisis en progreso',
+            description: 'El análisis está tomando más tiempo del esperado. Puedes verificar el estado en la página de resultados.',
+            variant: 'default'
+          });
+          
+          const resultsUrl = `/dashboard/unified-results?requestId=${requestId}&address=${encodeURIComponent(address)}&tools=${encodeURIComponent(selectedTools.join(','))}`;
+          router.push(resultsUrl);
+        }
+      }, 300000); // 5 minutos
 
     } catch (error) {
       console.error('Error en análisis:', error);
       toast({
         title: 'Error en el análisis',
-        description: 'Ha ocurrido un error al realizar el análisis',
+        description: error instanceof Error ? error.message : 'Ha ocurrido un error al realizar el análisis',
         variant: 'destructive'
       });
     } finally {
-      setIsAnalyzing(false);
+      // No establecer isAnalyzing a false aquí, se hace cuando el análisis se completa
     }
   };
 
