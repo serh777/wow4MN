@@ -1,5 +1,7 @@
 'use client';
 
+'use client';
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,18 +36,16 @@ export default function MetaverseOptimizerPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const [formData, setFormData] = useState({
+    contentId: '',
     contentUrl: '',
-    metaversePlatform: 'decentraland',
-    contentType: 'virtual_space',
-    optimizationGoal: 'performance',
-    targetAudience: 'general',
-    includeVR: true,
-    includeAR: false,
-    include3D: true,
-    includeInteractivity: true
+    contentType: 'mixed',
+    targetPlatforms: ['VRChat', 'Decentraland'],
+    includeOptimization: true,
+    includeUserExperience: true,
+    includeMonetization: true
   });
 
-  const handleInputChange = (field: string, value: string | boolean) => {
+  const handleInputChange = (field: string, value: string | boolean | string[]) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -55,49 +55,67 @@ export default function MetaverseOptimizerPage() {
   const handleAnalyze = async () => {
     setIsAnalyzing(true);
     
-    // Simular análisis
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    setIsAnalyzing(false);
-    setAnalysisComplete(true);
-    
-    // Mostrar mensaje de éxito y redirigir
-    setTimeout(() => {
-      router.push('/dashboard/metaverse-optimizer/analysis-results');
-    }, 2000);
+    try {
+      // Validar que al menos uno de los campos principales esté lleno
+      if (!formData.contentId && !formData.contentUrl) {
+        throw new Error('Debe proporcionar al menos un ID de contenido o URL');
+      }
+
+      // Determinar el identificador principal para el análisis
+      const contentId = formData.contentId || formData.contentUrl || 'default-metaverse-content';
+      
+      // Simular análisis real (en producción usaría MetaverseOptimizerAPIsService)
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      setIsAnalyzing(false);
+      setAnalysisComplete(true);
+      
+      // Guardar datos del análisis para la página de resultados
+      const analysisData = {
+        contentId,
+        contentUrl: formData.contentUrl,
+        contentType: formData.contentType,
+        targetPlatforms: formData.targetPlatforms,
+        includeOptimization: formData.includeOptimization,
+        includeUserExperience: formData.includeUserExperience,
+        includeMonetization: formData.includeMonetization,
+        timestamp: new Date().toISOString()
+      };
+      
+      sessionStorage.setItem('metaverseOptimizerAnalysis', JSON.stringify(analysisData));
+      
+      // Mostrar mensaje de éxito y redirigir
+      setTimeout(() => {
+        const params = new URLSearchParams({
+          contentId,
+          type: formData.contentType,
+          platforms: formData.targetPlatforms.join(',')
+        });
+        router.push(`/dashboard/metaverse-optimizer/analysis-results?${params.toString()}`);
+      }, 2000);
+      
+    } catch (error) {
+      console.error('Error en análisis:', error);
+      setIsAnalyzing(false);
+      // Aquí podrías mostrar un mensaje de error al usuario
+    }
   };
 
-  const metaversePlatforms = [
-    { value: 'decentraland', label: 'Decentraland', description: 'Mundo virtual descentralizado' },
-    { value: 'sandbox', label: 'The Sandbox', description: 'Plataforma de gaming y creación' },
-    { value: 'cryptovoxels', label: 'Cryptovoxels', description: 'Mundo virtual basado en voxels' },
-    { value: 'somnium', label: 'Somnium Space', description: 'Realidad virtual social' },
-    { value: 'horizon', label: 'Horizon Worlds', description: 'Plataforma VR de Meta' },
-    { value: 'vrchat', label: 'VRChat', description: 'Plataforma social VR' }
-  ];
-
   const contentTypes = [
-    { value: 'virtual_space', label: 'Espacio Virtual', description: 'Terrenos y construcciones' },
+    { value: 'mixed', label: 'Contenido Mixto', description: 'Múltiples tipos de assets' },
     { value: 'avatar', label: 'Avatar/Wearables', description: 'Avatares y accesorios' },
-    { value: 'nft_gallery', label: 'Galería NFT', description: 'Exposición de arte digital' },
+    { value: 'environment', label: 'Entorno Virtual', description: 'Espacios y construcciones' },
     { value: 'game', label: 'Juego/Experiencia', description: 'Experiencias interactivas' },
-    { value: 'event_space', label: 'Espacio de Eventos', description: 'Venues para eventos' },
-    { value: 'marketplace', label: 'Marketplace', description: 'Tiendas virtuales' }
+    { value: 'art', label: 'Arte Digital', description: 'Obras de arte y galerías' }
   ];
 
-  const optimizationGoals = [
-    { value: 'performance', label: 'Rendimiento', description: 'Optimizar velocidad y fluidez' },
-    { value: 'engagement', label: 'Engagement', description: 'Maximizar interacción de usuarios' },
-    { value: 'accessibility', label: 'Accesibilidad', description: 'Mejorar acceso para todos' },
-    { value: 'monetization', label: 'Monetización', description: 'Optimizar generación de ingresos' },
-    { value: 'social', label: 'Social', description: 'Fomentar interacciones sociales' },
-    { value: 'immersion', label: 'Inmersión', description: 'Crear experiencias inmersivas' }
+  const metaversePlatforms = [
+    { value: 'VRChat', label: 'VRChat', description: 'Plataforma social VR' },
+    { value: 'Decentraland', label: 'Decentraland', description: 'Mundo virtual descentralizado' },
+    { value: 'The Sandbox', label: 'The Sandbox', description: 'Plataforma de gaming y creación' },
+    { value: 'Horizon Worlds', label: 'Horizon Worlds', description: 'Plataforma VR de Meta' },
+    { value: 'Spatial', label: 'Spatial', description: 'Espacios virtuales colaborativos' }
   ];
-
-  const targetAudiences = [
-    { value: 'general', label: 'Audiencia General' },
-    { value: 'gamers', label: 'Gamers' },
-    { value: 'artists', label: 'Artistas y Creadores' },
     { value: 'investors', label: 'Inversores' },
     { value: 'developers', label: 'Desarrolladores' },
     { value: 'brands', label: 'Marcas y Empresas' }
@@ -148,9 +166,21 @@ export default function MetaverseOptimizerPage() {
             <TabsContent value="basic" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="contentUrl">URL del Contenido</Label>
+                  <Label htmlFor="contentId">ID de Contenido</Label>
+                  <Input
+                    id="contentId"
+                    title="Ingresa el ID único del contenido a optimizar"
+                    placeholder="ID, hash o identificador único"
+                    value={formData.contentId}
+                    onChange={(e) => handleInputChange('contentId', e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="contentUrl">URL del Contenido (Opcional)</Label>
                   <Input
                     id="contentUrl"
+                    title="URL opcional para contexto adicional"
                     placeholder="https://play.decentraland.org/..."
                     value={formData.contentUrl}
                     onChange={(e) => handleInputChange('contentUrl', e.target.value)}
@@ -158,17 +188,17 @@ export default function MetaverseOptimizerPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="metaversePlatform">Plataforma de Metaverso</Label>
-                  <Select value={formData.metaversePlatform} onValueChange={(value) => handleInputChange('metaversePlatform', value)}>
+                  <Label htmlFor="contentType">Tipo de Contenido</Label>
+                  <Select value={formData.contentType} onValueChange={(value) => handleInputChange('contentType', value)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {metaversePlatforms.map((platform) => (
-                        <SelectItem key={platform.value} value={platform.value}>
+                      {contentTypes.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>
                           <div className="flex flex-col">
-                            <span>{platform.label}</span>
-                            <span className="text-xs text-muted-foreground">{platform.description}</span>
+                            <span>{type.label}</span>
+                            <span className="text-xs text-muted-foreground">{type.description}</span>
                           </div>
                         </SelectItem>
                       ))}
@@ -177,9 +207,81 @@ export default function MetaverseOptimizerPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="contentType">Tipo de Contenido</Label>
-                  <Select value={formData.contentType} onValueChange={(value) => handleInputChange('contentType', value)}>
-                    <SelectTrigger>
+                  <Label htmlFor="targetPlatforms">Plataformas Objetivo</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {metaversePlatforms.map((platform) => (
+                      <div key={platform.value} className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id={`platform-${platform.value}`}
+                          checked={formData.targetPlatforms.includes(platform.value)}
+                          onChange={(e) => {
+                            const platforms = e.target.checked
+                              ? [...formData.targetPlatforms, platform.value]
+                              : formData.targetPlatforms.filter(p => p !== platform.value);
+                            handleInputChange('targetPlatforms', platforms);
+                          }}
+                          className="rounded border-gray-300"
+                        />
+                        <Label htmlFor={`platform-${platform.value}`} className="text-sm">
+                          {platform.label}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="advanced" className="space-y-6">
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <Label>Análisis a Incluir</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="includeOptimization"
+                        title="Incluir análisis de optimización de assets"
+                        checked={formData.includeOptimization}
+                        onChange={(e) => handleInputChange('includeOptimization', e.target.checked)}
+                        className="rounded border-gray-300"
+                      />
+                      <Label htmlFor="includeOptimization" className="text-sm">
+                        Optimización de Assets
+                      </Label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="includeUserExperience"
+                        title="Incluir análisis de experiencia de usuario"
+                        checked={formData.includeUserExperience}
+                        onChange={(e) => handleInputChange('includeUserExperience', e.target.checked)}
+                        className="rounded border-gray-300"
+                      />
+                      <Label htmlFor="includeUserExperience" className="text-sm">
+                        Experiencia de Usuario
+                      </Label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="includeMonetization"
+                        title="Incluir análisis de potencial de monetización"
+                        checked={formData.includeMonetization}
+                        onChange={(e) => handleInputChange('includeMonetization', e.target.checked)}
+                        className="rounded border-gray-300"
+                      />
+                      <Label htmlFor="includeMonetization" className="text-sm">
+                        Potencial de Monetización
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+              </div>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -301,8 +403,8 @@ export default function MetaverseOptimizerPage() {
           <div className="flex justify-center mt-8">
             <Button 
               onClick={handleAnalyze}
-              disabled={isAnalyzing || !formData.contentUrl}
-              className="metaverse-analyze-button"
+              disabled={isAnalyzing || (!formData.contentId && !formData.contentUrl)}
+              className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-8 py-3 text-lg"
             >
               {isAnalyzing ? (
                 <>
