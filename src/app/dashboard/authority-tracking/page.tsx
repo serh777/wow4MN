@@ -53,16 +53,49 @@ export default function AuthorityTrackingPage() {
   const handleAnalyze = async () => {
     setIsAnalyzing(true);
     
-    // Simular análisis
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    setIsAnalyzing(false);
-    setAnalysisComplete(true);
-    
-    // Mostrar mensaje de éxito y redirigir
-    setTimeout(() => {
-      router.push('/dashboard/authority-tracking/analysis-results');
-    }, 2000);
+    try {
+      // Validar que al menos uno de los campos principales esté lleno
+      if (!formData.walletAddress && !formData.contractAddress && !formData.projectName) {
+        throw new Error('Debe proporcionar al menos una dirección de wallet, contrato o nombre de proyecto');
+      }
+
+      // Determinar el identificador principal para el análisis
+      const identifier = formData.walletAddress || formData.contractAddress || formData.projectName;
+      
+      // Simular análisis real (en producción usaría AuthorityTrackingAPIsService)
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      setIsAnalyzing(false);
+      setAnalysisComplete(true);
+      
+      // Guardar datos del análisis para la página de resultados
+      const analysisData = {
+        identifier,
+        analysisType: formData.analysisType,
+        timeframe: formData.timeframe,
+        includeGovernance: formData.includeGovernance,
+        includeReputation: formData.includeReputation,
+        includeInfluence: formData.includeInfluence,
+        timestamp: new Date().toISOString()
+      };
+      
+      sessionStorage.setItem('authorityTrackingAnalysis', JSON.stringify(analysisData));
+      
+      // Mostrar mensaje de éxito y redirigir
+      setTimeout(() => {
+        const params = new URLSearchParams({
+          identifier,
+          type: formData.analysisType,
+          timeframe: formData.timeframe
+        });
+        router.push(`/dashboard/authority-tracking/analysis-results?${params.toString()}`);
+      }, 2000);
+      
+    } catch (error) {
+      console.error('Error en análisis:', error);
+      setIsAnalyzing(false);
+      // Aquí podrías mostrar un mensaje de error al usuario
+    }
   };
 
   const analysisTypes = [

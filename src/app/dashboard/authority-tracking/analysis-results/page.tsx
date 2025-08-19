@@ -1,6 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+'use client';
+
+import React, { useState, useEffect, Suspense } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,38 +18,478 @@ import {
   Download, Share2, ArrowUp, ArrowDown, Minus,
   CheckCircle, AlertTriangle, Info, Target, Zap, Globe, Clock
 } from 'lucide-react';
+import { useAuthorityAnalysis } from '../components/use-authority-analysis';
+import { processAuthorityData, formatAuthorityMetrics, validateIdentifier } from '../components/real-authority-helpers';
 
-const generateMockResults = () => {
-  return {
-    summary: {
-      overallScore: 87,
-      governanceAuthority: 92,
-      socialReputation: 85,
-      technicalInfluence: 84,
-      riskLevel: 'Bajo',
-      lastUpdated: new Date().toISOString()
-    },
-    metrics: {
-      governanceParticipation: 78,
-      proposalSuccess: 85,
-      votingPower: 12.5,
-      delegatedTokens: 2500000,
-      socialEngagement: 89,
-      communityTrust: 91,
-      technicalContributions: 76,
-      codeCommits: 234,
-      protocolsInfluenced: 8
-    },
-    historicalData: [
-      { date: '2024-01-01', authority: 75, governance: 70, social: 80, technical: 75 },
-      { date: '2024-01-08', authority: 78, governance: 73, social: 82, technical: 79 },
-      { date: '2024-01-15', authority: 82, governance: 78, social: 85, technical: 83 },
-      { date: '2024-01-22', authority: 85, governance: 85, social: 87, technical: 82 },
-      { date: '2024-01-29', authority: 87, governance: 92, social: 85, technical: 84 }
-    ],
-    protocolParticipation: [
-      { protocol: 'Uniswap', participation: 95, influence: 88, tokens: 1200000 },
-      { protocol: 'Compound', participation: 87, influence: 92, tokens: 800000 },
+// Componente principal con Suspense
+function AuthorityTrackingResultsContent() {
+  const [results, setResults] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [identifier, setIdentifier] = useState<string>('');
+  const [analysisOptions, setAnalysisOptions] = useState<any>({});
+
+  // Hook para análisis real
+  const { data: analysisData, isLoading: analysisLoading, error: analysisError } = useAuthorityAnalysis(identifier, analysisOptions);
+
+  useEffect(() => {
+    const loadAnalysisResults = async () => {
+      try {
+        // Obtener parámetros de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlIdentifier = urlParams.get('identifier') || '';
+        const analysisType = urlParams.get('type') || 'comprehensive';
+        const timeframe = urlParams.get('timeframe') || '30d';
+
+        // Obtener datos del análisis desde sessionStorage
+        const savedAnalysis = sessionStorage.getItem('authorityTrackingAnalysis');
+        let analysisData = null;
+        
+        if (savedAnalysis) {
+          analysisData = JSON.parse(savedAnalysis);
+        }
+
+        const finalIdentifier = urlIdentifier || analysisData?.identifier || '0x742d35Cc6634C0532925a3b8D8C9C4e8b4e8b4e8';
+        
+        // Validar identificador
+        const validation = validateIdentifier(finalIdentifier);
+        if (!validation.isValid) {
+          throw new Error(validation.error || 'Identificador inválido');
+        }
+
+        // Configurar opciones de análisis
+        const options = {
+          analysisType,
+          timeframe,
+          includeGovernance: analysisData?.includeGovernance !== false,
+          includeReputation: analysisData?.includeReputation !== false,
+          includeInfluence: analysisData?.includeInfluence !== false
+        };
+
+        setIdentifier(finalIdentifier);
+        setAnalysisOptions(options);
+
+        setLoading(false);
+
+      } catch (err) {
+        console.error('Error cargando resultados:', err);
+        setError('Error al cargar los resultados del análisis');
+        setLoading(false);
+      }
+    };
+
+    loadAnalysisResults();
+  }, []);
+
+  // Efecto para procesar datos cuando el análisis esté completo
+  useEffect(() => {
+    const processData = async () => {
+      if (analysisData && identifier && !analysisLoading && !analysisError) {
+        try {
+          const processedData = await processAuthorityData(identifier, analysisOptions);
+          setResults({
+            ...analysisData,
+            processed: processedData
+          });
+          setLoading(false);
+        } catch (err) {
+          console.error('Error procesando datos:', err);
+          setError('Error al procesar los datos del análisis');
+          setLoading(false);
+        }
+      }
+    };
+
+    processData();
+  }, [analysisData, identifier, analysisLoading, analysisError, analysisOptions]);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+            <p className="text-muted-foreground">Cargando análisis de autoridad...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !results) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center space-y-4">
+            <AlertTriangle className="h-12 w-12 text-red-500 mx-auto" />
+            <p className="text-red-600">{error || 'No se pudieron cargar los resultados'}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const handleExport = () => {
+    const dataStr = JSON.stringify(results, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `authority-analysis-${results.address}.json`;
+    link.click();
+  };
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Análisis de Autoridad Descentralizada',
+          text: `Análisis de autoridad para ${results.ensName || results.address}`,
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.log('Error sharing:', err);
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert('URL copiada al portapapeles');
+    }
+  };
+
+  // Preparar datos para gráficos usando datos reales
+  const governance = results?.governanceMetrics || {};
+  const social = results?.socialReputationMetrics || {};
+  const technical = results?.technicalInfluenceMetrics || {};
+  const network = results?.networkAnalysis || {};
+  const protocols = results?.protocolParticipation || [];
+
+  const radarData = [
+    { subject: 'Gobernanza', score: governance.participationRate || 0 },
+    { subject: 'Social', score: social.socialScore || 0 },
+    { subject: 'Técnico', score: technical.technicalScore || 0 },
+    { subject: 'Red', score: (network.networkCentrality || 0) * 100 },
+    { subject: 'Confianza', score: social.trustScore || 0 },
+    { subject: 'Influencia', score: social.networkInfluence || 0 }
+  ];
+
+  const protocolData = protocols.slice(0, 8).map((p: any) => ({
+    name: p.protocol,
+    participation: p.contributions || 0,
+    reputation: p.reputation || 0,
+    level: p.participationLevel === 'core' ? 100 : 
+           p.participationLevel === 'high' ? 80 : 
+           p.participationLevel === 'medium' ? 60 : 40
+  }));
+
+  // Datos de evolución histórica
+  const evolutionData = (results?.authorityEvolution || []).map((item: any) => ({
+    date: new Date(item.date).toLocaleDateString('es-ES', { month: 'short', day: 'numeric' }),
+    governance: item.governanceScore || 0,
+    social: item.socialScore || 0,
+    technical: item.technicalScore || 0,
+    overall: item.overallScore || 0
+  }));
+
+  // Formatear métricas para visualización
+  const formattedMetrics = formatAuthorityMetrics({
+    overallScore: results?.overallAuthorityScore || 0,
+    governanceScore: governance.participationRate || 0,
+    socialScore: social.socialScore || 0,
+    technicalScore: technical.technicalScore || 0,
+    participationRate: governance.participationRate || 0,
+    networkInfluence: social.networkInfluence || 0
+  });
+
+  const COLORS = ['#8b5cf6', '#a855f7', '#c084fc', '#d8b4fe', '#e9d5ff'];
+
+  return (
+    <div className="container mx-auto p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
+            <Shield className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Análisis de Autoridad Descentralizada
+            </h1>
+            <p className="text-muted-foreground">
+              {results.ensName || results.address}
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleExport} className="flex items-center gap-2">
+            <Download className="h-4 w-4" />
+            Exportar
+          </Button>
+          <Button variant="outline" onClick={handleShare} className="flex items-center gap-2">
+            <Share2 className="h-4 w-4" />
+            Compartir
+          </Button>
+        </div>
+      </div>
+
+      {/* Puntuación General */}
+      <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-purple-900">Puntuación General de Autoridad</h2>
+              <p className="text-purple-700">Evaluación comprensiva de autoridad descentralizada</p>
+              <div className="text-sm text-purple-600">
+                {formattedMetrics.overallScore.description}
+              </div>
+            </div>
+            <div className="relative">
+              <div className="flex items-center justify-center w-32 h-32 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                <div className="text-center">
+                  <div className="text-3xl font-bold">{formattedMetrics.overallScore.value}</div>
+                  <div className="text-sm opacity-90">/ 100</div>
+                </div>
+              </div>
+              <div className="absolute inset-0 rounded-full border-4 border-purple-200 animate-pulse"></div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Métricas Principales */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Users className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Participación en Gobernanza</p>
+                <p className={`text-2xl font-bold ${formattedMetrics.participationRate.color}`}>
+                  {formattedMetrics.participationRate.label}
+                </p>
+                <div className="mt-1">
+                  <Progress value={formattedMetrics.participationRate.value} className="h-2" />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-100 rounded-lg">
+                <Star className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Reputación Social</p>
+                <p className={`text-2xl font-bold ${formattedMetrics.socialScore.color}`}>
+                  {formattedMetrics.socialScore.label}
+                </p>
+                <div className="mt-1">
+                  <Progress value={formattedMetrics.socialScore.value} className="h-2" />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <Zap className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Influencia Técnica</p>
+                <p className={`text-2xl font-bold ${formattedMetrics.technicalScore.color}`}>
+                  {formattedMetrics.technicalScore.label}
+                </p>
+                <div className="mt-1">
+                  <Progress value={formattedMetrics.technicalScore.value} className="h-2" />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-orange-100 rounded-lg">
+                <Network className="h-5 w-5 text-orange-600" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Conexiones de Red</p>
+                <p className="text-2xl font-bold">{network.connections || 0}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {network.influentialConnections || 0} influyentes
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Análisis Radar */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="h-5 w-5" />
+            Análisis Multidimensional
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart data={radarData}>
+                <PolarGrid />
+                <PolarAngleAxis dataKey="subject" />
+                <PolarRadiusAxis angle={90} domain={[0, 100]} />
+                <Radar
+                  name="Autoridad"
+                  dataKey="score"
+                  stroke="#8b5cf6"
+                  fill="#8b5cf6"
+                  fillOpacity={0.3}
+                  strokeWidth={2}
+                />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Evolución Histórica */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Evolución de Autoridad
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={results.authorityEvolution}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="overallScore" stroke="#8b5cf6" strokeWidth={3} />
+                <Line type="monotone" dataKey="governanceScore" stroke="#06b6d4" strokeWidth={2} />
+                <Line type="monotone" dataKey="socialScore" stroke="#10b981" strokeWidth={2} />
+                <Line type="monotone" dataKey="technicalScore" stroke="#f59e0b" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Participación en Protocolos */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Globe className="h-5 w-5" />
+            Participación en Protocolos
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {results.protocolParticipation.map((protocol, index) => (
+              <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">
+                    {protocol.protocol.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="font-semibold">{protocol.protocol}</p>
+                    <p className="text-sm text-muted-foreground">{protocol.role}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <Badge variant={
+                    protocol.participationLevel === 'core' ? 'default' :
+                    protocol.participationLevel === 'high' ? 'secondary' : 'outline'
+                  }>
+                    {protocol.participationLevel}
+                  </Badge>
+                  <div className="text-right">
+                    <p className="font-semibold">{protocol.contributions} contribuciones</p>
+                    <p className="text-sm text-muted-foreground">Reputación: {protocol.reputation}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Recomendaciones */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Award className="h-5 w-5" />
+            Recomendaciones para Mejorar Autoridad
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {results.recommendations.map((rec, index) => (
+              <div key={index} className="p-4 border rounded-lg">
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <h4 className="font-semibold text-lg">{rec.title}</h4>
+                    <p className="text-sm text-muted-foreground mb-2">{rec.description}</p>
+                  </div>
+                  <Badge variant={
+                    rec.priority === 'high' ? 'destructive' :
+                    rec.priority === 'medium' ? 'default' : 'secondary'
+                  }>
+                    {rec.priority}
+                  </Badge>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-green-600">Impacto esperado: {rec.impact}</p>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Acciones recomendadas:</p>
+                    <ul className="text-sm text-muted-foreground space-y-1">
+                      {rec.actionItems.map((action, actionIndex) => (
+                        <li key={actionIndex} className="flex items-start gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          {action}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// Componente principal con Suspense
+export default function AuthorityTrackingResultsPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto p-6">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+            <p className="text-muted-foreground">Cargando análisis de autoridad...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <AuthorityTrackingResultsContent />
+    </Suspense>
+  );
+}
       { protocol: 'Aave', participation: 76, influence: 79, tokens: 500000 },
       { protocol: 'MakerDAO', participation: 89, influence: 85, tokens: 300000 }
     ],
