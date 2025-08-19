@@ -25,6 +25,7 @@ import { useWeb3 } from '@/contexts/Web3Context';
 import { useIndexerOrchestrator, useIndexerStatus, IndexerRequirement } from '@/hooks/useIndexerOrchestrator';
 import { IndexerStatusCard } from '@/components/dashboard/indexer-status-card';
 import { dashboardOrchestrator, AnalysisRequest } from '@/services/dashboard-orchestrator';
+import { AIAssistantWidget } from '@/components/ai/ai-assistant-widget';
 import { useRouter } from 'next/navigation';
 import { 
   Loader2, LogOut, User, MessageCircle, Info, Target, Zap, Shield, 
@@ -985,6 +986,16 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
+      {/* Widget de Asistente IA */}
+      <AIAssistantWidget
+        contextData={{
+          address,
+          selectedTools,
+          analysisResults: null // Se puede pasar datos de análisis cuando estén disponibles
+        }}
+        defaultMinimized={true}
+      />
     </div>
   );
 }
