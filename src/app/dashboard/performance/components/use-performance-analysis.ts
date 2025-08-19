@@ -3,6 +3,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAnalysisNotifications } from '@/components/notifications/use-analysis-notifications';
+import { PerformanceAPIsService } from '@/services/apis/performance-apis';
+import { EtherscanService } from '@/services/apis/etherscan';
+import { extractDomainFromUrl } from '@/app/dashboard/keywords/components/real-keywords-helpers';
+import { generateWebPerformanceResults, generateContractPerformanceResults } from './real-performance-helpers';
 import type { AnalysisResult } from '@/types';
 
 export function usePerformanceAnalysis() {
@@ -30,51 +34,86 @@ export function usePerformanceAnalysis() {
 
   const handleSubmit = async (data: any) => {
     setLoading(true);
-    notifyAnalysisStarted('Monitoreo de Rendimiento');
+    notifyAnalysisStarted('Análisis de Rendimiento');
     
     try {
       if (!data.contractAddress || data.contractAddress.trim() === '') {
         throw new Error('La dirección del contrato es obligatoria');
       }
 
-      const performanceData = {
-        contractAddress: data.contractAddress,
-        blockchain: data.blockchain || 'ethereum',
-        metrics: {
-          gasEfficiency: Math.floor(Math.random() * 30) + 60,
-          responseTime: Math.floor(Math.random() * 25) + 65,
-          costEfficiency: Math.floor(Math.random() * 20) + 70,
-          contractEfficiency: Math.floor(Math.random() * 35) + 55
-        },
-        historicalData: {
-          gasUsage: generateHistoricalData(30, 40000, 120000),
-          transactionCount: generateHistoricalData(30, 50, 200),
-          confirmationTime: generateHistoricalData(30, 20, 80),
-          costPerTransaction: generateHistoricalData(30, 0.003, 0.02)
-        },
-        issues: [
-          {
-            type: 'gas',
-            severity: 'high',
-            description: 'Alto consumo de gas en función transferBatch',
-            recommendation: 'Optimizar el bucle en transferBatch para reducir operaciones redundantes'
-          },
-          {
-            type: 'time',
-            severity: 'medium',
-            description: 'Tiempos de confirmación variables',
-            recommendation: 'Considerar ajustes dinámicos de gas según la congestión'
-          }
-        ],
-        optimizations: [
-          {
-            title: 'Optimización de bucles',
-            description: 'Reducir operaciones dentro de bucles',
-            impact: 'Alto',
-            difficulty: 'Media',
-            gasSavings: '30-40%'
-          },
-          {
+      // Determinar si es una URL o dirección de contrato
+      const isUrl = data.contractAddress.startsWith('http');
+      let performanceData;
+
+      if (isUrl) {
+        // Análisis de rendimiento web
+        const url = data.contractAddress;
+        const domain = extractDomainFromUrl(url);
+        
+        // Obtener datos de rendimiento web
+        const [pageSpeedData, webVitalsData, historyData, resourceData] = await Promise.all([
+          PerformanceAPIsService.getPageSpeedAnalysis(url, 'mobile'),
+          PerformanceAPIsService.getWebVitalsAnalysis(url),
+          PerformanceAPIsService.getPerformanceHistory(url, 30),
+          PerformanceAPIsService.getResourceAnalysis(url)
+        ]);
+
+        // Análisis de competidores si se proporcionan
+        let competitorData = null;
+        if (data.competitors && data.competitors.trim()) {
+          const competitors = data.competitors.split(',').map((c: string) => c.trim());
+          competitorData = await PerformanceAPIsService.getCompetitorPerformanceComparison(url, competitors);
+        }
+
+        performanceData = generateWebPerformanceResults(
+          url,
+          pageSpeedData,
+          webVitalsData,
+          historyData,
+          resourceData,
+          competitorData
+        );
+      } else {
+        // Análisis de rendimiento de contrato blockchain
+        const contractAddress = data.contractAddress;
+        
+        // Obtener información del contrato desde Etherscan
+        const contractInfo = await EtherscanService.getContractInfo(contractAddress);
+        const transactionHistory = await EtherscanService.getTransactionHistory(contractAddress, 100);
+        
+        performanceData = generateContractPerformanceResults(
+          contractAddress,
+          contractInfo,
+          transactionHistory,
+          data.blockchain || 'ethereum'
+        );
+      }
+
+      setResults(performanceData);
+      
+      // Guardar en sessionStorage para la página de resultados
+      sessionStorage.setItem('performanceAnalysisResults', JSON.stringify(performanceData));
+      
+      notifyAnalysisCompleted('Análisis de Rendimiento');
+      
+      // Redirigir a resultados después de 3 segundos
+      setTimeout(() => {
+        const params = new URLSearchParams({
+          type: isUrl ? 'web' : 'contract',
+          target: isUrl ? extractDomainFromUrl(data.contractAddress) : data.contractAddress,
+          blockchain: data.blockchain || 'ethereum'
+        });
+        router.push(`/dashboard/performance/analysis-results?${params.toString()}`);
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Error en análisis de rendimiento:', error);
+      notifyAnalysisError('Error en el análisis de rendimiento');
+      setResults(null);
+    } finally {
+      setLoading(false);
+    }
+  };
             title: 'Batch processing',
             description: 'Agrupar múltiples operaciones',
             impact: 'Alto',
