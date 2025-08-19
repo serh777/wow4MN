@@ -18,6 +18,7 @@ import { QuickAccessMenu } from '@/components/navigation/quick-access-menu';
 import { KeyboardShortcuts } from '@/components/navigation/keyboard-shortcuts';
 import { SystemStatusDashboard } from '@/components/system/system-status-dashboard';
 import { ProjectManager } from '@/components/projects/project-manager';
+import '@/styles/dashboard.css';
 import { UnifiedWalletConnect } from '@/components/wallet/unified-wallet-connect';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWeb3 } from '@/contexts/Web3Context';
@@ -501,9 +502,9 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex">
       {/* Panel Lateral Colapsible */}
-      <div className={`bg-white shadow-xl transition-all duration-300 ease-in-out ${
-        sidebarCollapsed ? 'w-16' : 'w-80'
-      } flex flex-col border-r border-gray-200`}>
+      <div className={`bg-white shadow-xl sidebar-transition ${
+        sidebarCollapsed ? 'sidebar-collapsed' : 'sidebar-expanded'
+      } flex flex-col border-r border-gray-200 relative z-10 custom-scrollbar`}>
         
         {/* Header del Sidebar */}
         <div className="p-4 border-b border-gray-200 flex items-center justify-between">
@@ -519,7 +520,7 @@ export default function DashboardPage() {
             variant="ghost"
             size="sm"
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="p-2"
+            className="p-2 hover:bg-gray-100 rounded-full"
           >
             {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </Button>
@@ -528,16 +529,20 @@ export default function DashboardPage() {
         {/* Categorías */}
         {!sidebarCollapsed && (
           <div className="p-4 border-b border-gray-200">
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {TOOL_CATEGORIES.map((category) => {
                 const IconComponent = category.icon;
                 return (
                   <Button
                     key={category.id}
-                    variant={selectedCategory === category.id ? "primary" : "outline"}
+                    variant={selectedCategory === category.id ? "default" : "outline"}
                     size="sm"
                     onClick={() => setSelectedCategory(category.id)}
-                    className="text-xs"
+                    className={`category-button text-xs justify-start ${
+                      selectedCategory === category.id 
+                        ? 'category-button active' 
+                        : 'hover:bg-gray-50'
+                    }`}
                   >
                     <IconComponent className="h-3 w-3 mr-1" />
                     {category.name}
@@ -557,9 +562,9 @@ export default function DashboardPage() {
             return (
               <div
                 key={tool.id}
-                className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 ${
+                className={`tool-card p-3 rounded-lg border cursor-pointer ${
                   isSelected 
-                    ? 'border-blue-300 bg-blue-50 shadow-md' 
+                    ? 'tool-card selected' 
                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                 }`}
                 onClick={() => handleToolSelection(tool.id)}
@@ -567,27 +572,33 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-3">
                   <div className={`p-2 rounded-lg bg-gradient-to-r ${tool.color} ${
                     sidebarCollapsed ? 'w-8 h-8' : 'w-10 h-10'
-                  } flex items-center justify-center`}>
+                  } flex items-center justify-center shadow-sm`}>
                     <IconComponent className={`text-white ${
                       sidebarCollapsed ? 'h-4 w-4' : 'h-5 w-5'
                     }`} />
                   </div>
                   
                   {!sidebarCollapsed && (
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <h4 className="font-medium text-gray-900">{tool.name}</h4>
-                        <div className="flex items-center gap-2">
+                        <h4 className="font-medium text-gray-900 truncate">{tool.name}</h4>
+                        <div className="flex items-center gap-2 flex-shrink-0">
                           <Badge variant="secondary" className="text-xs">
                             ${tool.price}
                           </Badge>
                           {isSelected && <CheckCircle className="h-4 w-4 text-green-500" />}
                         </div>
                       </div>
-                      <p className="text-sm text-gray-500 mt-1">{tool.description}</p>
+                      <p className="text-sm text-gray-500 mt-1 line-clamp-2">{tool.description}</p>
                       <Badge variant="outline" className="text-xs mt-2">
                         {tool.category}
                       </Badge>
+                    </div>
+                  )}
+                  
+                  {sidebarCollapsed && isSelected && (
+                    <div className="absolute -right-2 -top-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 bg-white rounded-full" />
                     </div>
                   )}
                 </div>
@@ -597,16 +608,18 @@ export default function DashboardPage() {
         </div>
 
         {/* Footer del Sidebar */}
-        {!sidebarCollapsed && (
-          <div className="p-4 border-t border-gray-200">
+        {!sidebarCollapsed && selectedTools.length > 0 && (
+          <div className="p-4 border-t border-gray-200 bg-gray-50">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Herramientas seleccionadas:</span>
-                <Badge variant="secondary">{selectedTools.length}</Badge>
+                <span className="text-sm font-medium text-gray-700">Herramientas seleccionadas:</span>
+                <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                  {selectedTools.length}
+                </Badge>
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Precio total:</span>
+                <span className="text-sm font-medium text-gray-700">Precio total:</span>
                 <div className="flex items-center gap-2">
                   {isCompleteAudit && (
                     <Badge variant="destructive" className="text-xs">-20%</Badge>
@@ -623,7 +636,7 @@ export default function DashboardPage() {
                   checked={isCompleteAudit}
                   onCheckedChange={handleCompleteAuditChange}
                 />
-                <Label htmlFor="complete-audit" className="text-sm">
+                <Label htmlFor="complete-audit" className="text-sm text-gray-700">
                   Auditoría completa (20% descuento)
                 </Label>
               </div>
@@ -631,13 +644,12 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
-
       {/* Área Principal */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Header Principal */}
         <div className="bg-white shadow-sm border-b border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
-            <div>
+            <div className="min-w-0 flex-1">
               <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Dashboard Web3 SEO
               </h1>
@@ -646,25 +658,26 @@ export default function DashboardPage() {
               </p>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 flex-shrink-0">
               <Button
                 variant="outline"
+                size="sm"
                 onClick={() => setShowSystemStatus(!showSystemStatus)}
                 className={`flex items-center gap-2 ${showSystemStatus ? 'bg-blue-50 border-blue-300' : ''}`}
               >
                 <Activity className="h-4 w-4" />
-                <span className="hidden sm:inline">Estado Sistema</span>
+                <span className="hidden lg:inline">Estado</span>
               </Button>
               <Button
                 variant="outline"
+                size="sm"
                 onClick={() => setShowProjectManager(!showProjectManager)}
                 className={`flex items-center gap-2 ${showProjectManager ? 'bg-green-50 border-green-300' : ''}`}
               >
                 <FileText className="h-4 w-4" />
-                <span className="hidden sm:inline">Proyectos</span>
+                <span className="hidden lg:inline">Proyectos</span>
               </Button>
               <QuickAccessMenu onToolSelect={(toolId) => {
-                // Agregar herramienta seleccionada
                 setSelectedTools(prev => prev.includes(toolId) ? prev : [...prev, toolId]);
               }} />
               <KeyboardShortcuts 
@@ -674,19 +687,17 @@ export default function DashboardPage() {
                     searchInput.focus();
                   }
                 }}
-                onQuickAccessOpen={() => {
-                  // El componente QuickAccessMenu maneja su propio estado
-                }}
+                onQuickAccessOpen={() => {}}
                 onSettingsOpen={() => router.push('/dashboard/settings')}
               />
               <UnifiedWalletConnect onSuccess={() => {}} />
-              <Button variant="outline" onClick={() => router.push('/dashboard/settings')}>
-                <Settings className="h-4 w-4 mr-2" />
-                Configuración
+              <Button variant="outline" size="sm" onClick={() => router.push('/dashboard/settings')}>
+                <Settings className="h-4 w-4" />
+                <span className="hidden lg:inline ml-2">Config</span>
               </Button>
-              <Button variant="outline" onClick={handleSignOut}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Cerrar Sesión
+              <Button variant="outline" size="sm" onClick={handleSignOut}>
+                <LogOut className="h-4 w-4" />
+                <span className="hidden lg:inline ml-2">Salir</span>
               </Button>
             </div>
           </div>
