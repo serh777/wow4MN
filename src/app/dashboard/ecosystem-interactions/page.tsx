@@ -1,5 +1,7 @@
 'use client';
 
+'use client';
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,19 +36,15 @@ export default function EcosystemInteractionsPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const [formData, setFormData] = useState({
-    walletAddress: '',
-    protocolAddress: '',
-    ecosystemType: 'defi',
-    analysisDepth: 'comprehensive',
-    timeframe: '30d',
-    includeTransactions: true,
+    address: '',
+    includeNetworks: ['ethereum', 'polygon', 'bsc', 'arbitrum', 'optimism'],
     includeProtocols: true,
-    includeSocial: true,
-    includeGovernance: true,
-    includeNFTs: false
+    includeCrossChain: true,
+    includeRiskAnalysis: true,
+    timeframe: 'month'
   });
 
-  const handleInputChange = (field: string, value: string | boolean) => {
+  const handleInputChange = (field: string, value: string | boolean | string[]) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -56,42 +54,62 @@ export default function EcosystemInteractionsPage() {
   const handleAnalyze = async () => {
     setIsAnalyzing(true);
     
-    // Simular análisis
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    setIsAnalyzing(false);
-    setAnalysisComplete(true);
-    
-    // Mostrar mensaje de éxito y redirigir
-    setTimeout(() => {
-      router.push('/dashboard/ecosystem-interactions/analysis-results');
-    }, 2000);
+    try {
+      // Validar que la dirección esté presente
+      if (!formData.address) {
+        throw new Error('Dirección requerida para el análisis');
+      }
+
+      // Simular análisis real (en producción usaría EcosystemInteractionsAPIsService)
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      setIsAnalyzing(false);
+      setAnalysisComplete(true);
+      
+      // Guardar datos del análisis para la página de resultados
+      const analysisData = {
+        address: formData.address,
+        includeNetworks: formData.includeNetworks,
+        includeProtocols: formData.includeProtocols,
+        includeCrossChain: formData.includeCrossChain,
+        includeRiskAnalysis: formData.includeRiskAnalysis,
+        timeframe: formData.timeframe,
+        timestamp: new Date().toISOString()
+      };
+      
+      sessionStorage.setItem('ecosystemInteractionsAnalysis', JSON.stringify(analysisData));
+      
+      // Mostrar mensaje de éxito y redirigir
+      setTimeout(() => {
+        const params = new URLSearchParams({
+          address: formData.address,
+          networks: formData.includeNetworks.join(','),
+          timeframe: formData.timeframe
+        });
+        router.push(`/dashboard/ecosystem-interactions/analysis-results?${params.toString()}`);
+      }, 2000);
+      
+    } catch (error) {
+      console.error('Error en análisis:', error);
+      setIsAnalyzing(false);
+      // Aquí podrías mostrar un mensaje de error al usuario
+    }
   };
 
-  const ecosystemTypes = [
-    { value: 'defi', label: 'DeFi', description: 'Finanzas descentralizadas' },
-    { value: 'nft', label: 'NFT', description: 'Tokens no fungibles' },
-    { value: 'gaming', label: 'Gaming', description: 'Juegos blockchain' },
-    { value: 'dao', label: 'DAO', description: 'Organizaciones autónomas' },
-    { value: 'metaverse', label: 'Metaverso', description: 'Mundos virtuales' },
-    { value: 'social', label: 'Social', description: 'Redes sociales Web3' },
-    { value: 'infrastructure', label: 'Infraestructura', description: 'Protocolos base' },
-    { value: 'comprehensive', label: 'Comprensivo', description: 'Todos los ecosistemas' }
-  ];
-
-  const analysisDepths = [
-    { value: 'basic', label: 'Básico', description: 'Análisis superficial' },
-    { value: 'intermediate', label: 'Intermedio', description: 'Análisis detallado' },
-    { value: 'comprehensive', label: 'Comprensivo', description: 'Análisis profundo' },
-    { value: 'expert', label: 'Experto', description: 'Análisis exhaustivo' }
+  const networkOptions = [
+    { value: 'ethereum', label: 'Ethereum', description: 'Red principal' },
+    { value: 'polygon', label: 'Polygon', description: 'Layer 2 escalable' },
+    { value: 'bsc', label: 'BSC', description: 'Binance Smart Chain' },
+    { value: 'arbitrum', label: 'Arbitrum', description: 'Layer 2 optimista' },
+    { value: 'optimism', label: 'Optimism', description: 'Layer 2 optimista' },
+    { value: 'avalanche', label: 'Avalanche', description: 'Red de alta velocidad' }
   ];
 
   const timeframes = [
-    { value: '7d', label: '7 días' },
-    { value: '30d', label: '30 días' },
-    { value: '90d', label: '90 días' },
-    { value: '1y', label: '1 año' },
-    { value: 'all', label: 'Todo el tiempo' }
+    { value: 'week', label: '1 semana' },
+    { value: 'month', label: '1 mes' },
+    { value: 'quarter', label: '3 meses' },
+    { value: 'year', label: '1 año' }
   ];
 
   return (
@@ -139,47 +157,119 @@ export default function EcosystemInteractionsPage() {
             <TabsContent value="basic" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="walletAddress">Dirección de Wallet</Label>
+                  <Label htmlFor="address">Dirección de Wallet o Contrato</Label>
                   <Input
-                    id="walletAddress"
-                    placeholder="0x..."
-                    value={formData.walletAddress}
-                    onChange={(e) => handleInputChange('walletAddress', e.target.value)}
+                    id="address"
+                    placeholder="0x... o nombre.eth"
+                    value={formData.address}
+                    onChange={(e) => handleInputChange('address', e.target.value)}
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Ingresa una dirección Ethereum o dominio ENS
+                  </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="protocolAddress">Dirección de Protocolo (Opcional)</Label>
-                  <Input
-                    id="protocolAddress"
-                    placeholder="0x..."
-                    value={formData.protocolAddress}
-                    onChange={(e) => handleInputChange('protocolAddress', e.target.value)}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="ecosystemType">Tipo de Ecosistema</Label>
-                  <Select value={formData.ecosystemType} onValueChange={(value) => handleInputChange('ecosystemType', value)}>
+                  <Label htmlFor="timeframe">Período de Análisis</Label>
+                  <Select value={formData.timeframe} onValueChange={(value) => handleInputChange('timeframe', value)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {ecosystemTypes.map((type) => (
-                        <SelectItem key={type.value} value={type.value}>
-                          <div className="flex flex-col">
-                            <span>{type.label}</span>
-                            <span className="text-xs text-muted-foreground">{type.description}</span>
-                          </div>
+                      {timeframes.map((timeframe) => (
+                        <SelectItem key={timeframe.value} value={timeframe.value}>
+                          {timeframe.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="timeframe">Período de Análisis</Label>
-                  <Select value={formData.timeframe} onValueChange={(value) => handleInputChange('timeframe', value)}>
+                <div className="space-y-3 md:col-span-2">
+                  <Label>Redes a Incluir</Label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {networkOptions.map((network) => (
+                      <div key={network.value} className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id={network.value}
+                          checked={formData.includeNetworks.includes(network.value)}
+                          onChange={(e) => {
+                            const newNetworks = e.target.checked
+                              ? [...formData.includeNetworks, network.value]
+                              : formData.includeNetworks.filter(n => n !== network.value);
+                            handleInputChange('includeNetworks', newNetworks);
+                          }}
+                          className="rounded border-gray-300"
+                        />
+                        <label htmlFor={network.value} className="text-sm">
+                          <div>
+                            <span className="font-medium">{network.label}</span>
+                            <p className="text-xs text-muted-foreground">{network.description}</p>
+                          </div>
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="advanced" className="space-y-6">
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <Label>Opciones de Análisis</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="includeProtocols"
+                        checked={formData.includeProtocols}
+                        onChange={(e) => handleInputChange('includeProtocols', e.target.checked)}
+                        className="rounded border-gray-300"
+                      />
+                      <label htmlFor="includeProtocols" className="text-sm">
+                        <div>
+                          <span className="font-medium">Análisis de Protocolos</span>
+                          <p className="text-xs text-muted-foreground">Incluir interacciones con protocolos DeFi</p>
+                        </div>
+                      </label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="includeCrossChain"
+                        checked={formData.includeCrossChain}
+                        onChange={(e) => handleInputChange('includeCrossChain', e.target.checked)}
+                        className="rounded border-gray-300"
+                      />
+                      <label htmlFor="includeCrossChain" className="text-sm">
+                        <div>
+                          <span className="font-medium">Análisis Cross-Chain</span>
+                          <p className="text-xs text-muted-foreground">Incluir bridges y transferencias entre redes</p>
+                        </div>
+                      </label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="includeRiskAnalysis"
+                        checked={formData.includeRiskAnalysis}
+                        onChange={(e) => handleInputChange('includeRiskAnalysis', e.target.checked)}
+                        className="rounded border-gray-300"
+                      />
+                      <label htmlFor="includeRiskAnalysis" className="text-sm">
+                        <div>
+                          <span className="font-medium">Análisis de Riesgo</span>
+                          <p className="text-xs text-muted-foreground">Evaluar factores de riesgo del ecosistema</p>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -297,18 +387,18 @@ export default function EcosystemInteractionsPage() {
           <div className="flex justify-center mt-8">
             <Button 
               onClick={handleAnalyze}
-              disabled={isAnalyzing || !formData.walletAddress}
+              disabled={isAnalyzing || !formData.address || formData.includeNetworks.length === 0}
               className="ecosystem-analyze-button"
             >
               {isAnalyzing ? (
                 <>
                   <Activity className="mr-2 h-5 w-5 animate-spin" />
-                  Analizando Interacciones...
+                  Analizando Interacciones del Ecosistema...
                 </>
               ) : (
                 <>
                   <Network className="mr-2 h-5 w-5" />
-                  Analizar Ecosistema
+                  Analizar Interacciones del Ecosistema
                 </>
               )}
             </Button>
