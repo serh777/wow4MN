@@ -2,6 +2,9 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { GoogleAPIsService } from '@/services/apis/google-apis';
+import { extractDomainFromUrl } from '@/app/dashboard/keywords/components/real-keywords-helpers';
+import { generateRealBacklinkResults } from './real-backlinks-helpers';
 
 interface FormData {
   websiteUrl: string;
@@ -274,8 +277,85 @@ export function useBacklinksAnalysis() {
     setResults(null);
 
     try {
-      await simulateAnalysisSteps(data);
-      const mockResults = generateMockResults(data);
+      // Extraer dominio de la URL
+      const domain = extractDomainFromUrl(data.websiteUrl);
+      
+      // Paso 1: Análisis de backlinks con Google APIs
+      setAnalysisProgress({
+        step: 'backlinks',
+        progress: 20,
+        message: 'Obteniendo datos de backlinks...'
+      });
+      
+      const backlinkData = await GoogleAPIsService.getBacklinkAnalysis(domain);
+      
+      // Paso 2: Análisis de competencia si está habilitado
+      let competitorData = null;
+      if (data.includeCompetitorAnalysis && data.competitors.trim()) {
+        setAnalysisProgress({
+          step: 'competitors',
+          progress: 50,
+          message: 'Analizando competidores...'
+        });
+        
+        const competitors = data.competitors.split(',').map(c => c.trim());
+        competitorData = await GoogleAPIsService.getCompetitorAnalysis(domain, competitors);
+      }
+      
+      // Paso 3: Análisis de anchor text
+      setAnalysisProgress({
+        step: 'anchor',
+        progress: 70,
+        message: 'Analizando texto de anclaje...'
+      });
+      
+      // Paso 4: Detección de enlaces tóxicos
+      if (data.includeToxicLinks) {
+        setAnalysisProgress({
+          step: 'toxic',
+          progress: 85,
+          message: 'Detectando enlaces tóxicos...'
+        });
+      }
+      
+      // Paso 5: Generar resultados finales
+      setAnalysisProgress({
+        step: 'insights',
+        progress: 95,
+        message: 'Generando insights y recomendaciones...'
+      });
+      
+      const analysisResults = generateRealBacklinkResults(
+        data,
+        backlinkData,
+        competitorData
+      );
+      
+      setAnalysisProgress({
+        step: 'complete',
+        progress: 100,
+        message: 'Análisis completado'
+      });
+      
+      setResults(analysisResults);
+      
+      // Redirigir a resultados después de 2 segundos
+      setTimeout(() => {
+        const params = new URLSearchParams({
+          domain,
+          projectName: data.projectName,
+          analysisType: data.analysisDepth || 'comprehensive'
+        });
+        router.push(`/dashboard/backlinks/analysis-results?${params.toString()}`);
+      }, 2000);
+      
+    } catch (err) {
+      console.error('Error en análisis de backlinks:', err);
+      setError(err instanceof Error ? err.message : 'Error desconocido en el análisis');
+    } finally {
+      setLoading(false);
+    }
+  }, [router]);
       setResults(mockResults);
       
       // Guardar resultados en sessionStorage
