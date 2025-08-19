@@ -1,5 +1,7 @@
 'use client';
 
+'use client';
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,13 +36,12 @@ export default function ContentAuthenticityPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const [formData, setFormData] = useState({
+    contentId: '',
     contentUrl: '',
     contentType: 'nft',
-    verificationMethod: 'blockchain',
-    includeMetadata: true,
-    includeProvenance: true,
-    includeOwnership: true,
-    includeIntegrity: true,
+    includeBlockchain: true,
+    includeIPFS: true,
+    includeSignatures: true,
     blockchainNetwork: 'ethereum',
     contentHash: '',
     tokenId: ''
@@ -56,16 +57,50 @@ export default function ContentAuthenticityPage() {
   const handleAnalyze = async () => {
     setIsAnalyzing(true);
     
-    // Simular análisis
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    setIsAnalyzing(false);
-    setAnalysisComplete(true);
-    
-    // Mostrar mensaje de éxito y redirigir
-    setTimeout(() => {
-      router.push('/dashboard/content-authenticity/analysis-results');
-    }, 2000);
+    try {
+      // Validar que al menos uno de los campos principales esté lleno
+      if (!formData.contentId && !formData.contentUrl && !formData.contentHash) {
+        throw new Error('Debe proporcionar al menos un identificador de contenido, URL o hash');
+      }
+
+      // Determinar el identificador principal para el análisis
+      const contentId = formData.contentId || formData.contentUrl || formData.contentHash || 'default-content';
+      
+      // Simular análisis real (en producción usaría ContentAuthenticityAPIsService)
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      setIsAnalyzing(false);
+      setAnalysisComplete(true);
+      
+      // Guardar datos del análisis para la página de resultados
+      const analysisData = {
+        contentId,
+        contentUrl: formData.contentUrl,
+        contentType: formData.contentType,
+        includeBlockchain: formData.includeBlockchain,
+        includeIPFS: formData.includeIPFS,
+        includeSignatures: formData.includeSignatures,
+        blockchainNetwork: formData.blockchainNetwork,
+        timestamp: new Date().toISOString()
+      };
+      
+      sessionStorage.setItem('contentAuthenticityAnalysis', JSON.stringify(analysisData));
+      
+      // Mostrar mensaje de éxito y redirigir
+      setTimeout(() => {
+        const params = new URLSearchParams({
+          contentId,
+          type: formData.contentType,
+          network: formData.blockchainNetwork
+        });
+        router.push(`/dashboard/content-authenticity/analysis-results?${params.toString()}`);
+      }, 2000);
+      
+    } catch (error) {
+      console.error('Error en análisis:', error);
+      setIsAnalyzing(false);
+      // Aquí podrías mostrar un mensaje de error al usuario
+    }
   };
 
   const contentTypes = [
@@ -140,9 +175,21 @@ export default function ContentAuthenticityPage() {
             <TabsContent value="basic" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="contentUrl">URL del Contenido</Label>
+                  <Label htmlFor="contentId">ID de Contenido</Label>
+                  <Input
+                    id="contentId"
+                    title="Ingresa el ID único del contenido a verificar"
+                    placeholder="ID, hash o identificador único"
+                    value={formData.contentId}
+                    onChange={(e) => handleInputChange('contentId', e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="contentUrl">URL del Contenido (Opcional)</Label>
                   <Input
                     id="contentUrl"
+                    title="URL opcional para contexto adicional"
                     placeholder="https://... o IPFS hash"
                     value={formData.contentUrl}
                     onChange={(e) => handleInputChange('contentUrl', e.target.value)}
@@ -212,7 +259,8 @@ export default function ContentAuthenticityPage() {
                     <Label htmlFor="contentHash">Hash del Contenido (Opcional)</Label>
                     <Input
                       id="contentHash"
-                      placeholder="0x..."
+                      title="Hash criptográfico del contenido para verificación"
+                      placeholder="0x... o hash IPFS"
                       value={formData.contentHash}
                       onChange={(e) => handleInputChange('contentHash', e.target.value)}
                     />
@@ -222,70 +270,74 @@ export default function ContentAuthenticityPage() {
                     <Label htmlFor="tokenId">Token ID (Para NFTs)</Label>
                     <Input
                       id="tokenId"
+                      title="ID del token para NFTs específicos"
                       placeholder="123456"
                       value={formData.tokenId}
                       onChange={(e) => handleInputChange('tokenId', e.target.value)}
                     />
                   </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="blockchainNetwork">Red Blockchain</Label>
+                    <Select value={formData.blockchainNetwork} onValueChange={(value) => handleInputChange('blockchainNetwork', value)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {blockchainNetworks.map((network) => (
+                          <SelectItem key={network.value} value={network.value}>
+                            {network.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 <div className="space-y-4">
-                  <Label>Aspectos a Verificar</Label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Label>Métodos de Verificación</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        id="includeMetadata"
-                        title="Incluir análisis de metadatos del contenido"
-                        checked={formData.includeMetadata}
-                        onChange={(e) => handleInputChange('includeMetadata', e.target.checked)}
-                        className="content-auth-checkbox"
+                        id="includeBlockchain"
+                        title="Incluir verificación en blockchain"
+                        checked={formData.includeBlockchain}
+                        onChange={(e) => handleInputChange('includeBlockchain', e.target.checked)}
+                        className="rounded border-gray-300"
                       />
-                      <Label htmlFor="includeMetadata" className="text-sm">
-                        Verificar Metadatos
+                      <Label htmlFor="includeBlockchain" className="text-sm">
+                        Verificación Blockchain
                       </Label>
                     </div>
 
                     <div className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        id="includeProvenance"
-                        title="Incluir verificación de procedencia del contenido"
-                        checked={formData.includeProvenance}
-                        onChange={(e) => handleInputChange('includeProvenance', e.target.checked)}
-                        className="content-auth-checkbox"
+                        id="includeIPFS"
+                        title="Incluir verificación en IPFS"
+                        checked={formData.includeIPFS}
+                        onChange={(e) => handleInputChange('includeIPFS', e.target.checked)}
+                        className="rounded border-gray-300"
                       />
-                      <Label htmlFor="includeProvenance" className="text-sm">
-                        Verificar Procedencia
+                      <Label htmlFor="includeIPFS" className="text-sm">
+                        Verificación IPFS
                       </Label>
                     </div>
 
                     <div className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        id="includeOwnership"
-                        title="Incluir verificación de propiedad del contenido"
-                        checked={formData.includeOwnership}
-                        onChange={(e) => handleInputChange('includeOwnership', e.target.checked)}
-                        className="content-auth-checkbox"
+                        id="includeSignatures"
+                        title="Incluir verificación de firmas digitales"
+                        checked={formData.includeSignatures}
+                        onChange={(e) => handleInputChange('includeSignatures', e.target.checked)}
+                        className="rounded border-gray-300"
                       />
-                      <Label htmlFor="includeOwnership" className="text-sm">
-                        Verificar Propiedad
+                      <Label htmlFor="includeSignatures" className="text-sm">
+                        Firmas Digitales
                       </Label>
                     </div>
-
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id="includeIntegrity"
-                        title="Incluir verificación de integridad del contenido"
-                        checked={formData.includeIntegrity}
-                        onChange={(e) => handleInputChange('includeIntegrity', e.target.checked)}
-                        className="content-auth-checkbox"
-                      />
-                      <Label htmlFor="includeIntegrity" className="text-sm">
-                        Verificar Integridad
-                      </Label>
                     </div>
                   </div>
                 </div>
@@ -296,8 +348,8 @@ export default function ContentAuthenticityPage() {
           <div className="flex justify-center mt-8">
             <Button 
               onClick={handleAnalyze}
-              disabled={isAnalyzing || !formData.contentUrl}
-              className="content-auth-analyze-button"
+              disabled={isAnalyzing || (!formData.contentId && !formData.contentUrl && !formData.contentHash)}
+              className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-8 py-3 text-lg"
             >
               {isAnalyzing ? (
                 <>
