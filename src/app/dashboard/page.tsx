@@ -18,6 +18,7 @@ import { QuickAccessMenu } from '@/components/navigation/quick-access-menu';
 import { KeyboardShortcuts } from '@/components/navigation/keyboard-shortcuts';
 import { SystemStatusDashboard } from '@/components/system/system-status-dashboard';
 import { ProjectManager } from '@/components/projects/project-manager';
+import { DataSourcesGuide } from '@/components/dashboard/data-sources-guide';
 import '@/styles/dashboard.css';
 import { UnifiedWalletConnect } from '@/components/wallet/unified-wallet-connect';
 import { useAuth } from '@/contexts/AuthContext';
@@ -229,6 +230,7 @@ export default function DashboardPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showSystemStatus, setShowSystemStatus] = useState(false);
   const [showProjectManager, setShowProjectManager] = useState(false);
+  const [showDataSourcesGuide, setShowDataSourcesGuide] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isCompleteAudit, setIsCompleteAudit] = useState<boolean>(false);
   
@@ -715,6 +717,15 @@ export default function DashboardPage() {
               <Button
                 variant="outline"
                 size="sm"
+                onClick={() => setShowDataSourcesGuide(!showDataSourcesGuide)}
+                className={`flex items-center gap-2 ${showDataSourcesGuide ? 'bg-purple-50 border-purple-300' : ''}`}
+              >
+                <Info className="h-4 w-4" />
+                <span className="hidden lg:inline">Fuentes</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setShowSystemStatus(!showSystemStatus)}
                 className={`flex items-center gap-2 ${showSystemStatus ? 'bg-blue-50 border-blue-300' : ''}`}
               >
@@ -808,6 +819,15 @@ export default function DashboardPage() {
                     variant: 'default'
                   });
                 }}
+              />
+            </div>
+          )}
+
+          {/* Guía de Fuentes de Datos */}
+          {showDataSourcesGuide && (
+            <div className="mb-6">
+              <DataSourcesGuide 
+                selectedTool={selectedTools.length === 1 ? selectedTools[0] : undefined}
               />
             </div>
           )}
