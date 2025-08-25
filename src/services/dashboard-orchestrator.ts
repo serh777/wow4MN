@@ -3,7 +3,7 @@
  * Servicio central para coordinar análisis de múltiples herramientas
  */
 
-import { AIAnalysisAPIsService } from './apis/anthropic';
+import { AnthropicService } from './apis/anthropic';
 import { EtherscanService } from './apis/etherscan';
 import { AlchemyService } from './apis/alchemy';
 import { GoogleAPIsService } from './apis/google-apis';
@@ -14,6 +14,13 @@ import { AuthorityTrackingAPIsService } from './apis/authority-tracking-apis';
 import { ContentAuthenticityAPIsService } from './apis/content-authenticity-apis';
 import { MetaverseOptimizerAPIsService } from './apis/metaverse-optimizer-apis';
 import { EcosystemInteractionsAPIsService } from './apis/ecosystem-interactions-apis';
+import { MetadataAPIsService } from './apis/metadata-apis';
+import { ContentAPIsService } from './apis/content-apis';
+import { LinksAPIsService } from './apis/links-apis';
+import { CompetitionAPIsService } from './apis/competition-apis';
+import { SmartContractAPIsService } from './apis/smart-contract-apis';
+import { HistoricalAPIsService } from './apis/historical-apis';
+import { apiCall, ApiRetryHandler } from '../utils/api-retry-handler';
 
 export interface AnalysisRequest {
   address: string;
@@ -80,7 +87,7 @@ class DashboardOrchestratorService {
 
   private initializeServices() {
     // Inicializar todos los servicios de herramientas
-    this.services.set('ai-assistant', new AIAnalysisAPIsService());
+    this.services.set('ai-assistant', new AnthropicService());
     this.services.set('blockchain', new EtherscanService());
     this.services.set('nft-tracking', new AlchemyService());
     this.services.set('keywords', new GoogleAPIsService());
@@ -92,6 +99,19 @@ class DashboardOrchestratorService {
     this.services.set('content-authenticity', new ContentAuthenticityAPIsService());
     this.services.set('metaverse-optimizer', new MetaverseOptimizerAPIsService());
     this.services.set('ecosystem-interactions', new EcosystemInteractionsAPIsService());
+    
+    // Nuevos servicios implementados
+    this.services.set('metadata', new MetadataAPIsService());
+    this.services.set('content', new ContentAPIsService());
+    this.services.set('links', new LinksAPIsService());
+    this.services.set('competition', new CompetitionAPIsService());
+    this.services.set('smart-contract', new SmartContractAPIsService());
+    this.services.set('historical', new HistoricalAPIsService());
+    
+    // Servicios adicionales para unified results
+    this.services.set('security-scan', new SecurityAPIsService());
+    this.services.set('social-media', new SocialWeb3APIsService());
+    this.services.set('competitor-analysis', new GoogleAPIsService());
   }
 
   /**
@@ -232,50 +252,68 @@ class DashboardOrchestratorService {
 
         case 'backlinks':
           this.updateProgress(requestId, toolId, 'running', 45);
-          data = await service.analyzeBacklinks(address, {
-            includeQualityMetrics: true,
-            includeCompetitorAnalysis: true
-          });
+          data = await apiCall(
+            () => service.analyzeBacklinks(address, {
+              includeQualityMetrics: true,
+              includeCompetitorAnalysis: true
+            }),
+            'backlinks-service'
+          );
           break;
 
         case 'performance':
           this.updateProgress(requestId, toolId, 'running', 60);
-          data = await service.analyzePerformance(address, {
-            includeWebVitals: true,
-            includeBlockchainMetrics: true
-          });
+          data = await apiCall(
+            () => service.analyzePerformance(address, {
+              includeWebVitals: true,
+              includeBlockchainMetrics: true
+            }),
+            'performance-service'
+          );
           break;
 
         case 'security':
           this.updateProgress(requestId, toolId, 'running', 70);
-          data = await service.analyzeSecurity(address, {
-            includeContractAudit: true,
-            includeVulnerabilityCheck: true
-          });
+          data = await apiCall(
+            () => service.analyzeSecurity(address, {
+              includeContractAudit: true,
+              includeVulnerabilityCheck: true
+            }),
+            'security-service'
+          );
           break;
 
         case 'social-web3':
           this.updateProgress(requestId, toolId, 'running', 55);
-          data = await service.analyzeSocialWeb3(address, {
-            platforms: ['lens', 'farcaster', 'mastodon'],
-            includeInfluenceMetrics: true
-          });
+          data = await apiCall(
+            () => service.analyzeSocialWeb3(address, {
+              platforms: ['lens', 'farcaster', 'mastodon'],
+              includeInfluenceMetrics: true
+            }),
+            'social-web3-service'
+          );
           break;
 
         case 'authority-tracking':
           this.updateProgress(requestId, toolId, 'running', 65);
-          data = await service.analyzeAuthority(address, {
-            includeGovernance: true,
-            includeSocialMetrics: true
-          });
+          data = await apiCall(
+            () => service.analyzeAuthority(address, {
+              includeGovernance: true,
+              includeSocialMetrics: true
+            }),
+            'authority-tracking-service'
+          );
           break;
 
         case 'content-authenticity':
           this.updateProgress(requestId, toolId, 'running', 40);
-          data = await service.verifyAuthenticity(address, {
-            includeBlockchainVerification: true,
-            includeIPFSCheck: true
-          });
+          data = await apiCall(
+            () => service.verifyAuthenticity(address, {
+              includeBlockchainVerification: true,
+              includeIPFSCheck: true
+            }),
+            'content-authenticity-service'
+          );
           break;
 
         case 'metaverse-optimizer':
@@ -291,6 +329,88 @@ class DashboardOrchestratorService {
           data = await service.analyzeEcosystem(address, {
             includeNetworks: ['ethereum', 'polygon', 'bsc'],
             includeCrossChain: true
+          });
+          break;
+
+        case 'security-scan':
+          this.updateProgress(requestId, toolId, 'running', 70);
+          data = await service.analyzeSecurity(address, {
+            includeContractAudit: true,
+            includeVulnerabilityCheck: true,
+            includeSecurityHeaders: true
+          });
+          break;
+
+        case 'social-media':
+          this.updateProgress(requestId, toolId, 'running', 55);
+          data = await service.analyzeSocialWeb3(address, {
+            platforms: ['lens', 'farcaster', 'mastodon', 'twitter'],
+            includeInfluenceMetrics: true,
+            includeSocialSentiment: true
+          });
+          break;
+
+        case 'competitor-analysis':
+          this.updateProgress(requestId, toolId, 'running', 60);
+          data = await service.analyzeKeywords(address, {
+            includeCompetitors: true,
+            includeMarketShare: true,
+            includeCompetitorBacklinks: true
+          });
+          break;
+
+        case 'metadata':
+          this.updateProgress(requestId, toolId, 'running', 30);
+          data = await service.analyzeMetadata(address, {
+            includeWebsite: true,
+            includeContract: true,
+            includeNFT: true
+          });
+          break;
+
+        case 'content':
+          this.updateProgress(requestId, toolId, 'running', 40);
+          data = await service.analyzeContent(address, {
+            includeMetrics: true,
+            includeSEO: true,
+            includeAccessibility: true
+          });
+          break;
+
+        case 'links':
+          this.updateProgress(requestId, toolId, 'running', 45);
+          data = await service.analyzeLinks(address, {
+            includeInternal: true,
+            includeExternal: true,
+            includeBacklinks: true
+          });
+          break;
+
+        case 'competition':
+          this.updateProgress(requestId, toolId, 'running', 55);
+          data = await service.analyzeCompetition(address, {
+            includeKeywordGaps: true,
+            includeContentGaps: true,
+            includeBacklinkGaps: true
+          });
+          break;
+
+        case 'smart-contract':
+          this.updateProgress(requestId, toolId, 'running', 65);
+          data = await service.analyzeSmartContract(address, {
+            includeSecurity: true,
+            includeGasOptimization: true,
+            includeCompliance: true
+          });
+          break;
+
+        case 'historical':
+          this.updateProgress(requestId, toolId, 'running', 50);
+          data = await service.analyzeHistorical(address, {
+            includeTraffic: true,
+            includeRanking: true,
+            includePerformance: true,
+            includeBlockchain: true
           });
           break;
 
@@ -342,10 +462,14 @@ class DashboardOrchestratorService {
     const response = this.activeAnalyses.get(requestId);
     if (!response) return;
 
-    const toolProgress = response.progress.find(p => p.toolId === toolId);
-    if (toolProgress) {
-      toolProgress.status = status;
-      toolProgress.progress = progress;
+    const toolProgressIndex = response.progress.findIndex(p => p.toolId === toolId);
+    if (toolProgressIndex !== -1) {
+      // Crear un nuevo objeto en lugar de modificar propiedades de solo lectura
+      response.progress[toolProgressIndex] = {
+        ...response.progress[toolProgressIndex],
+        status,
+        progress
+      };
     }
 
     this.activeAnalyses.set(requestId, response);
@@ -359,14 +483,7 @@ class DashboardOrchestratorService {
       const aiService = this.services.get('ai-assistant');
       if (!aiService) return [];
 
-      const prompt = `Analiza los siguientes datos de ${this.getToolName(toolId)} para la dirección ${address} y genera 3-5 insights clave:
-
-${JSON.stringify(data, null, 2)}
-
-Proporciona insights específicos, accionables y relevantes para Web3/SEO.`;
-
-      const response = await aiService.generateInsights(prompt);
-      return response.insights || [];
+      return await aiService.generateInsights(toolId, data, address);
     } catch (error) {
       console.error('Error generando insights:', error);
       return [];
@@ -381,14 +498,7 @@ Proporciona insights específicos, accionables y relevantes para Web3/SEO.`;
       const aiService = this.services.get('ai-assistant');
       if (!aiService) return [];
 
-      const prompt = `Basándote en los datos de ${this.getToolName(toolId)} para ${address}, genera 3-5 recomendaciones específicas para mejorar:
-
-${JSON.stringify(data, null, 2)}
-
-Las recomendaciones deben ser específicas, implementables y orientadas a resultados.`;
-
-      const response = await aiService.generateRecommendations(prompt);
-      return response.recommendations || [];
+      return await aiService.generateRecommendations(toolId, data, address);
     } catch (error) {
       console.error('Error generando recomendaciones:', error);
       return [];
@@ -463,7 +573,16 @@ Las recomendaciones deben ser específicas, implementables y orientadas a result
       'authority-tracking': 'Seguimiento de Autoridad',
       'content-authenticity': 'Autenticidad de Contenido',
       'metaverse-optimizer': 'Optimizador de Metaverso',
-      'ecosystem-interactions': 'Interacciones del Ecosistema'
+      'ecosystem-interactions': 'Interacciones del Ecosistema',
+      'metadata': 'Análisis de Metadatos',
+      'content': 'Análisis de Contenido',
+      'links': 'Análisis de Enlaces',
+      'competition': 'Análisis de Competencia',
+      'smart-contract': 'Análisis de Smart Contract',
+      'historical': 'Análisis Histórico',
+      'security-scan': 'Escaneo de Seguridad',
+      'social-media': 'Análisis Social Media',
+      'competitor-analysis': 'Análisis de Competencia'
     };
 
     return toolNames[toolId] || toolId;

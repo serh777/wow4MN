@@ -50,7 +50,7 @@ export default function SocialWeb3AnalysisPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link href="/dashboard/social-web3/analysis-results">
+              <Link href="/dashboard/results/social-web3">
                 <Button className="w-full sm:w-auto">
                   Ver Resultados Detallados
                   <ExternalLink className="ml-2 h-4 w-4" />

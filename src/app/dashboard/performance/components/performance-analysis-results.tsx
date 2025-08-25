@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { AnalysisResults, Visualization, ScoreCard } from '@/app/dashboard/content/analysis-results/components/tool-components';
+import { AnalysisResults, Visualization, ScoreCard } from '@/app/dashboard/results/content/components/tool-components';
 import { SaveAnalysisButton } from '@/components/notifications/notification-system';
 import { Progress } from '@/components/ui/progress';
 import type { AnalysisResult } from '@/types';

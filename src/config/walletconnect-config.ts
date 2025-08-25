@@ -11,7 +11,7 @@ export {
   supportedNetworks as networks,
   defaultNetwork,
   appMetadata as metadata,
-  ethersAdapter,
+  // ethersAdapter, // Temporalmente comentado
   mobileWalletIds,
   
   // Funciones de AppKit
@@ -92,7 +92,7 @@ export const getMobileEthersConfig = () => {
     },
     enableEIP6963: true,
     enableInjected: true,
-    enableCoinbase: true,
+    enableCoinbase: false, // Temporalmente deshabilitado para evitar errores de sintaxis
     defaultChainId: 1,
     auth: {
       socials: [],
@@ -114,7 +114,7 @@ export const getMobileWalletConfig = () => {
     ],
     enableWalletConnect: true,
     enableInjected: true,
-    enableCoinbase: true,
+    enableCoinbase: false, // Temporalmente deshabilitado para evitar errores de sintaxis
     enableEIP6963: true,
     enableNetworkView: false,
     enableExplorer: false
@@ -155,11 +155,12 @@ export const retryConnection = async (
 };
 
 // Re-exportar configuraciones principales para compatibilidad
-export { mainnet, polygon } from '@reown/appkit/networks';
+// Temporalmente comentado para evitar errores de sintaxis
+// export { mainnet, polygon } from '@reown/appkit/networks';
 
 // Configuración legacy de ethers
 export const ethersConfig = {
-  name: 'EthersAdapter',
+  // name: 'EthersAdapter', // Temporalmente comentado
   deprecated: true,
   message: 'Usa la nueva configuración modular'
 };

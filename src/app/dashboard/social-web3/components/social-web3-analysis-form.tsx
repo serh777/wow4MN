@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { InputForm } from '@/app/dashboard/content/analysis-results/components/tool-components';
+import { InputForm } from '@/app/dashboard/results/content/components/tool-components';
 
 interface SocialWeb3AnalysisFormProps {
   onSubmit: (data: any) => Promise<void>;

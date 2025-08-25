@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ToolLayout } from '@/app/dashboard/content/analysis-results/components/tool-components';
+import { ToolLayout } from '@/app/dashboard/results/content/components/tool-components';
 import { SmartContractAnalysisForm } from './smart-contract-analysis-form';
 import { SmartContractAnalysisResults } from './smart-contract-analysis-results';
 import { useSmartContractAnalysis } from './use-smart-contract-analysis';

@@ -100,6 +100,22 @@ interface MetaverseOptimizerResult {
 }
 
 export class MetaverseOptimizerAPIsService {
+  // Método de instancia para análisis de contenido del metaverso
+  async analyzeMetaverseContent(contentId: string, options?: any): Promise<any> {
+    try {
+      const analysis = await MetaverseOptimizerAPIsService.analyzeMetaverseContent(contentId, options || {});
+      return {
+        contentId,
+        analysis,
+        targetPlatforms: options?.targetPlatforms || ['VRChat', 'Decentraland'],
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      console.error('Error analyzing metaverse content:', error);
+      return { error: 'Failed to analyze metaverse content' };
+    }
+  }
+
   // Plataformas de metaverso conocidas
   private static readonly METAVERSE_PLATFORMS = {
     'Horizon Worlds': {
@@ -701,7 +717,7 @@ export class MetaverseOptimizerAPIsService {
 
   // Funciones auxiliares
   private static getAssetTypesForContent(contentType: string): Array<'model' | 'texture' | 'animation' | 'audio' | 'script' | 'environment'> {
-    const typeMap = {
+    const typeMap: Record<string, Array<'model' | 'texture' | 'animation' | 'audio' | 'script' | 'environment'>> = {
       'avatar': ['model', 'texture', 'animation'],
       'environment': ['model', 'texture', 'audio', 'script'],
       'game': ['model', 'texture', 'animation', 'audio', 'script'],
@@ -815,6 +831,25 @@ export class MetaverseOptimizerAPIsService {
       marketOpportunities: [],
       lastAnalyzed: new Date().toISOString()
     };
+  }
+
+  /**
+   * Función principal para optimizar contenido de metaverso
+   */
+  async optimizeMetaverse(address: string, options?: any): Promise<any> {
+    try {
+      const result = await MetaverseOptimizerAPIsService.analyzeMetaverseContent(address, options || {});
+      return {
+        address,
+        optimization: result,
+        platforms: options?.platforms || ['decentraland', 'sandbox', 'vrchat'],
+        includePerformanceMetrics: options?.includePerformanceMetrics || true,
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      console.error('Error optimizing metaverse content:', error);
+      return { error: 'Failed to optimize metaverse content' };
+    }
   }
 }
 

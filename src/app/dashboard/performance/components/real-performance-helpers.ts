@@ -302,10 +302,10 @@ function generateWebPerformanceRecommendations(pageSpeedData: any, webVitalsData
 
 function generateWebPerformanceInsights(pageSpeedData: any, webVitalsData: any, historyData: any[]): any {
   const insights = {
-    strengths: [],
-    weaknesses: [],
-    trends: [],
-    opportunities: []
+    strengths: [] as string[],
+    weaknesses: [] as string[],
+    trends: [] as string[],
+    opportunities: [] as string[]
   };
 
   // Analizar fortalezas

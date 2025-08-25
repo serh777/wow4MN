@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 
     // Si no hay API key de Resend, usar fallback (log)
     if (!resend) {
-      console.log('⚠️  RESEND_API_KEY no configurada. Mensaje registrado:', {
+      console.log('RESEND_API_KEY no configurada. Mensaje registrado:', {
         de: `${firstName} ${lastName} <${email}>`,
         para: 'srhskl@proton.me',
         asunto: subject,
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
       replyTo: email // Permite responder directamente al remitente
     });
 
-    console.log('✅ Email enviado exitosamente:', emailData.data?.id);
+    console.log('Email enviado exitosamente:', emailData.data?.id);
 
     return NextResponse.json(
       { 
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
     );
 
   } catch (error) {
-    console.error('❌ Error al enviar el mensaje de contacto:', error);
+    console.error('Error al enviar el mensaje de contacto:', error);
     
     // Si es un error de Resend, proporcionar más detalles
     if (error instanceof Error) {

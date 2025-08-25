@@ -1,18 +1,55 @@
 'use client';
 
-import React from 'react';
-import { LogoWithText } from '@/components/ui/logo';
+import React, { useState, useEffect } from 'react';
+import { Logo } from '@/components/ui/logo';
 import { IconWrapper } from '@/components/ui/icon-wrapper';
+import { ThemeToggle } from '@/components/theme/theme-toggle';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 
 export function Sidebar() {
   const pathname = usePathname();
-  
-  // No renderizar el sidebar si estamos en una página de herramientas
-  if (pathname.includes('/dashboard/tools/')) {
-    return null;
-  }
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<{[key: string]: boolean}>({
+    'seo': true,
+    'web3': false,
+    'security': false,
+    'metaverse': false,
+    'ai': false,
+    'historical': false,
+    'reports': false,
+    'system': false
+  });
+
+  // Cargar estado del sidebar desde localStorage
+  useEffect(() => {
+    const savedState = localStorage.getItem('dashboard_sidebar_collapsed');
+    if (savedState) {
+      setIsCollapsed(JSON.parse(savedState));
+    }
+  }, []);
+
+  // Guardar estado del sidebar en localStorage
+  useEffect(() => {
+    localStorage.setItem('dashboard_sidebar_collapsed', JSON.stringify(isCollapsed));
+  }, [isCollapsed]);
+
+  // Comentado temporalmente para evitar problemas de renderizado
+  // if (pathname.includes('/dashboard/tools/')) {
+  //   return null;
+  // }
+
+  const toggleSidebar = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
+  const toggleSection = (sectionKey: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionKey]: !prev[sectionKey]
+    }));
+  };
 
   const isActive = (path: string) => {
     if (path === '/dashboard/competition' && pathname.startsWith('/dashboard/competition')) {
@@ -24,373 +61,201 @@ export function Sidebar() {
     return pathname === path;
   };
 
+  const NavLink = ({ href, icon, children, tooltip }: {
+    href: string;
+    icon: string;
+    children: React.ReactNode;
+    tooltip?: string;
+  }) => {
+    const active = isActive(href);
+    return (
+      <Link
+        href={href}
+        className={`nav-link ${active ? 'active' : ''} relative group`}
+      >
+        <IconWrapper icon={icon} className="h-4 w-4" />
+        <span>{children}</span>
+        {isCollapsed && tooltip && (
+          <div className="nav-link-tooltip">
+            {tooltip}
+          </div>
+        )}
+      </Link>
+    );
+  };
+
+  const CollapsibleSection = ({ sectionKey, title, children }: {
+    sectionKey: string;
+    title: string;
+    children: React.ReactNode;
+  }) => {
+    const isExpanded = expandedSections[sectionKey];
+    const shouldShowContent = isCollapsed || isExpanded;
+    
+    return (
+      <div className="nav-section">
+        {!isCollapsed && (
+          <div className="nav-section-title">
+            <button
+              onClick={() => toggleSection(sectionKey)}
+              className="collapsible-header"
+            >
+              <span>{title}</span>
+              <div className="chevron-icon">
+                {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </div>
+            </button>
+          </div>
+        )}
+        <div className={`nav-section-content ${shouldShowContent ? 'visible' : 'hidden'}`}>
+          {children}
+        </div>
+      </div>
+     );
+   };
+
   return (
-    <div className="flex h-screen w-64 flex-col border-r bg-background">
-      <div className="flex h-16 items-center border-b px-4">
-        <LogoWithText />
+    <div className={`sidebar-container ${isCollapsed ? 'sidebar-collapsed' : 'sidebar-expanded'} custom-scrollbar`}>
+      {/* Toggle Button - Más discreto */}
+      <button
+        onClick={toggleSidebar}
+        className="sidebar-toggle-discrete"
+        title={isCollapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}
+      >
+        {isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
+      </button>
+
+      {/* Header */}
+      <div className="sidebar-header">
+        <div className="sidebar-logo">
+          <Logo size="small" />
+          <span>WowSEOWeb3</span>
+        </div>
       </div>
-      <div className="flex-1 overflow-auto py-2">
-        <nav className="grid items-start px-2 text-sm font-medium">
-          <Link
-            href="/dashboard"
-            className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-              isActive('/dashboard') 
-                ? 'bg-primary/10 text-primary' 
-                : 'hover:bg-primary/10'
-            }`}
-          >
-            <IconWrapper icon="dashboard" className="h-4 w-4" />
-            <span>Dashboard</span>
-          </Link>
+
+      {/* Navigation */}
+      <div className="sidebar-nav">
+        {/* Dashboard Principal */}
+        <div className="nav-section">
+          <div className="nav-section-title simple-title">Principal</div>
+          <NavLink href="/dashboard" icon="dashboard" tooltip="Dashboard">
+            Dashboard
+          </NavLink>
+        </div>
+
+        {/* Herramientas de Análisis SEO */}
+        <CollapsibleSection sectionKey="seo" title="SEO & Análisis Web">
+          <NavLink href="/dashboard/metadata" icon="metadata" tooltip="Metadatos">
+            Metadatos
+          </NavLink>
+          <NavLink href="/dashboard/content" icon="content" tooltip="Contenido">
+            Contenido
+          </NavLink>
+          <NavLink href="/dashboard/keywords" icon="keywords" tooltip="Keywords">
+            Keywords
+          </NavLink>
+          <NavLink href="/dashboard/links" icon="links" tooltip="Enlaces">
+            Enlaces
+          </NavLink>
+          <NavLink href="/dashboard/backlinks" icon="analytics" tooltip="Backlinks">
+            Backlinks
+          </NavLink>
+          <NavLink href="/dashboard/performance" icon="performance" tooltip="Rendimiento">
+            Rendimiento
+          </NavLink>
+          <NavLink href="/dashboard/competition" icon="competition" tooltip="Competencia">
+            Competencia
+          </NavLink>
+        </CollapsibleSection>
+
+        {/* Herramientas Web3 */}
+        <CollapsibleSection sectionKey="web3" title="Web3 & Blockchain">
+          <NavLink href="/dashboard/blockchain" icon="blockchain" tooltip="Blockchain">
+            Blockchain
+          </NavLink>
+          <NavLink href="/dashboard/smart-contract" icon="cpu" tooltip="Smart Contract">
+            Smart Contracts
+          </NavLink>
+          <NavLink href="/dashboard/authority-tracking" icon="award" tooltip="Autoridad">
+            Autoridad Web3
+          </NavLink>
+          <NavLink href="/dashboard/nft-tracking" icon="gem" tooltip="NFT Tracking">
+            NFT Tracking
+          </NavLink>
+          <NavLink href="/dashboard/ecosystem-interactions" icon="network" tooltip="Ecosistema">
+            Ecosistema
+          </NavLink>
+          <NavLink href="/dashboard/social-web3" icon="social" tooltip="Social Web3">
+            Social Web3
+          </NavLink>
+        </CollapsibleSection>
+
+        {/* Herramientas de Seguridad */}
+        <CollapsibleSection sectionKey="security" title="Seguridad">
+          <NavLink href="/dashboard/security" icon="shield" tooltip="Seguridad">
+            Auditoría de Seguridad
+          </NavLink>
+          <NavLink href="/dashboard/content-authenticity" icon="lock" tooltip="Autenticidad">
+            Autenticidad
+          </NavLink>
+        </CollapsibleSection>
+
+        {/* Herramientas de Metaverso */}
+        <CollapsibleSection sectionKey="metaverse" title="Metaverso">
+          <NavLink href="/dashboard/metaverse-optimizer" icon="palette" tooltip="Metaverso">
+            Optimizador Metaverso
+          </NavLink>
+        </CollapsibleSection>
+
+        {/* Herramientas de IA */}
+        <CollapsibleSection sectionKey="ai" title="Inteligencia Artificial">
+          <NavLink href="/dashboard/ai-assistant" icon="ai" tooltip="IA Assistant">
+            Asistente IA Web3
+          </NavLink>
+        </CollapsibleSection>
+
+        {/* Herramientas de Análisis Histórico */}
+        <CollapsibleSection sectionKey="historical" title="Análisis Histórico">
+          <NavLink href="/dashboard/historical" icon="activity" tooltip="Histórico">
+            Análisis Histórico
+          </NavLink>
+        </CollapsibleSection>
+
+        {/* Reportes y Configuración */}
+        <CollapsibleSection sectionKey="reports" title="Reportes & Config">
+          <NavLink href="/dashboard/reports" icon="fileText" tooltip="Reportes">
+            Generador de Informes
+          </NavLink>
+          <NavLink href="/dashboard/wallet" icon="wallet" tooltip="Wallet">
+            Conectar Wallet
+          </NavLink>
+          <NavLink href="/dashboard/indexers" icon="database" tooltip="Indexadores">
+            Indexador Blockchain
+          </NavLink>
+        </CollapsibleSection>
+
+        {/* Configuración y Soporte */}
+        <CollapsibleSection sectionKey="system" title="Sistema">
+          <NavLink href="/dashboard/settings" icon="settings" tooltip="Configuración">
+            Configuración
+          </NavLink>
+          <NavLink href="/dashboard/support" icon="support" tooltip="Soporte">
+            Soporte
+          </NavLink>
           
-          {/* Herramientas de Análisis SEO */}
-          <div className="mt-6">
-            <h4 className="mb-2 px-4 text-xs font-semibold text-muted-foreground">Análisis SEO Web3</h4>
-            <div className="grid gap-1">
-              <Link
-                href="/dashboard/metadata"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/metadata') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="metadata" className="h-4 w-4" />
-                <span>Análisis de Metadatos</span>
-              </Link>
-              <Link
-                href="/dashboard/content"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/content') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="content" className="h-4 w-4" />
-                <span>Auditoría de Contenido</span>
-              </Link>
-              <Link
-                href="/dashboard/keywords"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/keywords') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="keywords" className="h-4 w-4" />
-                <span>Análisis de Keywords</span>
-              </Link>
-              <Link
-                href="/dashboard/links"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/links') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="links" className="h-4 w-4" />
-                <span>Análisis de Enlaces</span>
-              </Link>
-              <Link
-                href="/dashboard/backlinks"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/backlinks') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="analytics" className="h-4 w-4" />
-                <span>Análisis de Backlinks</span>
-              </Link>
-              <Link
-                href="/dashboard/performance"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/performance') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="performance" className="h-4 w-4" />
-                <span>Análisis de Rendimiento</span>
-              </Link>
-              <Link
-                href="/dashboard/competition"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/competition') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="competition" className="h-4 w-4" />
-                <span>Análisis de Competencia</span>
-              </Link>
+          {/* Toggle de Tema */}
+          <div className="nav-link theme-toggle-container">
+            <div className="nav-link-content">
+              <IconWrapper icon="palette" className="nav-icon" />
+              {!isCollapsed && (
+                <span className="nav-text">Cambiar Tema</span>
+              )}
+            </div>
+            <div className="theme-toggle-wrapper">
+              <ThemeToggle />
             </div>
           </div>
-
-          {/* Herramientas Web3 */}
-          <div className="mt-6">
-            <h4 className="mb-2 px-4 text-xs font-semibold text-muted-foreground">Web3 y Blockchain</h4>
-            <div className="grid gap-1">
-              <Link
-                href="/dashboard/blockchain"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/blockchain') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="blockchain" className="h-4 w-4" />
-                <span>Análisis Blockchain</span>
-              </Link>
-              <Link
-                href="/dashboard/smart-contract"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/smart-contract') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="cpu" className="h-4 w-4" />
-                <span>Smart Contract</span>
-              </Link>
-              <Link
-                href="/dashboard/authority-tracking"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/authority-tracking') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="award" className="h-4 w-4" />
-                <span>Autoridad Descentralizada</span>
-              </Link>
-              <Link
-                href="/dashboard/nft-tracking"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/nft-tracking') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="gem" className="h-4 w-4" />
-                <span>NFT Tracking</span>
-              </Link>
-              <Link
-                href="/dashboard/ecosystem-interactions"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/ecosystem-interactions') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="network" className="h-4 w-4" />
-                <span>Interacciones Ecosistema</span>
-              </Link>
-              <Link
-                href="/dashboard/smart-contract"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/smart-contract') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="cpu" className="h-4 w-4" />
-                <span>Smart Contract</span>
-              </Link>
-              <Link
-                href="/dashboard/authority-tracking"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/authority-tracking') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="award" className="h-4 w-4" />
-                <span>Autoridad Descentralizada</span>
-              </Link>
-              <Link
-                href="/dashboard/nft-tracking"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/nft-tracking') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="gem" className="h-4 w-4" />
-                <span>NFT Tracking</span>
-              </Link>
-              <Link
-                href="/dashboard/ecosystem-interactions"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/ecosystem-interactions') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="network" className="h-4 w-4" />
-                <span>Interacciones Ecosistema</span>
-              </Link>
-              <Link
-                href="/dashboard/social-web3"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/social-web3') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="social" className="h-4 w-4" />
-                <span>Social Web3</span>
-              </Link>
-            </div>
-          </div>
-
-          {/* Herramientas de Seguridad */}
-          <div className="mt-6">
-            <h4 className="mb-2 px-4 text-xs font-semibold text-muted-foreground">Seguridad</h4>
-            <div className="grid gap-1">
-              <Link
-                href="/dashboard/security"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/security') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="shield" className="h-4 w-4" />
-                <span>Auditoría de Seguridad</span>
-              </Link>
-              <Link
-                href="/dashboard/content-authenticity"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/content-authenticity') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="lock" className="h-4 w-4" />
-                <span>Autenticidad</span>
-              </Link>
-            </div>
-          </div>
-
-          {/* Herramientas de Metaverso */}
-          <div className="mt-6">
-            <h4 className="mb-2 px-4 text-xs font-semibold text-muted-foreground">Metaverso</h4>
-            <div className="grid gap-1">
-              <Link
-                href="/dashboard/metaverse-optimizer"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/metaverse-optimizer') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="palette" className="h-4 w-4" />
-                <span>Optimizador Metaverso</span>
-              </Link>
-            </div>
-          </div>
-
-          {/* Herramientas de IA */}
-          <div className="mt-6">
-            <h4 className="mb-2 px-4 text-xs font-semibold text-muted-foreground">Inteligencia Artificial</h4>
-            <div className="grid gap-1">
-              <Link
-                href="/dashboard/ai-assistant"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/ai-assistant') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="ai" className="h-4 w-4" />
-                <span>Asistente IA Web3</span>
-              </Link>
-            </div>
-          </div>
-
-          {/* Herramientas de Análisis Histórico */}
-          <div className="mt-6">
-            <h4 className="mb-2 px-4 text-xs font-semibold text-muted-foreground">Análisis Histórico</h4>
-            <div className="grid gap-1">
-              <Link
-                href="/dashboard/historical"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/historical') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="activity" className="h-4 w-4" />
-                <span>Análisis Histórico</span>
-              </Link>
-            </div>
-          </div>
-
-          {/* Reportes y Configuración */}
-          <div className="mt-6">
-            <h4 className="mb-2 px-4 text-xs font-semibold text-muted-foreground">Reportes y Configuración</h4>
-            <div className="grid gap-1">
-              <Link
-                href="/dashboard/reports"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/reports') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="fileText" className="h-4 w-4" />
-                <span>Generador de Informes</span>
-              </Link>
-              <Link
-                href="/dashboard/wallet"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/wallet') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="wallet" className="h-4 w-4" />
-                <span>Conectar Wallet</span>
-              </Link>
-              <Link
-                href="/dashboard/indexers"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-                  isActive('/dashboard/indexers') 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'hover:bg-primary/10'
-                }`}
-              >
-                <IconWrapper icon="database" className="h-4 w-4" />
-                <span>Indexador Blockchain</span>
-              </Link>
-            </div>
-          </div>
-        </nav>
-      </div>
-      <div className="mt-auto border-t p-4">
-        <Link
-          href="/dashboard/settings"
-          className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-            isActive('/dashboard/settings') 
-              ? 'bg-primary/10 text-primary' 
-              : 'hover:bg-primary/10'
-          }`}
-        >
-          <IconWrapper icon="settings" className="h-4 w-4" />
-          <span>Configuración</span>
-        </Link>
-        <Link
-          href="/dashboard/support"
-          className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-            isActive('/dashboard/support') 
-              ? 'bg-primary/10 text-primary' 
-              : 'hover:bg-primary/10'
-          }`}
-        >
-          <IconWrapper icon="support" className="h-4 w-4" />
-          <span>Soporte</span>
-        </Link>
+        </CollapsibleSection>
       </div>
     </div>
   );

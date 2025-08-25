@@ -32,7 +32,7 @@ export {
 // Exportar configuraciones de proveedores
 export {
   appMetadata,
-  ethersAdapter,
+  // ethersAdapter, // Temporalmente comentado
   mobileWalletIds,
   baseAppKitConfig,
   desktopConfig,
@@ -97,36 +97,42 @@ export const walletConfig = {
   }
 };
 
-// Función de inicialización completa
+// Función de inicialización completa (temporalmente deshabilitada)
 export const initializeWalletSystem = async () => {
   try {
-    console.log('🔄 Inicializando sistema de wallet...');
+    console.log('Sistema de wallet temporalmente deshabilitado para evitar errores de sintaxis');
     
     // Verificar que estamos en el cliente
     if (typeof window === 'undefined') {
-      console.warn('⚠️ Sistema de wallet: Ejecutándose en el servidor, saltando inicialización');
+      console.warn('Sistema de wallet: Ejecutándose en el servidor, saltando inicialización');
       return null;
     }
     
+    // Temporalmente deshabilitado para evitar errores de Coinbase SDK
+    console.log('Wallet system disabled temporarily to fix syntax errors');
+    return null;
+    
+    /* CÓDIGO ORIGINAL COMENTADO TEMPORALMENTE
     // Verificar PROJECT_ID
     const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || process.env.NEXT_PUBLIC_REOWN_API_KEY;
     if (!projectId) {
-      console.error('❌ Sistema de wallet: PROJECT_ID no configurado');
+      console.error('Sistema de wallet: PROJECT_ID no configurado');
       return null;
     }
     
     // Inicializar AppKit
     const appKit = initializeAppKit();
     if (!appKit) {
-      console.error('❌ Sistema de wallet: Error al inicializar AppKit');
+      console.error('Sistema de wallet: Error al inicializar AppKit');
       return null;
     }
     
-    console.log('✅ Sistema de wallet inicializado correctamente');
+    console.log('Sistema de wallet inicializado correctamente');
     return appKit;
+    */
     
   } catch (error) {
-    console.error('❌ Error al inicializar sistema de wallet:', error);
+    console.error('Error al inicializar sistema de wallet:', error);
     return null;
   }
 };
@@ -134,11 +140,11 @@ export const initializeWalletSystem = async () => {
 // Función de limpieza completa
 export const cleanupWalletSystem = () => {
   try {
-    console.log('🧹 Limpiando sistema de wallet...');
+    console.log('Limpiando sistema de wallet...');
     cleanupAppKit();
-    console.log('✅ Sistema de wallet limpiado correctamente');
+    console.log('Sistema de wallet limpiado correctamente');
   } catch (error) {
-    console.error('❌ Error al limpiar sistema de wallet:', error);
+    console.error('Error al limpiar sistema de wallet:', error);
   }
 };
 

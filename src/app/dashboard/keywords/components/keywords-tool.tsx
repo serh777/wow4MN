@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ToolLayout } from '@/app/dashboard/content/analysis-results/components/tool-components';
+import { ToolLayout } from '@/app/dashboard/results/content/components/tool-components';
 import { KeywordsForm } from './keywords-form';
 import { KeywordsResults } from '@/app/dashboard/keywords/components/keywords-results';
 import { useKeywordsAnalysis } from './use-keywords-analysis';

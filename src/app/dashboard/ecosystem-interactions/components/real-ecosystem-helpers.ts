@@ -270,7 +270,7 @@ function analyzeNetworkDistribution(data: any): any {
 function analyzeProtocolUsage(data: any): any {
   const protocolInteractions = data.protocolInteractions || [];
   
-  const totalProtocols = new Set(protocolInteractions.map(int => int.protocol)).size;
+  const totalProtocols = new Set(protocolInteractions.map((int: any) => int.protocol)).size;
   const totalInteractions = protocolInteractions.length;
   
   return {
@@ -294,7 +294,7 @@ function calculateProtocolSophistication(interactions: any[]): number {
   
   interactions.forEach(interaction => {
     uniqueProtocols.add(interaction.protocol);
-    score += sophisticationWeights[interaction.protocol] || 5;
+    score += (sophisticationWeights as any)[interaction.protocol] || 5;
   });
   
   score += uniqueProtocols.size * 5;
@@ -316,7 +316,7 @@ function analyzeCrossChainActivity(data: any): any {
     };
   }
   
-  const totalVolume = crossChainInteractions.reduce((sum, int) => 
+  const totalVolume = crossChainInteractions.reduce((sum: number, int: any) =>
     sum + parseFloat(int.value || '0'), 0
   );
   
@@ -353,7 +353,7 @@ function generateOpportunityMatrix(data: any): any {
   
   return {
     totalOpportunities: opportunities.length,
-    highPotentialCount: opportunities.filter(opp => opp.potential === 'high').length
+    highPotentialCount: opportunities.filter((opp: any) => opp.potential === 'high').length
   };
 }
 

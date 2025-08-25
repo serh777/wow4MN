@@ -11,6 +11,7 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/components/ui/use-toast';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 import { Web3Search } from '@/components/search/web3-search';
 import { Breadcrumbs } from '@/components/navigation/breadcrumbs';
@@ -27,11 +28,12 @@ import { useIndexerOrchestrator, useIndexerStatus, IndexerRequirement } from '@/
 import { IndexerStatusCard } from '@/components/dashboard/indexer-status-card';
 import { dashboardOrchestrator, AnalysisRequest } from '@/services/dashboard-orchestrator';
 import { AIAssistantWidget } from '@/components/ai/ai-assistant-widget';
+// Sidebar removido - ya se renderiza en layout.tsx
 import { useRouter } from 'next/navigation';
 import { 
   Loader2, LogOut, User, MessageCircle, Info, Target, Zap, Shield, 
   BarChart3, Globe, Link, Users, Search, Database, Cpu, Award, 
-  Palette, Crown, Activity, Eye, ChevronLeft, ChevronRight, 
+  Palette, Activity, Eye, ChevronLeft, ChevronRight, 
   Menu, X, CheckCircle, AlertTriangle, Sparkles, TrendingUp,
   Brain, FileText, Hash, GitBranch, Network, Gem, Lock, Settings
 } from 'lucide-react';
@@ -44,26 +46,23 @@ const AVAILABLE_TOOLS = [
     description: 'Análisis avanzado con inteligencia artificial',
     icon: Brain,
     category: 'AI',
-    color: 'from-purple-500 to-indigo-500',
-    price: 8
+    color: 'from-purple-500 to-indigo-500'
   },
   {
     id: 'metadata',
     name: 'Metadatos',
     description: 'Análisis de metadatos y estructura',
     icon: Database,
-    category: 'SEO',
-    color: 'from-blue-500 to-cyan-500',
-    price: 5
+    category: 'Web3',
+    color: 'from-blue-500 to-cyan-500'
   },
   {
     id: 'content',
     name: 'Contenido',
     description: 'Auditoría de contenido y calidad',
     icon: FileText,
-    category: 'SEO',
-    color: 'from-green-500 to-emerald-500',
-    price: 5
+    category: 'Web3',
+    color: 'from-green-500 to-emerald-500'
   },
   {
     id: 'keywords',
@@ -71,8 +70,7 @@ const AVAILABLE_TOOLS = [
     description: 'Análisis de palabras clave',
     icon: Search,
     category: 'SEO',
-    color: 'from-yellow-500 to-orange-500',
-    price: 6
+    color: 'from-yellow-500 to-orange-500'
   },
   {
     id: 'performance',
@@ -80,8 +78,7 @@ const AVAILABLE_TOOLS = [
     description: 'Análisis de velocidad y optimización',
     icon: Zap,
     category: 'Technical',
-    color: 'from-red-500 to-pink-500',
-    price: 7
+    color: 'from-red-500 to-pink-500'
   },
   {
     id: 'security',
@@ -89,26 +86,23 @@ const AVAILABLE_TOOLS = [
     description: 'Auditoría de seguridad completa',
     icon: Shield,
     category: 'Security',
-    color: 'from-gray-500 to-slate-500',
-    price: 9
+    color: 'from-gray-500 to-slate-500'
   },
   {
     id: 'backlinks',
     name: 'Backlinks',
     description: 'Análisis de enlaces entrantes',
     icon: Link,
-    category: 'SEO',
-    color: 'from-teal-500 to-cyan-500',
-    price: 6
+    category: 'Web3',
+    color: 'from-teal-500 to-cyan-500'
   },
   {
     id: 'links',
     name: 'Enlaces',
     description: 'Verificación de enlaces internos',
     icon: Link,
-    category: 'SEO',
-    color: 'from-indigo-500 to-purple-500',
-    price: 5
+    category: 'Web3',
+    color: 'from-indigo-500 to-purple-500'
   },
   {
     id: 'competition',
@@ -116,8 +110,7 @@ const AVAILABLE_TOOLS = [
     description: 'Análisis competitivo del mercado',
     icon: BarChart3,
     category: 'Market',
-    color: 'from-orange-500 to-red-500',
-    price: 8
+    color: 'from-orange-500 to-red-500'
   },
   {
     id: 'blockchain',
@@ -125,8 +118,7 @@ const AVAILABLE_TOOLS = [
     description: 'Análisis de datos blockchain',
     icon: Globe,
     category: 'Web3',
-    color: 'from-violet-500 to-purple-500',
-    price: 10
+    color: 'from-violet-500 to-purple-500'
   },
   {
     id: 'smart-contract',
@@ -134,8 +126,7 @@ const AVAILABLE_TOOLS = [
     description: 'Análisis de contratos inteligentes',
     icon: Cpu,
     category: 'Web3',
-    color: 'from-cyan-500 to-blue-500',
-    price: 12
+    color: 'from-cyan-500 to-blue-500'
   },
   {
     id: 'social-web3',
@@ -143,8 +134,7 @@ const AVAILABLE_TOOLS = [
     description: 'Análisis de redes sociales descentralizadas',
     icon: Users,
     category: 'Social',
-    color: 'from-pink-500 to-rose-500',
-    price: 7
+    color: 'from-pink-500 to-rose-500'
   },
   {
     id: 'authority-tracking',
@@ -152,8 +142,7 @@ const AVAILABLE_TOOLS = [
     description: 'Seguimiento de autoridad en ecosistemas',
     icon: Award,
     category: 'Web3',
-    color: 'from-amber-500 to-yellow-500',
-    price: 9
+    color: 'from-amber-500 to-yellow-500'
   },
   {
     id: 'metaverse-optimizer',
@@ -161,8 +150,7 @@ const AVAILABLE_TOOLS = [
     description: 'Optimización de contenido para metaversos',
     icon: Palette,
     category: 'Metaverse',
-    color: 'from-fuchsia-500 to-pink-500',
-    price: 11
+    color: 'from-fuchsia-500 to-pink-500'
   },
   {
     id: 'content-authenticity',
@@ -170,8 +158,7 @@ const AVAILABLE_TOOLS = [
     description: 'Verificación de autenticidad de contenido',
     icon: Lock,
     category: 'Security',
-    color: 'from-green-500 to-teal-500',
-    price: 8
+    color: 'from-green-500 to-teal-500'
   },
   {
     id: 'nft-tracking',
@@ -179,8 +166,7 @@ const AVAILABLE_TOOLS = [
     description: 'Seguimiento y análisis de NFTs',
     icon: Gem,
     category: 'Web3',
-    color: 'from-purple-500 to-pink-500',
-    price: 10
+    color: 'from-purple-500 to-pink-500'
   },
   {
     id: 'ecosystem-interactions',
@@ -188,8 +174,7 @@ const AVAILABLE_TOOLS = [
     description: 'Análisis de interacciones en ecosistemas',
     icon: Network,
     category: 'Web3',
-    color: 'from-indigo-500 to-blue-500',
-    price: 9
+    color: 'from-indigo-500 to-blue-500'
   },
   {
     id: 'historical',
@@ -197,8 +182,7 @@ const AVAILABLE_TOOLS = [
     description: 'Análisis de evolución temporal de proyectos',
     icon: Activity,
     category: 'Technical',
-    color: 'from-slate-500 to-gray-500',
-    price: 8
+    color: 'from-slate-500 to-gray-500'
   }
 ];
 
@@ -206,7 +190,7 @@ const AVAILABLE_TOOLS = [
 const TOOL_CATEGORIES = [
   { id: 'all', name: 'Todas', icon: Target },
   { id: 'AI', name: 'Inteligencia Artificial', icon: Brain },
-  { id: 'SEO', name: 'SEO Tradicional', icon: Search },
+  { id: 'SEO', name: 'Keywords & SEO', icon: Search },
   { id: 'Web3', name: 'Web3 & Blockchain', icon: Globe },
   { id: 'Technical', name: 'Técnico', icon: Zap },
   { id: 'Security', name: 'Seguridad', icon: Shield },
@@ -227,12 +211,13 @@ export default function DashboardPage() {
   const [address, setAddress] = useState('');
   const [isValidAddress, setIsValidAddress] = useState<boolean | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  // Estado del sidebar removido - se maneja en layout.tsx
   const [showSystemStatus, setShowSystemStatus] = useState(false);
   const [showProjectManager, setShowProjectManager] = useState(false);
   const [showDataSourcesGuide, setShowDataSourcesGuide] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isCompleteAudit, setIsCompleteAudit] = useState<boolean>(false);
+  const [analysisProgress, setAnalysisProgress] = useState<{[key: string]: number}>({});
   
   // Estados para validación Web3
   const [addressError, setAddressError] = useState<string>('');
@@ -360,18 +345,7 @@ export default function DashboardPage() {
     }
   }, [isConnected, walletAddress, address, validateWeb3Address]);
 
-  // Cargar estado del sidebar desde localStorage
-  useEffect(() => {
-    const savedSidebarState = localStorage.getItem('dashboard_sidebar_collapsed');
-    if (savedSidebarState) {
-      setSidebarCollapsed(JSON.parse(savedSidebarState));
-    }
-  }, []);
-
-  // Guardar estado del sidebar en localStorage
-  useEffect(() => {
-    localStorage.setItem('dashboard_sidebar_collapsed', JSON.stringify(sidebarCollapsed));
-  }, [sidebarCollapsed]);
+  // Lógica del sidebar removida - se maneja en layout.tsx
 
   // Manejar cambio de dirección
   const handleAddressChange = useCallback(async (value: string) => {
@@ -399,14 +373,7 @@ export default function DashboardPage() {
     }
   };
 
-  // Calcular precio total
-  const calculateTotalPrice = (): number => {
-    const baseTotal = selectedTools.reduce((total, toolId) => {
-      const tool = AVAILABLE_TOOLS.find(t => t.id === toolId);
-      return total + (tool?.price || 0);
-    }, 0);
-    return isCompleteAudit ? baseTotal * 0.8 : baseTotal; // 20% descuento en auditoría completa
-  };
+  // Sin funcionalidad de pago - removido completamente
 
   // Filtrar herramientas por categoría
   const filteredTools = selectedCategory === 'all' 
@@ -555,455 +522,523 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex">
-      {/* Panel Lateral Colapsible */}
-      <div className={`bg-white shadow-xl sidebar-transition ${
-        sidebarCollapsed ? 'sidebar-collapsed' : 'sidebar-expanded'
-      } flex flex-col border-r border-gray-200 relative z-10 custom-scrollbar`}>
-        
-        {/* Header del Sidebar */}
-        <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-          {!sidebarCollapsed && (
-            <div>
-              <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Herramientas Web3
-              </h2>
-              <p className="text-sm text-gray-500">Selecciona las herramientas para tu análisis</p>
-            </div>
-          )}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="p-2 hover:bg-gray-100 rounded-full"
-          >
-            {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-          </Button>
-        </div>
-
-        {/* Categorías */}
-        {!sidebarCollapsed && (
-          <div className="p-4 border-b border-gray-200">
-            <div className="grid grid-cols-2 gap-2">
-              {TOOL_CATEGORIES.map((category) => {
-                const IconComponent = category.icon;
-                return (
-                  <Button
-                    key={category.id}
-                    variant={selectedCategory === category.id ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedCategory(category.id)}
-                    className={`category-button text-xs justify-start ${
-                      selectedCategory === category.id 
-                        ? 'category-button active' 
-                        : 'hover:bg-gray-50'
-                    }`}
-                  >
-                    <IconComponent className="h-3 w-3 mr-1" />
-                    {category.name}
-                  </Button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Lista de Herramientas */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-2">
-          {filteredTools.map((tool) => {
-            const IconComponent = tool.icon;
-            const isSelected = selectedTools.includes(tool.id);
-            
-            return (
-              <div
-                key={tool.id}
-                className={`tool-card p-3 rounded-lg border cursor-pointer ${
-                  isSelected 
-                    ? 'tool-card selected' 
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                }`}
-                onClick={() => handleToolSelection(tool.id)}
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg bg-gradient-to-r ${tool.color} ${
-                    sidebarCollapsed ? 'w-8 h-8' : 'w-10 h-10'
-                  } flex items-center justify-center shadow-sm`}>
-                    <IconComponent className={`text-white ${
-                      sidebarCollapsed ? 'h-4 w-4' : 'h-5 w-5'
-                    }`} />
-                  </div>
-                  
-                  {!sidebarCollapsed && (
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-medium text-gray-900 truncate">{tool.name}</h4>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <Badge variant="secondary" className="text-xs">
-                            ${tool.price}
-                          </Badge>
-                          {isSelected && <CheckCircle className="h-4 w-4 text-green-500" />}
-                        </div>
-                      </div>
-                      <p className="text-sm text-gray-500 mt-1 line-clamp-2">{tool.description}</p>
-                      <Badge variant="outline" className="text-xs mt-2">
-                        {tool.category}
-                      </Badge>
-                    </div>
-                  )}
-                  
-                  {sidebarCollapsed && isSelected && (
-                    <div className="absolute -right-2 -top-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 bg-white rounded-full" />
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Footer del Sidebar */}
-        {!sidebarCollapsed && selectedTools.length > 0 && (
-          <div className="p-4 border-t border-gray-200 bg-gray-50">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700">Herramientas seleccionadas:</span>
-                <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                  {selectedTools.length}
-                </Badge>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700">Precio total:</span>
-                <div className="flex items-center gap-2">
-                  {isCompleteAudit && (
-                    <Badge variant="destructive" className="text-xs">-20%</Badge>
-                  )}
-                  <span className="text-lg font-bold text-green-600">
-                    ${calculateTotalPrice().toFixed(2)}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="complete-audit"
-                  checked={isCompleteAudit}
-                  onCheckedChange={handleCompleteAuditChange}
-                />
-                <Label htmlFor="complete-audit" className="text-sm text-gray-700">
-                  Auditoría completa (20% descuento)
-                </Label>
-              </div>
-            </div>
-          </div>
-        )}
+    <div className="dashboard-layout min-h-screen">
+      {/* Fondo de partículas animado */}
+      <div className="particles-bg">
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            className="particle"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 6}s`
+            }}
+          />
+        ))}
       </div>
-      {/* Área Principal */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Header Principal */}
-        <div className="bg-white shadow-sm border-b border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="min-w-0 flex-1">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Dashboard Web3 SEO
+
+      {/* Sidebar removido - ya se renderiza en layout.tsx */}
+
+      {/* Contenedor principal con sidebar */}
+      <div className="main-container">
+        {/* Header Principal Profesional */}
+        <div className="hero-header">
+          <div className="hero-content">
+            <div className="hero-text">
+              <h1 className="hero-title">
+                <Sparkles className="w-10 h-10 text-blue-400" />
+                Dashboard Web3
               </h1>
-              <p className="text-gray-600 mt-1">
-                Motor central de análisis profesional para proyectos Web3
+              <p className="hero-subtitle">
+                Plataforma Profesional de Análisis Web3 para Desarrolladores
+              </p>
+              <p className="hero-description">
+                Herramientas avanzadas para auditar, analizar y optimizar proyectos blockchain
               </p>
             </div>
             
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowDataSourcesGuide(!showDataSourcesGuide)}
-                className={`flex items-center gap-2 ${showDataSourcesGuide ? 'bg-purple-50 border-purple-300' : ''}`}
-              >
-                <Info className="h-4 w-4" />
-                <span className="hidden lg:inline">Fuentes</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowSystemStatus(!showSystemStatus)}
-                className={`flex items-center gap-2 ${showSystemStatus ? 'bg-blue-50 border-blue-300' : ''}`}
-              >
-                <Activity className="h-4 w-4" />
-                <span className="hidden lg:inline">Estado</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowProjectManager(!showProjectManager)}
-                className={`flex items-center gap-2 ${showProjectManager ? 'bg-green-50 border-green-300' : ''}`}
-              >
-                <FileText className="h-4 w-4" />
-                <span className="hidden lg:inline">Proyectos</span>
-              </Button>
-              <QuickAccessMenu onToolSelect={(toolId) => {
-                setSelectedTools(prev => prev.includes(toolId) ? prev : [...prev, toolId]);
-              }} />
-              <KeyboardShortcuts 
-                onSearchFocus={() => {
-                  const searchInput = document.querySelector('input[placeholder*="Buscar"]') as HTMLInputElement;
-                  if (searchInput) {
-                    searchInput.focus();
-                  }
-                }}
-                onQuickAccessOpen={() => {}}
-                onSettingsOpen={() => router.push('/dashboard/settings')}
-              />
+            {/* Controles del Header */}
+            <div className="header-controls">
               <UnifiedWalletConnect onSuccess={() => {}} />
-              <Button variant="outline" size="sm" onClick={() => router.push('/dashboard/settings')}>
+              <Button variant="outline" size="sm" onClick={() => router.push('/dashboard/settings')} className="glass-button">
                 <Settings className="h-4 w-4" />
-                <span className="hidden lg:inline ml-2">Config</span>
               </Button>
-              <Button variant="outline" size="sm" onClick={handleSignOut}>
+              <Button variant="outline" size="sm" onClick={handleSignOut} className="glass-button">
                 <LogOut className="h-4 w-4" />
-                <span className="hidden lg:inline ml-2">Salir</span>
               </Button>
             </div>
           </div>
           
-          {/* Buscador Web3 */}
-          <div className="max-w-2xl">
+          {/* Buscador Web3 Futurista */}
+          <div className="search-container">
             <Web3Search 
               onSelect={(result) => {
                 setAddress(result.address);
                 validateWeb3Address(result.address);
               }}
               placeholder="🔍 Buscar dominios Web3, wallets, contratos inteligentes..."
-              className="w-full"
+              className="futuristic-search"
               showSuggestions={true}
             />
           </div>
           
-          {/* Breadcrumbs */}
-          <div className="mt-4">
-            <Breadcrumbs />
+          {/* Sección de Características Destacadas */}
+          <div className="features-highlight">
+            <div className="features-grid">
+              <div className="feature-item">
+                <div className="feature-icon">
+                  <Brain className="h-6 w-6 text-purple-400" />
+                </div>
+                <div className="feature-content">
+                  <h3 className="feature-title">IA Avanzada</h3>
+                  <p className="feature-description">Análisis inteligente con machine learning</p>
+                </div>
+              </div>
+              <div className="feature-item">
+                <div className="feature-icon">
+                  <Shield className="h-6 w-6 text-green-400" />
+                </div>
+                <div className="feature-content">
+                  <h3 className="feature-title">Seguridad Total</h3>
+                  <p className="feature-description">Auditorías completas de smart contracts</p>
+                </div>
+              </div>
+              <div className="feature-item">
+                <div className="feature-icon">
+                  <Zap className="h-6 w-6 text-yellow-400" />
+                </div>
+                <div className="feature-content">
+                  <h3 className="feature-title">Tiempo Real</h3>
+                  <p className="feature-description">Resultados instantáneos y precisos</p>
+                </div>
+              </div>
+              <div className="feature-item">
+                <div className="feature-icon">
+                  <Globe className="h-6 w-6 text-blue-400" />
+                </div>
+                <div className="feature-content">
+                  <h3 className="feature-title">Multi-Chain</h3>
+                  <p className="feature-description">Compatible con todas las blockchains</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        
         {/* Contenido Principal */}
-        <div className="flex-1 p-6 space-y-6">
-          
-          {/* Dashboard de Estado del Sistema */}
-          {showSystemStatus && (
-            <div className="mb-6">
-              <SystemStatusDashboard />
-            </div>
-          )}
-
-          {/* Gestor de Proyectos */}
-          {showProjectManager && (
-            <div className="mb-6">
-              <ProjectManager 
-                onProjectSelect={(project) => {
-                  setAddress(project.address);
-                  setSelectedTools(project.tools);
-                  validateWeb3Address(project.address);
-                  setShowProjectManager(false);
-                  toast({
-                    title: 'Proyecto cargado',
-                    description: `Se ha cargado el proyecto "${project.name}"`,
-                    variant: 'default'
-                  });
-                }}
-                onTemplateApply={(template) => {
-                  setSelectedTools(template.tools);
-                  setShowProjectManager(false);
-                  toast({
-                    title: 'Plantilla aplicada',
-                    description: `Se han seleccionado ${template.tools.length} herramientas`,
-                    variant: 'default'
-                  });
-                }}
-              />
-            </div>
-          )}
-
-          {/* Guía de Fuentes de Datos */}
-          {showDataSourcesGuide && (
-            <div className="mb-6">
-              <DataSourcesGuide 
-                selectedTool={selectedTools.length === 1 ? selectedTools[0] : undefined}
-              />
-            </div>
-          )}
-
-          {/* Estado del Indexador */}
-          <IndexerStatusCard 
-            indexerState={indexerState}
-            dataAvailability={dataAvailability}
-            selectedTools={selectedTools}
-            targetAddress={address}
-            onActivateIndexers={handleActivateIndexers}
-            isActivating={isActivating}
-          />
-          
-          {/* Configuración de Análisis */}
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="h-6 w-6 text-blue-500" />
-                Configuración de Análisis
-              </CardTitle>
-              <CardDescription>
-                Ingresa la dirección Web3 y configura tu análisis personalizado
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Input de Dirección */}
-              <div className="space-y-2">
-                <Label htmlFor="address">Dirección Web3 / Dominio ENS</Label>
-                <div className="relative">
-                  <Input
-                    id="address"
-                    placeholder="0x... o dominio.eth"
-                    value={address}
-                    onChange={(e) => handleAddressChange(e.target.value)}
-                    className={`pr-10 ${addressError ? 'border-red-300' : ''}`}
-                  />
-                  {isValidatingAddress && (
-                    <Loader2 className="absolute right-3 top-3 h-4 w-4 animate-spin text-gray-400" />
-                  )}
-                  {address && !isValidatingAddress && !addressError && (
-                    <CheckCircle className="absolute right-3 top-3 h-4 w-4 text-green-500" />
-                  )}
-                  {addressError && (
-                    <AlertTriangle className="absolute right-3 top-3 h-4 w-4 text-red-500" />
-                  )}
-                </div>
-                {addressError && (
-                  <p className="text-sm text-red-600">{addressError}</p>
-                )}
-                <p className="text-sm text-gray-500">
-                  Solo se permiten direcciones Web3, contratos inteligentes y dominios descentralizados
-                </p>
-              </div>
-
-              {/* Resumen de Selección */}
-              {selectedTools.length > 0 && (
-                <div className="space-y-3">
-                  <Label>Herramientas Seleccionadas ({selectedTools.length})</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedTools.map(toolId => {
-                      const tool = AVAILABLE_TOOLS.find(t => t.id === toolId);
-                      if (!tool) return null;
-                      const IconComponent = tool.icon;
-                      
-                      return (
-                        <Badge key={toolId} variant="secondary" className="flex items-center gap-1">
-                          <IconComponent className="h-3 w-3" />
-                          {tool.name}
-                          <span className="text-xs text-gray-500">${tool.price}</span>
-                        </Badge>
-                      );
-                    })}
+        <div className="main-content">
+          {/* Panel de Estado y Navegación */}
+          <div className="dashboard-nav-panel">
+            <div className="nav-cards-grid">
+              {/* Estado del Navegador */}
+              <Card className="nav-card browser-status-card">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div className="p-2 rounded-lg bg-orange-100 dark:bg-orange-900/20">
+                        <AlertTriangle className="h-4 w-4 text-orange-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-sm font-medium">Navegador Web2</CardTitle>
+                        <CardDescription className="text-xs">Estado de Conexión</CardDescription>
+                      </div>
+                    </div>
+                    <Badge variant="secondary" className="text-xs">Limitado</Badge>
                   </div>
-                </div>
-              )}
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Para mejor experiencia, usa un navegador Web3 como MetaMask Browser
+                  </p>
+                </CardContent>
+              </Card>
 
               {/* Estado del Indexador */}
-              {address && selectedTools.length > 0 && (
-                <IndexerStatusCard 
-                  indexerState={indexerState}
-                  dataAvailability={dataAvailability}
-                  selectedTools={selectedTools}
-                  targetAddress={address}
-                  onActivateIndexers={handleActivateIndexers}
-                  isActivating={isActivating}
-                />
-              )}
+              <Card className="nav-card indexer-status-card">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/20">
+                        <Database className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-sm font-medium">Indexador Web3</CardTitle>
+                        <CardDescription className="text-xs">Sistema de Datos</CardDescription>
+                      </div>
+                    </div>
+                    <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                      Activo
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">Última sincronización:</span>
+                    <span className="font-medium">Hace 2 min</span>
+                  </div>
+                  <Button variant="outline" size="sm" className="w-full mt-2 h-7 text-xs">
+                    <Settings className="h-3 w-3 mr-1" />
+                    Configurar
+                  </Button>
+                </CardContent>
+              </Card>
 
-              {/* Botón de Análisis */}
-              <div className="flex justify-center pt-4">
-                <Button
-                  onClick={handleAnalysis}
-                  disabled={isAnalyzing || selectedTools.length === 0 || !address || !!addressError}
-                  className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-8 py-3 text-lg font-medium shadow-lg"
-                >
-                  {isAnalyzing ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Analizando...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="mr-2 h-5 w-5" />
-                      Iniciar Análisis Profesional
-                    </>
-                  )}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+              {/* Guía de Uso */}
+              <TooltipProvider>
+                <Card className="nav-card guide-card">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center space-x-2">
+                      <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/20">
+                        <Info className="h-4 w-4 text-purple-600" />
+                      </div>
+                      <div>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <CardTitle className="text-sm font-medium cursor-help">Guía de Uso</CardTitle>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Accede a tutoriales y documentación completa</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <CardDescription className="text-xs">Aprende a usar la plataforma</CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="space-y-2">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button variant="outline" size="sm" className="w-full h-7 text-xs">
+                            <FileText className="h-3 w-3 mr-1" />
+                            Ver Documentación
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Guía completa de todas las herramientas disponibles</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <div className="flex gap-1">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="sm" className="flex-1 h-6 text-xs">
+                              <Search className="h-3 w-3 mr-1" />
+                              Buscar
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Buscar en la documentación</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="sm" className="flex-1 h-6 text-xs">
+                              <Eye className="h-3 w-3 mr-1" />
+                              Demo
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Ver demostración interactiva</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TooltipProvider>
 
-          {/* Información del Sistema */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <BarChart3 className="h-5 w-5 text-blue-500" />
-                  Herramientas Disponibles
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-blue-600 mb-2">
-                  {AVAILABLE_TOOLS.length}
-                </div>
-                <p className="text-sm text-gray-500">
-                  Herramientas profesionales de análisis Web3
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Globe className="h-5 w-5 text-green-500" />
-                  Redes Soportadas
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-green-600 mb-2">
-                  15+
-                </div>
-                <p className="text-sm text-gray-500">
-                  Ethereum, Polygon, BSC, Arbitrum y más
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <TrendingUp className="h-5 w-5 text-purple-500" />
-                  Análisis Realizados
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-purple-600 mb-2">
-                  1,247
-                </div>
-                <p className="text-sm text-gray-500">
-                  Análisis completados este mes
-                </p>
-              </CardContent>
-            </Card>
+              {/* Contador de Herramientas */}
+              <Card className="nav-card tools-counter-card">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center space-x-2">
+                    <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/20">
+                      <Target className="h-4 w-4 text-green-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-sm font-medium">Herramientas</CardTitle>
+                      <CardDescription className="text-xs">Seleccionadas para análisis</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="flex items-center justify-between">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-primary">{selectedTools.length}</div>
+                      <div className="text-xs text-muted-foreground">Seleccionadas</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-muted-foreground">{AVAILABLE_TOOLS.length}</div>
+                      <div className="text-xs text-muted-foreground">Disponibles</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
 
-          {/* Mensaje de Estado */}
-          {selectedTools.length === 0 && (
-            <Alert>
-              <Info className="h-4 w-4" />
-              <AlertDescription>
-                Selecciona las herramientas que deseas utilizar para tu análisis desde el panel lateral.
-                Puedes colapsar el panel usando el botón de flecha para tener más espacio visual.
-              </AlertDescription>
-            </Alert>
-          )}
+          {/* Sección de Herramientas */}
+          <div className="tools-section">
+            <div className="section-header">
+              <h2 className="section-title">
+                <Sparkles className="w-8 h-8" />
+                Herramientas de Análisis Web3
+              </h2>
+              <p className="section-subtitle">
+                Selecciona las herramientas que deseas utilizar para tu análisis personalizado
+              </p>
+            </div>
+
+            {/* Filtros de Categoría */}
+            <div className="category-filters">
+              {TOOL_CATEGORIES.map(category => {
+                const IconComponent = category.icon;
+                return (
+                  <button
+                    key={category.id}
+                    onClick={() => setSelectedCategory(category.id)}
+                    className={`category-filter ${
+                      selectedCategory === category.id ? 'active' : ''
+                    }`}
+                  >
+                    <IconComponent className="w-5 h-5" />
+                    <span>{category.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Grid de Herramientas */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredTools.map(tool => {
+                const IconComponent = tool.icon;
+                const isSelected = selectedTools.includes(tool.id);
+                
+                return (
+                  <div
+                    key={tool.id}
+                    onClick={() => handleToolSelection(tool.id)}
+                    className={`group relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 transition-all duration-300 hover:bg-white/10 hover:border-white/20 hover:scale-105 cursor-pointer ${
+                      isSelected ? 'ring-2 ring-blue-500/50 bg-blue-500/10' : ''
+                    }`}
+                  >
+                    {/* Background Gradient */}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${tool.color} opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity duration-300`} />
+                    
+                    {/* Selection Indicator */}
+                    {isSelected && (
+                      <div className="absolute top-4 right-4 z-10">
+                        <CheckCircle className="w-5 h-5 text-green-400" />
+                      </div>
+                    )}
+                    
+                    {/* Icon */}
+                    <div className={`relative w-12 h-12 bg-gradient-to-br ${tool.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                      <IconComponent className="w-6 h-6 text-white" />
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="relative z-10">
+                      <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-blue-300 transition-colors">
+                        {tool.name}
+                      </h3>
+                      <p className="text-gray-400 text-sm mb-4 line-clamp-2">
+                        {tool.description}
+                      </p>
+                      
+                      {/* Category Badge */}
+                      <div className="flex items-center justify-between">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-white/10 text-white/80">
+                          {tool.category}
+                        </span>
+                        
+                        {/* Mock Statistics */}
+                        <div className="flex items-center space-x-2 text-xs text-gray-400">
+                          <TrendingUp className="w-3 h-3" />
+                          <span>{Math.floor(Math.random() * 100) + 50}%</span>
+                        </div>
+                      </div>
+                      
+                      {/* Features List */}
+                    <div className="mt-4 space-y-1">
+                      <div className="flex items-center text-xs text-gray-400">
+                        <div className="w-1 h-1 bg-green-400 rounded-full mr-2" />
+                        Análisis en tiempo real
+                      </div>
+                      <div className="flex items-center text-xs text-gray-400">
+                        <div className="w-1 h-1 bg-blue-400 rounded-full mr-2" />
+                        Reportes detallados
+                      </div>
+                      <div className="flex items-center text-xs text-gray-400">
+                        <div className="w-1 h-1 bg-purple-400 rounded-full mr-2" />
+                        Integración Web3
+                      </div>
+                    </div>
+                    
+                    {/* Botón de análisis individual */}
+                    <div className="mt-4 pt-4 border-t border-white/10">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10 text-xs"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (address && isValidAddress) {
+                            window.open(`/dashboard/individual-analysis?tool=${tool.id}&address=${encodeURIComponent(address)}`, '_blank');
+                          } else {
+                            alert('Por favor, ingresa una dirección válida primero');
+                          }
+                        }}
+                        disabled={!address || !isValidAddress}
+                      >
+                        <Target className="w-3 h-3 mr-1" />
+                        Análisis Individual
+                      </Button>
+                    </div>
+                    </div>
+                    
+                    {/* Hover Effect Border */}
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Sección de Configuración de Análisis */}
+          <div className="analysis-section">
+            <div className="section-header">
+              <h2 className="section-title">
+                <Settings className="w-8 h-8" />
+                Configuración de Análisis
+              </h2>
+              <p className="section-subtitle">
+                Configura los parámetros y ejecuta el análisis Web3
+              </p>
+            </div>
+
+            <div className="analysis-config-grid">
+              {/* Panel de Configuración */}
+              <Card className="config-panel">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Target className="w-5 h-5" />
+                    <span>Parámetros de Análisis</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Input de dirección */}
+                  <div className="space-y-2">
+                    <Label htmlFor="address-input" className="text-sm font-medium">
+                      Dirección Web3 / Dominio ENS
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="address-input"
+                        type="text"
+                        placeholder="0x... o dominio.eth"
+                        value={address}
+                        onChange={(e) => handleAddressChange(e.target.value)}
+                        className={`pr-10 ${addressError ? 'border-red-500' : address && !addressError ? 'border-green-500' : ''}`}
+                      />
+                      {isValidatingAddress && (
+                        <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 animate-spin" />
+                      )}
+                      {address && !isValidatingAddress && !addressError && (
+                        <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-green-500" />
+                      )}
+                      {addressError && (
+                        <AlertTriangle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-red-500" />
+                      )}
+                    </div>
+                    {addressError && (
+                      <p className="text-sm text-red-500">{addressError}</p>
+                    )}
+                  </div>
+
+                  {/* Checkbox para auditoría completa */}
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="complete-audit"
+                      checked={isCompleteAudit}
+                      onCheckedChange={handleCompleteAuditChange}
+                    />
+                    <Label htmlFor="complete-audit" className="text-sm">
+                      Auditoría Completa Premium (todas las herramientas)
+                    </Label>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Panel de Herramientas Seleccionadas */}
+              <Card className="selected-tools-panel">
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <CheckCircle className="w-5 h-5" />
+                      <span>Herramientas Seleccionadas</span>
+                    </div>
+                    <Badge variant="outline" className="bg-primary/10">
+                      {selectedTools.length} de {AVAILABLE_TOOLS.length}
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {selectedTools.length > 0 ? (
+                    <div className="space-y-4">
+                      <div className="flex flex-wrap gap-2">
+                        {selectedTools.map((toolId) => {
+                          const tool = AVAILABLE_TOOLS.find(t => t.id === toolId);
+                          if (!tool) return null;
+                          const IconComponent = tool.icon;
+                          return (
+                            <Badge
+                              key={toolId}
+                              variant="secondary"
+                              className="flex items-center space-x-1 px-2 py-1"
+                            >
+                              <IconComponent className="w-3 h-3" />
+                              <span className="text-xs">{tool.name}</span>
+                            </Badge>
+                          );
+                        })}
+                      </div>
+                      
+                      {/* Botón de análisis */}
+                      <Button
+                        onClick={handleAnalysis}
+                        disabled={!address || selectedTools.length === 0 || isAnalyzing || !!addressError}
+                        className="w-full"
+                        size="lg"
+                      >
+                        {isAnalyzing ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Procesando Análisis...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4 mr-2" />
+                            Iniciar Análisis Premium
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Target className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+                      <p className="text-sm text-muted-foreground mb-2">
+                        No hay herramientas seleccionadas
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Selecciona herramientas de la sección anterior para comenzar
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+
         </div>
       </div>
 
@@ -1012,10 +1047,29 @@ export default function DashboardPage() {
         contextData={{
           address,
           selectedTools,
-          analysisResults: null // Se puede pasar datos de análisis cuando estén disponibles
+          analysisResults: null
         }}
         defaultMinimized={true}
       />
+
+      {/* Modales */}
+      {showSystemStatus && (
+        <SystemStatusDashboard 
+          onClose={() => setShowSystemStatus(false)}
+        />
+      )}
+      
+      {showProjectManager && (
+        <ProjectManager 
+          onClose={() => setShowProjectManager(false)}
+        />
+      )}
+      
+      {showDataSourcesGuide && (
+        <DataSourcesGuide 
+          onClose={() => setShowDataSourcesGuide(false)}
+        />
+      )}
     </div>
   );
 }

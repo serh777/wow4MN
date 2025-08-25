@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ToolLayout } from '@/app/dashboard/content/analysis-results/components/tool-components';
+import { ToolLayout } from '@/app/dashboard/results/content/components/tool-components';
 import { SocialWeb3AnalysisForm } from './social-web3-analysis-form';
 import { SocialWeb3AnalysisResults } from './social-web3-analysis-results';
 import { useSocialWeb3Analysis } from './use-social-web3-analysis';

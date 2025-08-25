@@ -88,7 +88,7 @@ export default function AuthorityTrackingPage() {
           type: formData.analysisType,
           timeframe: formData.timeframe
         });
-        router.push(`/dashboard/authority-tracking/analysis-results?${params.toString()}`);
+        router.push(`/dashboard/results/authority-tracking?${params.toString()}`);
       }, 2000);
       
     } catch (error) {

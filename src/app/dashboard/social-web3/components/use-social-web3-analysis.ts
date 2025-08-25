@@ -46,15 +46,21 @@ export function useSocialWeb3Analysis() {
       const competitorAnalysis = await SocialWeb3APIsService.analyzeCompetitors(identifier, data.industry);
 
       // Combinar todos los análisis
-      const combinedResults = {
-        ...socialAnalysis,
-        additionalData: {
-          profiles,
-          contentAnalysis,
-          audienceAnalysis,
-          competitorAnalysis,
-          inputData: data
-        }
+      const combinedResults: AnalysisResult = {
+        id: `social-web3-${Date.now()}`,
+        type: 'social-web3',
+        data: {
+          ...socialAnalysis,
+          additionalData: {
+            profiles,
+            contentAnalysis,
+            audienceAnalysis,
+            competitorAnalysis,
+            inputData: data
+          }
+        },
+        score: socialAnalysis.overallScore || 0,
+        createdAt: new Date().toISOString()
       };
 
       setResults(combinedResults);
@@ -69,14 +75,15 @@ export function useSocialWeb3Analysis() {
         const params = new URLSearchParams({
           identifier: identifier,
           platforms: profiles.map(p => p.platform).join(','),
-          score: combinedResults.overallScore.toString()
+          score: combinedResults.score.toString()
         });
-        router.push(`/dashboard/social-web3/analysis-results?${params.toString()}`);
+        router.push(`/dashboard/results/social-web3?${params.toString()}`);
       }, 3000);
       
     } catch (error) {
       console.error('Error en análisis social Web3:', error);
-      notifyAnalysisError('Error en el análisis social Web3');
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      notifyAnalysisError('Análisis Social Web3', errorMessage);
       setResults(null);
     } finally {
       setLoading(false);

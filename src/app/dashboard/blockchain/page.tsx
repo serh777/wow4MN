@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ToolLayout } from '@/app/dashboard/content/analysis-results/components/tool-components';
+import { ToolLayout } from '@/app/dashboard/results/content/components/tool-components';
 import { InputForm } from './components/InputForm';
 import { BlockchainResults } from './components/BlockchainResults';
 import { useBlockchainAnalysis } from './components/use-blockchain-analysis';
@@ -77,7 +77,7 @@ export default function BlockchainAnalysisPage() {
                 <div className="text-sm text-green-600">
                   Si no eres redirigido automáticamente, 
                   <a 
-                    href="/dashboard/blockchain/analysis-results"
+                    href="/dashboard/results/blockchain"
                     className="underline font-medium hover:text-green-800"
                   >
                     haz clic aquí

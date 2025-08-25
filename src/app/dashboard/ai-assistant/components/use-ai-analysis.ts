@@ -535,7 +535,7 @@ export function useAIAnalysis() {
         generateRealResults(realAnalysisResults, params) : 
         generateSpecialResults(params);
       
-      const indexerResults = generateIndexerResults(params, contractInfo);
+      const indexerResults = generateIndexerResults(params);
 
       setAnalysisType(params.analysisType);
       setSpecialResults(specialResults);
@@ -561,11 +561,11 @@ Hemos completado un análisis exhaustivo de tu proyecto Web3. La puntuación gen
 ${indexerResults.diagnostics.map(d => `- ${d}`).join('\n')}
 
 ### Oportunidades de Mejora
-${specialResults.opportunities.map(o => `- ${o}`).join('\n')}
+${specialResults.opportunities.map((o: string) => `- ${o}`).join('\n')}
 
 ## 🚀 Recomendaciones Prioritarias
 
-${specialResults.recommendations.map((rec, index) => `
+${specialResults.recommendations.map((rec: any, index: number) => `
 ### ${index + 1}. ${rec.action}
 **Prioridad**: ${rec.priority} | **Esfuerzo**: ${rec.effort} | **ROI Estimado**: $${rec.roi}
 
@@ -578,7 +578,7 @@ ${rec.impact}
 - **Confianza del Modelo**: ${specialResults.predictions.confidence}%
 
 ## 🔐 Análisis de Seguridad
-${specialResults.vulnerabilities.map(vuln => `
+${specialResults.vulnerabilities.map((vuln: any) => `
 **${vuln.severity}**: ${vuln.description}
 *Recomendación*: ${vuln.recommendation}
 `).join('')}
@@ -611,7 +611,7 @@ ${specialResults.vulnerabilities.map(vuln => `
       
       // Redirigir automáticamente a la página de resultados después de 2 segundos
       setTimeout(() => {
-        router.push(`/dashboard/ai-assistant/analysis-results?type=${params.analysisType}&url=${encodeURIComponent(params.url)}`);
+        router.push(`/dashboard/results/ai-assistant?type=${params.analysisType}&url=${encodeURIComponent(params.url)}`);
       }, 2000);
 
     } catch (error) {

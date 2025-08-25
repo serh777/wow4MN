@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ToolLayout } from '@/app/dashboard/content/analysis-results/components/tool-components';
+import { ToolLayout } from '@/app/dashboard/results/content/components/tool-components';
 import { HistoricalForm } from './historical-form';
 import { HistoricalVisualization } from './historical-visualization';
 import { HistoricalMetrics } from './historical-metrics';

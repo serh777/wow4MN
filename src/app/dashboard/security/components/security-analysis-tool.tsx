@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ToolLayout } from '@/app/dashboard/content/analysis-results/components/tool-components';
+import { ToolLayout } from '@/app/dashboard/results/content/components/tool-components';
 import { SecurityAnalysisForm } from './security-analysis-form';
 import { SecurityAnalysisResults } from './security-analysis-results';
 import { useSecurityAnalysis } from './use-security-analysis';

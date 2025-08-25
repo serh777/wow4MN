@@ -61,7 +61,7 @@ export function HeroSection() {
             <div className="flex flex-wrap justify-center gap-6 py-4">
               <div className="flex items-center gap-2 text-sm">
                 <Sparkles className="h-4 w-4 text-primary" />
-                <span><strong>9</strong> Herramientas especializadas</span>
+                <span><strong>18</strong> Herramientas especializadas</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <TrendingUp className="h-4 w-4 text-green-500" />
@@ -75,13 +75,13 @@ export function HeroSection() {
             
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Link href="/auth/wallet-login">
-                <Button size="lg" className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90">
+                <Button size="lg" className="gradient-button">
                   <Wallet className="mr-2 h-4 w-4" />
                   Conectar Wallet
                 </Button>
               </Link>
               <Link href="/register">
-                <Button size="lg" variant="outline" className="border-primary/20 hover:bg-primary/5">
+                <Button size="lg" className="gradient-button-secondary">
                   <Zap className="mr-2 h-4 w-4" />
                   Registro Tradicional
                 </Button>
@@ -111,111 +111,219 @@ export function FeaturesSection() {
   
   const features = [
     {
-      icon: BarChart3,
-      title: "Análisis de Metadatos Web3",
-      description: "Optimiza los metadatos de tus contratos inteligentes y DApps para mejorar su indexación en buscadores especializados.",
-      features: ["Meta tags Web3", "Optimización NFT", "Indexación blockchain", "Schema markup cripto"],
-      color: "bg-blue-500/10 text-blue-600",
-      gradient: "from-blue-500 to-cyan-500",
-      category: "Análisis",
-      premium: false,
-      stats: { accuracy: "95%", speed: "2.3s", coverage: "12 redes" },
-      link: "/register"
-    },
-    {
       icon: Bot,
-      title: "Asistente IA Avanzado",
-      description: "Inteligencia artificial especializada en Web3 que analiza tu proyecto y proporciona recomendaciones personalizadas.",
-      features: ["Análisis predictivo", "Detección de anomalías", "Oportunidades de mejora", "Recomendaciones IA"],
+      title: "IA Análisis",
+      description: "Análisis avanzado con inteligencia artificial especializada en Web3 y blockchain.",
+      features: ["Análisis predictivo", "Detección de anomalías", "Recomendaciones IA", "Insights automáticos"],
       color: "bg-purple-500/10 text-purple-600",
-      gradient: "from-purple-500 to-pink-500",
+      gradient: "from-purple-500 to-indigo-500",
       category: "IA",
       premium: true,
       stats: { accuracy: "98%", speed: "1.8s", coverage: "24/7" },
       link: "/register"
     },
     {
-      icon: Search,
-      title: "Investigación de Palabras Clave Blockchain",
-      description: "Descubre las palabras clave más relevantes para tu nicho en el ecosistema blockchain y cripto.",
-      features: ["Keywords Web3", "Análisis de competencia", "Tendencias cripto", "Volumen de búsqueda"],
+      icon: BarChart3,
+      title: "Metadatos",
+      description: "Análisis de metadatos y estructura de contratos inteligentes y DApps.",
+      features: ["Meta tags Web3", "Optimización NFT", "Indexación blockchain", "Schema markup cripto"],
+      color: "bg-blue-500/10 text-blue-600",
+      gradient: "from-blue-500 to-cyan-500",
+      category: "Web3",
+      premium: false,
+      stats: { accuracy: "95%", speed: "2.3s", coverage: "12 redes" },
+      link: "/register"
+    },
+    {
+      icon: FileText,
+      title: "Contenido",
+      description: "Auditoría de contenido y calidad para optimizar el alcance en Web3.",
+      features: ["SEO técnico", "Contenido Web3", "Optimización móvil", "Análisis semántico"],
       color: "bg-green-500/10 text-green-600",
       gradient: "from-green-500 to-emerald-500",
+      category: "Web3",
+      premium: false,
+      stats: { accuracy: "94%", speed: "5.7s", coverage: "100+ métricas" },
+      link: "/register"
+    },
+    {
+      icon: Search,
+      title: "Keywords",
+      description: "Análisis de palabras clave especializadas en blockchain y cripto.",
+      features: ["Keywords Web3", "Análisis de competencia", "Tendencias cripto", "Volumen de búsqueda"],
+      color: "bg-yellow-500/10 text-yellow-600",
+      gradient: "from-yellow-500 to-orange-500",
       category: "SEO",
       premium: false,
       stats: { accuracy: "92%", speed: "3.1s", coverage: "50M+ keywords" },
       link: "/register"
     },
     {
-      icon: Globe,
-      title: "Análisis Social Web3",
-      description: "Evalúa tu presencia en redes sociales descentralizadas y plataformas blockchain.",
-      features: ["Redes descentralizadas", "Engagement cripto", "Comunidad Web3", "Influencer tracking"],
+      icon: Zap,
+      title: "Rendimiento",
+      description: "Análisis de velocidad y optimización de DApps y sitios Web3.",
+      features: ["Métricas en vivo", "Alertas automáticas", "Reportes detallados", "Optimización técnica"],
+      color: "bg-red-500/10 text-red-600",
+      gradient: "from-red-500 to-pink-500",
+      category: "Técnico",
+      premium: false,
+      stats: { accuracy: "99%", speed: "Real-time", coverage: "24/7" },
+      link: "/register"
+    },
+    {
+      icon: Shield,
+      title: "Seguridad",
+      description: "Auditoría de seguridad completa para contratos y aplicaciones Web3.",
+      features: ["Análisis de vulnerabilidades", "Auditoría de contratos", "Seguridad DApp", "Monitoreo continuo"],
+      color: "bg-gray-500/10 text-gray-600",
+      gradient: "from-gray-500 to-slate-500",
+      category: "Seguridad",
+      premium: true,
+      stats: { accuracy: "97%", speed: "3.5s", coverage: "15+ auditorías" },
+      link: "/register"
+    },
+    {
+      icon: LinkIcon,
+      title: "Backlinks",
+      description: "Análisis de enlaces entrantes en el ecosistema Web3 y blockchain.",
+      features: ["Backlinks Web3", "Autoridad de dominio", "Enlaces tóxicos", "Link building"],
+      color: "bg-teal-500/10 text-teal-600",
+      gradient: "from-teal-500 to-cyan-500",
+      category: "Web3",
+      premium: false,
+      stats: { accuracy: "91%", speed: "3.8s", coverage: "1M+ dominios" },
+      link: "/register"
+    },
+    {
+      icon: LinkIcon,
+      title: "Enlaces",
+      description: "Verificación de enlaces internos y externos en proyectos Web3.",
+      features: ["Enlaces internos", "Verificación automática", "Análisis de calidad", "Optimización SEO"],
+      color: "bg-indigo-500/10 text-indigo-600",
+      gradient: "from-indigo-500 to-purple-500",
+      category: "Web3",
+      premium: false,
+      stats: { accuracy: "93%", speed: "2.8s", coverage: "Ilimitado" },
+      link: "/register"
+    },
+    {
+      icon: BarChart3,
+      title: "Competencia",
+      description: "Análisis competitivo del mercado Web3 y protocolos DeFi.",
+      features: ["Benchmarking DeFi", "TVL analysis", "Yield comparison", "Market share"],
       color: "bg-orange-500/10 text-orange-600",
       gradient: "from-orange-500 to-red-500",
+      category: "Mercado",
+      premium: true,
+      stats: { accuracy: "93%", speed: "4.5s", coverage: "500+ protocolos" },
+      link: "/register"
+    },
+    {
+      icon: Globe,
+      title: "Blockchain",
+      description: "Análisis de datos blockchain y métricas on-chain avanzadas.",
+      features: ["Datos on-chain", "Análisis de transacciones", "Métricas de red", "Tendencias blockchain"],
+      color: "bg-violet-500/10 text-violet-600",
+      gradient: "from-violet-500 to-purple-500",
+      category: "Web3",
+      premium: false,
+      stats: { accuracy: "96%", speed: "2.1s", coverage: "20+ redes" },
+      link: "/register"
+    },
+    {
+      icon: Gauge,
+      title: "Smart Contract",
+      description: "Análisis de contratos inteligentes y optimización de código.",
+      features: ["Análisis de código", "Optimización gas", "Vulnerabilidades", "Best practices"],
+      color: "bg-cyan-500/10 text-cyan-600",
+      gradient: "from-cyan-500 to-blue-500",
+      category: "Web3",
+      premium: true,
+      stats: { accuracy: "98%", speed: "4.2s", coverage: "10+ lenguajes" },
+      link: "/register"
+    },
+    {
+      icon: Globe,
+      title: "Social Web3",
+      description: "Análisis de redes sociales descentralizadas y comunidades Web3.",
+      features: ["Redes descentralizadas", "Engagement cripto", "Comunidad Web3", "Influencer tracking"],
+      color: "bg-pink-500/10 text-pink-600",
+      gradient: "from-pink-500 to-rose-500",
       category: "Social",
       premium: false,
       stats: { accuracy: "89%", speed: "4.2s", coverage: "15 plataformas" },
       link: "/register"
     },
     {
-      icon: FileText,
-      title: "Auditoría de Contenido",
-      description: "Análisis completo del contenido de tu proyecto para optimizar su alcance en el ecosistema Web3.",
-      features: ["SEO técnico", "Contenido Web3", "Optimización móvil", "Análisis semántico"],
-      color: "bg-indigo-500/10 text-indigo-600",
-      gradient: "from-indigo-500 to-blue-500",
-      category: "Contenido",
-      premium: false,
-      stats: { accuracy: "94%", speed: "5.7s", coverage: "100+ métricas" },
-      link: "/register"
-    },
-    {
-      icon: Gauge,
-      title: "Monitoreo de Rendimiento",
-      description: "Supervisa el rendimiento de tu DApp y su posicionamiento en tiempo real.",
-      features: ["Métricas en vivo", "Alertas automáticas", "Reportes detallados", "Uptime monitoring"],
-      color: "bg-teal-500/10 text-teal-600",
-      gradient: "from-teal-500 to-cyan-500",
-      category: "Monitoreo",
+      icon: Shield,
+      title: "Autoridad Descentralizada",
+      description: "Seguimiento de autoridad en ecosistemas descentralizados.",
+      features: ["Métricas de autoridad", "Reputación on-chain", "Scoring descentralizado", "Análisis de influencia"],
+      color: "bg-amber-500/10 text-amber-600",
+      gradient: "from-amber-500 to-yellow-500",
+      category: "Web3",
       premium: true,
-      stats: { accuracy: "99%", speed: "Real-time", coverage: "24/7" },
+      stats: { accuracy: "94%", speed: "3.2s", coverage: "Multi-red" },
       link: "/register"
     },
     {
       icon: Wallet,
-      title: "Análisis de Wallet",
-      description: "Examina carteras y transacciones para obtener insights sobre comportamiento de usuarios.",
-      features: ["Análisis de transacciones", "Patrones de uso", "Seguridad wallet", "Portfolio tracking"],
-      color: "bg-yellow-500/10 text-yellow-600",
-      gradient: "from-yellow-500 to-orange-500",
-      category: "Blockchain",
+      title: "Optimizador Metaverso",
+      description: "Optimización de contenido para metaversos y mundos virtuales.",
+      features: ["Optimización 3D", "Metadatos NFT", "Experiencia inmersiva", "Performance VR/AR"],
+      color: "bg-fuchsia-500/10 text-fuchsia-600",
+      gradient: "from-fuchsia-500 to-pink-500",
+      category: "Metaverso",
       premium: true,
-      stats: { accuracy: "96%", speed: "2.9s", coverage: "20+ redes" },
+      stats: { accuracy: "91%", speed: "5.1s", coverage: "10+ plataformas" },
       link: "/register"
     },
     {
-      icon: LinkIcon,
-      title: "Análisis de Enlaces Web3",
-      description: "Evalúa la calidad y relevancia de los enlaces en el ecosistema descentralizado.",
-      features: ["Backlinks Web3", "Autoridad de dominio", "Enlaces tóxicos", "Link building"],
-      color: "bg-rose-500/10 text-rose-600",
-      gradient: "from-rose-500 to-pink-500",
-      category: "Enlaces",
+      icon: Shield,
+      title: "Autenticidad",
+      description: "Verificación de autenticidad de contenido y activos digitales.",
+      features: ["Verificación blockchain", "Detección de fraude", "Autenticidad NFT", "Proof of ownership"],
+      color: "bg-green-500/10 text-green-600",
+      gradient: "from-green-500 to-teal-500",
+      category: "Seguridad",
+      premium: true,
+      stats: { accuracy: "99%", speed: "1.9s", coverage: "Multi-chain" },
+      link: "/register"
+    },
+    {
+      icon: Wallet,
+      title: "NFT Tracking",
+      description: "Seguimiento y análisis completo de NFTs y colecciones.",
+      features: ["Tracking de colecciones", "Análisis de rareza", "Tendencias de mercado", "Portfolio NFT"],
+      color: "bg-purple-500/10 text-purple-600",
+      gradient: "from-purple-500 to-pink-500",
+      category: "Web3",
       premium: false,
-      stats: { accuracy: "91%", speed: "3.8s", coverage: "1M+ dominios" },
+      stats: { accuracy: "95%", speed: "2.7s", coverage: "1M+ NFTs" },
       link: "/register"
     },
     {
-      icon: ArrowLeftRight,
-      title: "Análisis de Competencia DeFi",
-      description: "Compara tu protocolo DeFi con la competencia y encuentra oportunidades de mejora.",
-      features: ["Benchmarking DeFi", "TVL analysis", "Yield comparison", "Market share"],
-      color: "bg-violet-500/10 text-violet-600",
-      gradient: "from-violet-500 to-purple-500",
-      category: "DeFi",
+      icon: Globe,
+      title: "Interacciones Ecosistema",
+      description: "Análisis de interacciones en ecosistemas blockchain complejos.",
+      features: ["Mapeo de interacciones", "Análisis de flujos", "Conectividad de red", "Patrones de uso"],
+      color: "bg-indigo-500/10 text-indigo-600",
+      gradient: "from-indigo-500 to-blue-500",
+      category: "Web3",
       premium: true,
-      stats: { accuracy: "93%", speed: "4.5s", coverage: "500+ protocolos" },
+      stats: { accuracy: "92%", speed: "4.8s", coverage: "Cross-chain" },
+      link: "/register"
+    },
+    {
+      icon: BarChart3,
+      title: "Análisis Histórico",
+      description: "Análisis de evolución temporal de proyectos y métricas históricas.",
+      features: ["Datos históricos", "Análisis de tendencias", "Evolución temporal", "Predicciones"],
+      color: "bg-slate-500/10 text-slate-600",
+      gradient: "from-slate-500 to-gray-500",
+      category: "Técnico",
+      premium: false,
+      stats: { accuracy: "88%", speed: "6.2s", coverage: "5+ años" },
       link: "/register"
     }
   ];
@@ -231,10 +339,10 @@ export function FeaturesSection() {
         <div className="text-center space-y-6 mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">
             <Sparkles className="w-4 h-4" />
-            9 Herramientas Especializadas
+            18 Herramientas Especializadas
           </div>
           <h2 className="text-3xl font-bold tracking-tighter md:text-4xl lg:text-5xl bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            9 Herramientas Especializadas para el Ecosistema Web3
+            18 Herramientas Especializadas para el Ecosistema Web3
           </h2>
           <p className="text-muted-foreground md:text-lg lg:text-xl max-w-4xl mx-auto leading-relaxed">
             Potencia tu proyecto blockchain con nuestro arsenal completo de herramientas SEO especializadas. 
@@ -245,7 +353,7 @@ export function FeaturesSection() {
           {/* Estadísticas globales */}
           <div className="flex flex-wrap justify-center gap-8 py-6">
             <div className="text-center">
-              <div className="text-2xl font-bold text-primary">9</div>
+              <div className="text-2xl font-bold text-primary">18</div>
               <div className="text-sm text-muted-foreground">Herramientas</div>
             </div>
             <div className="text-center">

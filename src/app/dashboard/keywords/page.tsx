@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { ToolLayout } from '@/app/dashboard/content/analysis-results/components/tool-components';
+import { ToolLayout } from '@/app/dashboard/results/content/components/tool-components';
 import { KeywordsForm } from './components/keywords-form';
 import { KeywordsResults } from './components/keywords-results';
 import { useKeywordsAnalysis } from './components/use-keywords-analysis';
@@ -43,7 +43,7 @@ export default function KeywordsPage() {
             </div>
             
             <div className="flex items-center space-x-3">
-              <Link href="/dashboard/keywords/analysis-results">
+              <Link href="/dashboard/results/keywords">
                 <Button className="flex items-center space-x-2">
                   <span>Ver Resultados Detallados</span>
                   <ExternalLink className="h-4 w-4" />

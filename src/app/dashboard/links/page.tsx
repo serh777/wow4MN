@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ToolLayout } from '@/app/dashboard/content/analysis-results/components/tool-components';
+import { ToolLayout } from '@/app/dashboard/results/content/components/tool-components';
 import { LinksForm } from './components/links-form';
 import { useLinksAnalysis } from './components/use-links-analysis';
 import { Card, CardContent } from '@/components/ui/card';
@@ -72,7 +72,7 @@ export default function LinksAnalysisPage() {
               <div className="text-sm text-green-600">
                 Si no eres redirigido automáticamente, 
                 <a 
-                  href="/dashboard/links/analysis-results"
+                  href="/dashboard/results/links"
                   className="underline font-medium hover:text-green-800"
                 >
                   haz clic aquí

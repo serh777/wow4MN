@@ -272,7 +272,7 @@ export function useCompetitionAnalysis() {
       
       // Redireccionar después de 2 segundos
       setTimeout(() => {
-        router.push(`/dashboard/competition/analysis-results?type=${encodeURIComponent(formData.analysisType || 'comprehensive')}&url=${encodeURIComponent(formData.projectUrl)}`);
+        router.push(`/dashboard/results/competition?type=${encodeURIComponent(formData.analysisType || 'comprehensive')}&url=${encodeURIComponent(formData.projectUrl)}`);
       }, 2000);
       
     } catch (error) {

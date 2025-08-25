@@ -84,12 +84,29 @@ interface AuthorityAnalysisResult {
 }
 
 export class AuthorityTrackingAPIsService {
-  // URLs de APIs (en producción usar APIs reales)
+  // APIs para análisis de autoridad descentralizada
   private static readonly SNAPSHOT_API = 'https://hub.snapshot.org/graphql';
   private static readonly TALLY_API = 'https://api.tally.xyz/query';
   private static readonly GITHUB_API = 'https://api.github.com';
   private static readonly ENS_API = 'https://api.ensideas.com';
   private static readonly DUNE_API = 'https://api.dune.com/api/v1';
+
+  // Método de instancia para análisis de autoridad
+  async analyzeAuthority(address: string, options?: any): Promise<any> {
+    try {
+      const analysis = await AuthorityTrackingAPIsService.analyzeDecentralizedAuthority(address);
+      return {
+        address,
+        analysis,
+        includeGovernance: options?.includeGovernance || true,
+        includeSocialMetrics: options?.includeSocialMetrics || true,
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      console.error('Error analyzing authority:', error);
+      return { error: 'Failed to analyze authority tracking' };
+    }
+  }
 
   // Análisis completo de autoridad descentralizada
   static async analyzeDecentralizedAuthority(address: string): Promise<AuthorityAnalysisResult> {

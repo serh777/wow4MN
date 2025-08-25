@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ScoreCard } from '@/app/dashboard/content/analysis-results/components/tool-components';
+import { ScoreCard } from '@/app/dashboard/results/content/components/tool-components';
 
 interface SmartContractMetricsProps {
   metrics: {

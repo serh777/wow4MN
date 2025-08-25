@@ -2,10 +2,11 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { ethers } from 'ethers';
-import { useAppKit } from '@reown/appkit/react';
+// Temporalmente comentado para evitar errores de sintaxis
+// import { useAppKit } from '@reown/appkit/react';
 import { 
-  initializeAppKit,
-  getAppKit,
+  // initializeAppKit, // Temporalmente comentado
+  // getAppKit, // Temporalmente comentado
   web3ModalConfig,
   checkNetworkConnectivity,
   retryWithBackoff,
@@ -13,10 +14,10 @@ import {
 } from '@/config/wallet';
 import { handleWalletError } from '@/utils/wallet-error-handler';
 
-// Inicialización de AppKit solo en el cliente
-if (typeof window !== 'undefined') {
-  initializeAppKit();
-}
+// Inicialización de AppKit solo en el cliente (temporalmente deshabilitada)
+// if (typeof window !== 'undefined') {
+//   initializeAppKit();
+// }
 
 interface Web3ContextType {
   address: string | null;
@@ -56,17 +57,17 @@ export function Web3Provider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setIsHydrated(true);
     
-    // Inicializar AppKit hook después de la hidratación
-    if (typeof window !== 'undefined') {
-      try {
-        const appKit = getAppKit();
-        if (appKit && appKit.open) {
-          setAppKitOpen(() => appKit.open);
-        }
-      } catch (error) {
-        console.warn('Error inicializando AppKit hook:', error);
-      }
-    }
+    // Inicializar AppKit hook después de la hidratación (temporalmente deshabilitado)
+    // if (typeof window !== 'undefined') {
+    //   try {
+    //     const appKit = getAppKit();
+    //     if (appKit && appKit.open) {
+    //       setAppKitOpen(() => appKit.open);
+    //     }
+    //   } catch (error) {
+    //     console.warn('Error inicializando AppKit hook:', error);
+    //   }
+    // }
   }, []);
 
   const disconnect = useCallback(async () => {
@@ -283,14 +284,15 @@ export function Web3Provider({ children }: { children: ReactNode }) {
       
       // En móviles, abrir el modal primero para mostrar opciones de WalletConnect
        if (isMobile) {
-         console.log('Abriendo modal de AppKit para dispositivo móvil...');
-         try {
-            if (appKitOpen) {
-              await appKitOpen();
-              console.log('Modal de AppKit abierto');
-            } else {
-              throw new Error('AppKit no está disponible');
-            }
+         console.log('Modal de wallet temporalmente deshabilitado');
+        try {
+          // Temporalmente deshabilitado para evitar errores de sintaxis
+          // if (appKitOpen) {
+          //   await appKitOpen();
+          //   console.log('Modal de AppKit abierto');
+          // } else {
+            throw new Error('Sistema de wallet temporalmente deshabilitado');
+          // }
            
            // Esperar a que se establezca la conexión
            await new Promise((resolve, reject) => {

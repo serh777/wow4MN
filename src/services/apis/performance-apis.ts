@@ -46,6 +46,44 @@ export class PerformanceAPIsService {
   private static readonly GTMETRIX_API = 'https://gtmetrix.com/api/2.0';
   private static readonly WEBPAGETEST_API = 'https://www.webpagetest.org/runtest.php';
 
+  // Método de instancia para análisis de rendimiento
+  async analyzePerformance(address: string, options?: any): Promise<any> {
+    try {
+      const url = this.formatAddressAsUrl(address);
+      const [pageSpeedMobile, pageSpeedDesktop, webVitals] = await Promise.all([
+        PerformanceAPIsService.getPageSpeedAnalysis(url, 'mobile'),
+        PerformanceAPIsService.getPageSpeedAnalysis(url, 'desktop'),
+        PerformanceAPIsService.getWebVitalsAnalysis(url)
+      ]);
+      
+      return {
+        address,
+        url,
+        mobile: pageSpeedMobile,
+        desktop: pageSpeedDesktop,
+        webVitals,
+        overallScore: Math.round((pageSpeedMobile.score + pageSpeedDesktop.score) / 2),
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      console.error('Error analyzing performance:', error);
+      return { error: 'Failed to analyze performance' };
+    }
+  }
+
+  private formatAddressAsUrl(address: string): string {
+    // Si ya es una URL, devolverla tal como está
+    if (address.startsWith('http://') || address.startsWith('https://')) {
+      return address;
+    }
+    // Si es una dirección de contrato, crear una URL de ejemplo
+    if (address.startsWith('0x')) {
+      return `https://etherscan.io/address/${address}`;
+    }
+    // Asumir que es un dominio
+    return `https://${address}`;
+  }
+
   // Análisis con PageSpeed Insights API
   static async getPageSpeedAnalysis(url: string, strategy: 'mobile' | 'desktop' = 'mobile'): Promise<PageSpeedData> {
     try {

@@ -76,7 +76,7 @@ export default function NFTTrackingPage() {
           blockchain: formData.blockchain,
           trackingType: formData.trackingType
         });
-        router.push(`/dashboard/nft-tracking/analysis-results?${params.toString()}`);
+        router.push(`/dashboard/results/nft-tracking?${params.toString()}`);
       }, 2000);
       
     } catch (error) {

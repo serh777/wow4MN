@@ -144,7 +144,7 @@ export function useHistoricalAnalysis() {
       
       // Redireccionar después de 2 segundos
       setTimeout(() => {
-        router.push(`/dashboard/historical/analysis-results?url=${encodeURIComponent(data.projectUrl)}&type=historical`);
+        router.push(`/dashboard/results/historical?url=${encodeURIComponent(data.projectUrl)}&type=historical`);
       }, 2000);
     } catch (error) {
       console.error('Error en análisis histórico:', error);

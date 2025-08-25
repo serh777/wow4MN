@@ -19,7 +19,7 @@ export default function BlockchainPerformancePage() {
       setShowResults(true);
       // Auto redirect after 5 seconds
       const timer = setTimeout(() => {
-        window.location.href = '/dashboard/performance/analysis-results';
+        window.location.href = '/dashboard/results/performance';
       }, 5000);
       return () => clearTimeout(timer);
     }
@@ -41,7 +41,7 @@ export default function BlockchainPerformancePage() {
           </CardHeader>
           <CardContent className="text-center space-y-4">
             <div className="space-y-2">
-              <Link href="/dashboard/performance/analysis-results">
+              <Link href="/dashboard/results/performance">
                 <Button className="w-full">
                   <ExternalLink className="h-4 w-4 mr-2" />
                   Ver Resultados Detallados

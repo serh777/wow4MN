@@ -60,8 +60,24 @@ export class EcosystemInteractionsAPIsService {
   private static alchemyService = new AlchemyService();
   private static anthropicService = new AnthropicService();
 
+  // Método de instancia para análisis de interacciones del ecosistema
+  async analyzeEcosystemInteractions(address: string, options?: any): Promise<any> {
+    try {
+      const analysis = await EcosystemInteractionsAPIsService.analyzeEcosystemInteractions(address, options || {});
+      return {
+        address,
+        analysis,
+        includeNetworks: options?.includeNetworks || ['ethereum', 'polygon', 'bsc'],
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      console.error('Error analyzing ecosystem interactions:', error);
+      return { error: 'Failed to analyze ecosystem interactions' };
+    }
+  }
+
   /**
-   * Analiza las interacciones en ecosistemas descentralizados
+   * Analiza las interacciones de un address en múltiples ecosistemas
    */
   static async analyzeEcosystemInteractions(
     address: string,
@@ -82,7 +98,7 @@ export class EcosystemInteractionsAPIsService {
         timeframe = 'month'
       } = options;
 
-      console.log(`🔄 Analizando interacciones del ecosistema para: ${address}`);
+      console.log(`Analizando interacciones del ecosistema para: ${address}`);
 
       // 1. Análisis básico de la dirección
       const basicAnalysis = await this.performBasicAnalysis(address);
@@ -147,7 +163,8 @@ export class EcosystemInteractionsAPIsService {
 
     } catch (error) {
       console.error('Error en análisis de ecosistema:', error);
-      throw new Error(`Error al analizar interacciones del ecosistema: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      throw new Error(`Error al analizar interacciones del ecosistema: ${errorMessage}`);
     }
   }
 
@@ -157,8 +174,8 @@ export class EcosystemInteractionsAPIsService {
   private static async performBasicAnalysis(address: string): Promise<any> {
     try {
       // Obtener información básica de Ethereum
-      const ethBalance = await this.etherscanService.getBalance(address);
-      const ethTransactions = await this.etherscanService.getTransactions(address, 1, 100);
+      const ethBalance = await EtherscanService.getAccountBalance(address);
+      const ethTransactions = await EtherscanService.getContractTransactions(address, 1, 100);
 
       return {
         address,
@@ -183,17 +200,17 @@ export class EcosystemInteractionsAPIsService {
    * Analiza actividad en múltiples redes
    */
   private static async analyzeMultiNetworkActivity(address: string, networks: string[]): Promise<any> {
-    const networkActivity = {};
+    const networkActivity: { [key: string]: { transactions: number; balance: string; tokens: any[]; nfts: any[] } } = {};
 
     for (const network of networks) {
       try {
-        let activity = { transactions: 0, balance: '0', tokens: [], nfts: [] };
+        let activity: { transactions: number; balance: string; tokens: any[]; nfts: any[] } = { transactions: 0, balance: '0', tokens: [], nfts: [] };
 
         switch (network.toLowerCase()) {
           case 'ethereum':
-            const ethTransactions = await this.etherscanService.getTransactions(address, 1, 50);
-            const ethBalance = await this.etherscanService.getBalance(address);
-            const ethTokens = await this.etherscanService.getTokenTransactions(address, 1, 20);
+            const ethTransactions = await EtherscanService.getContractTransactions(address, 1, 50);
+            const ethBalance = await EtherscanService.getAccountBalance(address);
+            const ethTokens = await EtherscanService.getERC20Transfers(address);
             
             activity = {
               transactions: ethTransactions.length,
@@ -237,7 +254,7 @@ export class EcosystemInteractionsAPIsService {
     ];
 
     const interactions = [];
-    const protocolStats = {};
+    const protocolStats: { [key: string]: { frequency: number; totalValue: string; networks: string[] } } = {};
 
     for (const protocol of protocols) {
       const frequency = Math.floor(Math.random() * 50) + 1;
@@ -373,11 +390,11 @@ export class EcosystemInteractionsAPIsService {
     const crossChainVolume = crossChainAnalysis.totalVolume || '0';
     
     const totalTransactions = Object.values(networkAnalysis).reduce(
-      (sum: number, network: any) => sum + network.transactions, 0
+      (sum: number, network: any) => sum + (network.transactions || 0), 0
     );
 
     const diversityScore = Math.min(100, (activeNetworks.length * 20) + (totalProtocols * 2));
-    const activityScore = Math.min(100, totalTransactions * 2);
+    const activityScore = Math.min(100, (totalTransactions as number) * 2);
     const riskScore = riskAnalysis.riskScore || 0;
     const overallScore = Math.round((diversityScore + activityScore + (100 - riskScore)) / 3);
 
@@ -385,7 +402,7 @@ export class EcosystemInteractionsAPIsService {
       totalNetworks: activeNetworks.length,
       totalProtocols,
       crossChainVolume,
-      interactionFrequency: totalTransactions,
+      interactionFrequency: totalTransactions as number,
       diversityScore,
       activityScore,
       riskScore,
@@ -427,7 +444,7 @@ Proporciona 5 insights clave sobre el comportamiento del usuario en el ecosistem
 Formato: JSON array con objetos {type, title, description, impact}
 `;
 
-      const response = await this.anthropicService.generateContent(prompt);
+      const response = await this.anthropicService.chatWithAI(prompt);
       return JSON.parse(response);
     } catch (error) {
       console.error('Error generando insights:', error);
@@ -547,15 +564,15 @@ Formato: JSON array con objetos {type, title, description, impact}
    * Calcula distribución por red
    */
   private static calculateNetworkDistribution(networkAnalysis: any): { [network: string]: number } {
-    const distribution = {};
+    const distribution: { [key: string]: number } = {};
     const totalTransactions = Object.values(networkAnalysis).reduce(
       (sum: number, network: any) => sum + network.transactions, 0
     );
 
     Object.keys(networkAnalysis).forEach(network => {
       const networkData = networkAnalysis[network];
-      distribution[network] = totalTransactions > 0 
-        ? Math.round((networkData.transactions / totalTransactions) * 100)
+      distribution[network] = (totalTransactions as number) > 0 
+        ? Math.round(((networkData.transactions || 0) / (totalTransactions as number)) * 100)
         : 0;
     });
 
@@ -566,11 +583,11 @@ Formato: JSON array con objetos {type, title, description, impact}
    * Calcula distribución por protocolo
    */
   private static calculateProtocolDistribution(protocolAnalysis: any): { [protocol: string]: number } {
-    const distribution = {};
+    const distribution: { [key: string]: number } = {};
     const interactions = protocolAnalysis.interactions || [];
     const totalInteractions = interactions.length;
 
-    const protocolCounts = {};
+    const protocolCounts: { [key: string]: number } = {};
     interactions.forEach((interaction: any) => {
       protocolCounts[interaction.protocol] = (protocolCounts[interaction.protocol] || 0) + 1;
     });

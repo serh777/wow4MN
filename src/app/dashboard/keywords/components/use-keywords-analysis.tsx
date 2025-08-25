@@ -91,7 +91,7 @@ export function useKeywordsAnalysis() {
       setCurrentStep('Análisis completado');
       setResults(analysisResults);
       
-      notifyAnalysisCompleted('Análisis de Keywords completado exitosamente');
+      notifyAnalysisCompleted('Análisis de Keywords completado exitosamente', analysisResults.score);
       
       // Redirigir a resultados con parámetros
       setTimeout(() => {
@@ -100,12 +100,12 @@ export function useKeywordsAnalysis() {
           projectName: data.projectName,
           analysisType: data.analysisType || 'comprehensive'
         });
-        router.push(`/dashboard/keywords/analysis-results?${params.toString()}`);
+        router.push(`/dashboard/results/keywords?${params.toString()}`);
       }, 2000);
       
     } catch (error) {
       console.error('Error en análisis de keywords:', error);
-      notifyAnalysisError(error instanceof Error ? error.message : 'Error desconocido');
+      notifyAnalysisError('Análisis de Keywords', error instanceof Error ? error.message : 'Error desconocido');
       setCurrentStep('Error en el análisis');
       setLoading(false);
     }

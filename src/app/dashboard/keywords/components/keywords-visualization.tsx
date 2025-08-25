@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Visualization } from '@/app/dashboard/content/analysis-results/components/tool-components';
+import { Visualization } from '@/app/dashboard/results/content/components/tool-components';
 import { Progress } from '@/components/ui/progress';
 import type { KeywordData } from '../types';
 

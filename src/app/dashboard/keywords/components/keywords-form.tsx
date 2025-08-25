@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ToolLayout, InputForm } from '@/app/dashboard/content/analysis-results/components/tool-components';
+import { ToolLayout, InputForm } from '@/app/dashboard/results/content/components/tool-components';
 import { AnalysisProgress } from './analysis-progress';
 
 interface KeywordsFormProps {

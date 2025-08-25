@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { AnalysisResults } from '@/app/dashboard/content/analysis-results/components/tool-components';
+import { AnalysisResults } from '@/app/dashboard/results/content/components/tool-components';
 import type { KeywordAnalysisData } from '../types';
 
 interface KeywordsAnalysisProps {

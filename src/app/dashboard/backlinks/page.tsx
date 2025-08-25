@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ToolLayout } from '@/app/dashboard/content/analysis-results/components/tool-components';
+import { ToolLayout } from '@/app/dashboard/results/content/components/tool-components';
 import { InputForm } from './components/InputForm';
 import { BacklinksResults } from './components/BacklinksResults';
 import { useBacklinksAnalysis } from './components/use-backlinks-analysis';
@@ -83,7 +83,7 @@ export default function BacklinksAnalysisPage() {
               <div className="text-sm text-green-600">
                 Si no eres redirigido automáticamente, 
                 <a 
-                  href="/dashboard/backlinks/analysis-results"
+                  href="/dashboard/results/backlinks"
                   className="underline font-medium hover:text-green-800"
                 >
                   haz clic aquí

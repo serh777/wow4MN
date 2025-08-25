@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { Header } from './header';
 import { Footer } from './footer';
 
@@ -10,6 +11,20 @@ interface ConditionalLayoutProps {
 
 export function ConditionalLayout({ children }: ConditionalLayoutProps) {
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Evitar problemas de hidratación
+  if (!mounted) {
+    return (
+      <div className="min-h-screen">
+        {children}
+      </div>
+    );
+  }
   
   // Detectar si estamos en una ruta de dashboard
   const isDashboardRoute = pathname?.startsWith('/dashboard');

@@ -70,6 +70,53 @@ export class SecurityAPIsService {
   private static readonly SLITHER_API = 'https://api.slither.io/analyze';
   private static readonly SECURITY_HEADERS_API = 'https://securityheaders.com';
 
+  // Método de instancia para análisis de seguridad
+  async analyzeSecurity(address: string, options?: any): Promise<any> {
+    try {
+      const isContract = address.startsWith('0x') && address.length === 42;
+      
+      if (isContract) {
+        // Análisis de contrato inteligente
+        const [contractSecurity, knownVulns, compliance] = await Promise.all([
+          SecurityAPIsService.analyzeContractSecurity(address),
+          SecurityAPIsService.checkKnownVulnerabilities(address),
+          SecurityAPIsService.analyzeCompliance(address)
+        ]);
+        
+        return {
+          address,
+          type: 'contract',
+          contractSecurity,
+          knownVulnerabilities: knownVulns,
+          compliance,
+          timestamp: new Date().toISOString()
+        };
+      } else {
+        // Análisis de seguridad web
+        const url = this.formatAddressAsUrl(address);
+        const webSecurity = await SecurityAPIsService.analyzeWebSecurity(url);
+        
+        return {
+          address,
+          url,
+          type: 'web',
+          webSecurity,
+          timestamp: new Date().toISOString()
+        };
+      }
+    } catch (error) {
+      console.error('Error analyzing security:', error);
+      return { error: 'Failed to analyze security' };
+    }
+  }
+
+  private formatAddressAsUrl(address: string): string {
+    if (address.startsWith('http://') || address.startsWith('https://')) {
+      return address;
+    }
+    return `https://${address}`;
+  }
+
   // Análisis de seguridad de contratos inteligentes
   static async analyzeContractSecurity(contractAddress: string, sourceCode?: string): Promise<SecurityAuditResult> {
     try {
@@ -137,7 +184,7 @@ export class SecurityAPIsService {
   // Funciones auxiliares para generar datos realistas
   private static generateRealisticSecurityAudit(contractAddress: string, sourceCode?: string): SecurityAuditResult {
     const isVerified = sourceCode && sourceCode.length > 0;
-    const hasSourceCode = isVerified;
+    const hasSourceCode = Boolean(isVerified);
     
     // Generar vulnerabilidades basadas en patrones comunes
     const vulnerabilities = this.generateRealisticVulnerabilities(hasSourceCode);

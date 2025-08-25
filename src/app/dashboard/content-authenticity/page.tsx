@@ -1,7 +1,5 @@
 'use client';
 
-'use client';
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -44,7 +42,8 @@ export default function ContentAuthenticityPage() {
     includeSignatures: true,
     blockchainNetwork: 'ethereum',
     contentHash: '',
-    tokenId: ''
+    tokenId: '',
+    verificationMethod: 'comprehensive'
   });
 
   const handleInputChange = (field: string, value: string | boolean) => {
@@ -93,7 +92,7 @@ export default function ContentAuthenticityPage() {
           type: formData.contentType,
           network: formData.blockchainNetwork
         });
-        router.push(`/dashboard/content-authenticity/analysis-results?${params.toString()}`);
+        router.push(`/dashboard/results/content-authenticity?${params.toString()}`);
       }, 2000);
       
     } catch (error) {
@@ -337,7 +336,6 @@ export default function ContentAuthenticityPage() {
                       <Label htmlFor="includeSignatures" className="text-sm">
                         Firmas Digitales
                       </Label>
-                    </div>
                     </div>
                   </div>
                 </div>

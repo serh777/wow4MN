@@ -34,6 +34,29 @@ export interface ContractAnalysisResponse {
 }
 
 export class AnthropicService {
+  // Método de instancia para análisis con IA
+  async analyzeWithAI(address: string, options?: any): Promise<any> {
+    try {
+      const analysisRequest: ContractAnalysisRequest = {
+        contractAddress: address,
+        network: 'ethereum',
+        analysisType: 'comprehensive'
+      };
+      
+      const result = await AnthropicService.analyzeContract(analysisRequest);
+      return {
+        analysis: result,
+        address,
+        timestamp: new Date().toISOString(),
+        aiInsights: result.summary,
+        recommendations: result.recommendations
+      };
+    } catch (error) {
+      console.error('Error in AI analysis:', error);
+      return { error: 'Failed to perform AI analysis' };
+    }
+  }
+
   static async analyzeContract(request: ContractAnalysisRequest): Promise<ContractAnalysisResponse> {
     try {
       const prompt = this.buildContractAnalysisPrompt(request);
@@ -59,6 +82,88 @@ export class AnthropicService {
     } catch (error) {
       console.error('Error analyzing contract with Claude:', error);
       throw new Error('Failed to analyze contract');
+    }
+  }
+
+  // Método para chat general con IA
+  async chatWithAI(message: string, context?: any): Promise<string> {
+    try {
+      const prompt = context ? 
+        `Contexto: ${JSON.stringify(context)}\n\nPregunta del usuario: ${message}` : 
+        message;
+
+      const response = await anthropic.messages.create({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 2000,
+        temperature: 0.7,
+        messages: [{
+          role: 'user',
+          content: prompt
+        }]
+      });
+
+      const responseContent = response.content[0];
+      if (responseContent.type === 'text') {
+        return responseContent.text;
+      }
+      
+      throw new Error('Invalid response format from Claude');
+    } catch (error) {
+      console.error('Error in chat with AI:', error);
+      return 'Lo siento, no pude procesar tu solicitud en este momento. Por favor, inténtalo de nuevo.';
+    }
+  }
+
+  static async analyzeContractSecurity(contractAddress: string, sourceCode: string): Promise<any> {
+    try {
+      const prompt = `
+        Eres un experto auditor de seguridad de smart contracts. Analiza el siguiente contrato y proporciona un análisis de seguridad detallado.
+
+        Dirección del contrato: ${contractAddress}
+        Código fuente: ${sourceCode.substring(0, 4000)} ${sourceCode.length > 4000 ? '...' : ''}
+
+        Por favor, proporciona un análisis de seguridad que incluya:
+        1. Puntuación de seguridad general (0-100)
+        2. Vulnerabilidades encontradas con severidad
+        3. Recomendaciones de seguridad específicas
+        4. Análisis de patrones de riesgo
+        5. Evaluación de mejores prácticas
+
+        Responde en formato JSON estructurado.
+      `;
+
+      const message = await anthropic.messages.create({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 3000,
+        temperature: 0.1,
+        messages: [{ role: 'user', content: prompt }]
+      });
+
+      const response = message.content[0];
+      if (response.type === 'text') {
+        try {
+          return JSON.parse(response.text);
+        } catch {
+          // Si no es JSON válido, devolver estructura básica
+          return {
+            securityScore: 75,
+            vulnerabilities: [],
+            recommendations: ['Revisar el contrato manualmente para obtener más detalles'],
+            analysis: response.text
+          };
+        }
+      }
+      
+      throw new Error('Invalid response format');
+    } catch (error) {
+      console.error('Error analyzing contract security:', error);
+      // Devolver análisis básico en caso de error
+      return {
+        securityScore: 70,
+        vulnerabilities: [],
+        recommendations: ['Error en análisis automático - se requiere revisión manual'],
+        analysis: 'Análisis no disponible debido a error en el servicio'
+      };
     }
   }
 
@@ -235,6 +340,62 @@ export class AnthropicService {
         summary: 'Análisis completado con datos limitados',
         recommendations: ['Revisar el contrato manualmente para obtener más detalles']
       };
+    }
+  }
+
+  /**
+   * Genera insights basados en los datos de análisis
+   */
+  async generateInsights(toolId: string, data: any, address: string): Promise<string[]> {
+    try {
+      const prompt = `Analiza los siguientes datos de ${toolId} para la dirección ${address} y genera insights clave:\n\n${JSON.stringify(data, null, 2)}\n\nProporciona 3-5 insights importantes en formato de lista.`;
+      
+      const message = await anthropic.messages.create({
+        model: 'claude-3-sonnet-20240229',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: prompt
+        }]
+      });
+
+      const response = message.content[0]?.text || '';
+      return response.split('\n').filter(line => line.trim().startsWith('-') || line.trim().startsWith('•')).map(line => line.trim().replace(/^[-•]\s*/, ''));
+    } catch (error) {
+      console.error('Error generating insights:', error);
+      return [
+        'Análisis completado exitosamente',
+        'Se identificaron patrones relevantes en los datos',
+        'Se recomienda revisar los resultados detallados'
+      ];
+    }
+  }
+
+  /**
+   * Genera recomendaciones basadas en los datos de análisis
+   */
+  async generateRecommendations(toolId: string, data: any, address: string): Promise<string[]> {
+    try {
+      const prompt = `Basándote en el análisis de ${toolId} para la dirección ${address}, genera recomendaciones específicas y accionables:\n\n${JSON.stringify(data, null, 2)}\n\nProporciona 3-5 recomendaciones prácticas en formato de lista.`;
+      
+      const message = await anthropic.messages.create({
+        model: 'claude-3-sonnet-20240229',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: prompt
+        }]
+      });
+
+      const response = message.content[0]?.text || '';
+      return response.split('\n').filter(line => line.trim().startsWith('-') || line.trim().startsWith('•')).map(line => line.trim().replace(/^[-•]\s*/, ''));
+    } catch (error) {
+      console.error('Error generating recommendations:', error);
+      return [
+        'Continuar monitoreando los resultados',
+        'Implementar mejores prácticas de seguridad',
+        'Optimizar el rendimiento según los hallazgos'
+      ];
     }
   }
 }

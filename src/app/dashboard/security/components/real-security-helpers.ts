@@ -166,7 +166,7 @@ function formatVulnerabilities(vulnerabilities: any[]): any[] {
 function formatWebVulnerabilities(webVulns: any[]): any[] {
   return webVulns.map(vuln => ({
     id: `web_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-    title: vuln.type.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+    title: vuln.type.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()),
     description: vuln.description,
     severity: vuln.severity,
     category: 'Seguridad Web',

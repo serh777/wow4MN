@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ToolLayout } from '@/app/dashboard/content/analysis-results/components/tool-components';
+import { ToolLayout } from '@/app/dashboard/results/content/components/tool-components';
 import { InputForm } from './components/InputForm';
 import { useAIAnalysis } from './components/use-ai-analysis';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -106,7 +106,7 @@ export default function AIAssistantPage() {
               <div className="text-sm text-green-600">
                 Si no eres redirigido automáticamente, 
                 <a 
-                  href={`/dashboard/ai-assistant/analysis-results?type=${analysisType}&url=${encodeURIComponent('wowseoweb3.com')}`}
+                  href={`/dashboard/results/ai-assistant?type=${analysisType}&url=${encodeURIComponent('wowseoweb3.com')}`}
                   className="underline font-medium hover:text-green-800"
                 >
                   haz clic aquí

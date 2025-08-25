@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { ToolLayout } from '@/app/dashboard/content/analysis-results/components/tool-components';
+import { ToolLayout } from '@/app/dashboard/results/content/components/tool-components';
 import { HistoricalForm } from './components/historical-form';
 import { HistoricalVisualization } from './components/historical-visualization';
 import { HistoricalMetrics } from './components/historical-metrics';
@@ -37,7 +37,7 @@ export default function HistoricalAnalysisPage() {
                   </p>
                 </div>
                 <Button asChild variant="outline" size="sm">
-                  <Link href="/dashboard/historical/analysis-results" className="flex items-center gap-2">
+                  <Link href="/dashboard/results/historical" className="flex items-center gap-2">
                     Ver resultados
                     <ExternalLink className="h-4 w-4" />
                   </Link>

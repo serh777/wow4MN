@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ToolLayout } from '@/app/dashboard/content/analysis-results/components/tool-components';
+import { ToolLayout } from '@/app/dashboard/results/content/components/tool-components';
 import { InputForm } from './components/InputForm';
 import { CompetitionResults } from './components/CompetitionResults';
 import { useCompetitionAnalysis } from './components/use-competition-analysis';
@@ -70,7 +70,7 @@ export default function CompetitionAnalysisPage() {
                 <div className="text-sm text-green-600">
                   Si no eres redirigido automáticamente, 
                   <a 
-                    href="/dashboard/competition/analysis-results"
+                    href="/dashboard/results/competition"
                     className="underline font-medium hover:text-green-800"
                   >
                     haz clic aquí

@@ -408,7 +408,7 @@ function identifyRiskFactors(data: any): any[] {
       mitigation: 'Registrar contenido en al menos una blockchain pública',
       impact: 'No immutable proof of existence'
     });
-  } else if (proofs.filter(p => p.verified).length === 0) {
+  } else if (proofs.filter((p: any) => p.verified).length === 0) {
     risks.push({
       type: 'blockchain',
       severity: 'medium',
@@ -429,7 +429,7 @@ function identifyRiskFactors(data: any): any[] {
       mitigation: 'Implementar firma digital del creador',
       impact: 'No cryptographic proof of authorship'
     });
-  } else if (signatures.filter(s => s.verified).length === 0) {
+  } else if (signatures.filter((s: any) => s.verified).length === 0) {
     risks.push({
       type: 'signature',
       severity: 'medium',

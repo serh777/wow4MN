@@ -12,6 +12,7 @@ export interface EtherscanContractInfo {
   proxy: string;
   implementation: string;
   swarmSource: string;
+  sourceCode: string;
 }
 
 export interface EtherscanTransaction {
@@ -44,6 +45,30 @@ export class EtherscanService {
   private static readonly BASE_URL = 'https://api.etherscan.io/api';
   private static readonly API_KEY = process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY;
 
+  // Método de instancia para análisis de dirección
+  async getAddressAnalysis(address: string): Promise<any> {
+    try {
+      const [contractInfo, balance, transactions] = await Promise.all([
+        EtherscanService.getContractInfo(address),
+        EtherscanService.getAccountBalance(address),
+        EtherscanService.getContractTransactions(address, 1, 10)
+      ]);
+      
+      return {
+        address,
+        contractInfo,
+        balance,
+        recentTransactions: transactions,
+        transactionCount: transactions.length,
+        isContract: contractInfo !== null,
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      console.error('Error analyzing address:', error);
+      return { error: 'Failed to analyze blockchain address' };
+    }
+  }
+
   static async getContractInfo(contractAddress: string): Promise<EtherscanContractInfo | null> {
     try {
       const url = `${this.BASE_URL}?module=contract&action=getsourcecode&address=${contractAddress}&apikey=${this.API_KEY}`;
@@ -65,7 +90,8 @@ export class EtherscanService {
           licenseType: result.LicenseType || 'Unknown',
           proxy: result.Proxy || '0',
           implementation: result.Implementation || '',
-          swarmSource: result.SwarmSource || ''
+          swarmSource: result.SwarmSource || '',
+          sourceCode: result.SourceCode || ''
         };
       }
       

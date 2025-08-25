@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { ToolLayout } from './analysis-results/components/tool-components';
-import { InputForm } from './analysis-results/components/InputForm';
-import { useContentAnalysis } from './analysis-results/components/use-content-analysis';
+import { ToolLayout } from '../results/content/components/tool-components';
+import { InputForm } from '../results/content/components/InputForm';
+import { useContentAnalysis } from '../results/content/components/use-content-analysis';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface FormData {
@@ -105,7 +105,7 @@ export default function ContentPage() {
               <div className="text-sm text-green-600">
                 Si no eres redirigido automáticamente, 
                 <a 
-                  href={`/dashboard/content/analysis-results?type=${analysisType}&url=${encodeURIComponent('ejemplo.com')}`}
+                  href={`/dashboard/results/content?type=${analysisType}&url=${encodeURIComponent('ejemplo.com')}`}
                   className="underline font-medium hover:text-green-800"
                 >
                   haz clic aquí

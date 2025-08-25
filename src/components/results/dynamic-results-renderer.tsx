@@ -4,6 +4,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { CircularProgress } from '@/components/ui/circular-progress';
 import { 
   Brain, Globe, Search, Zap, Shield, Link, Users, 
   BarChart3, Crown, Gamepad2, CheckCircle, Award,
@@ -118,6 +119,66 @@ const TOOL_COMPONENTS: Record<string, {
     color: 'from-teal-500 to-cyan-500',
     priority: 12,
     sections: ['protocols', 'interactions', 'diversification', 'risks']
+  },
+  'security-scan': {
+    icon: Shield,
+    color: 'from-red-600 to-orange-600',
+    priority: 13,
+    sections: ['vulnerabilities', 'security-headers', 'ssl', 'privacy']
+  },
+  'social-media': {
+    icon: Users,
+    color: 'from-blue-600 to-indigo-600',
+    priority: 14,
+    sections: ['presence', 'engagement', 'audience', 'content']
+  },
+  'competitor-analysis': {
+    icon: TrendingUp,
+    color: 'from-purple-600 to-pink-600',
+    priority: 15,
+    sections: ['market-position', 'competitors', 'opportunities', 'metrics']
+  },
+  'seo-analyzer': {
+    icon: Search,
+    color: 'from-green-600 to-emerald-600',
+    priority: 16,
+    sections: ['technical', 'content', 'keywords', 'performance']
+  },
+  'performance-audit': {
+    icon: Zap,
+    color: 'from-yellow-600 to-orange-600',
+    priority: 17,
+    sections: ['core-vitals', 'lighthouse', 'resources', 'optimization']
+  },
+  'content-analysis': {
+    icon: Brain,
+    color: 'from-indigo-600 to-purple-600',
+    priority: 18,
+    sections: ['quality', 'readability', 'structure', 'engagement']
+  },
+  'content': {
+    icon: Brain,
+    color: 'from-indigo-600 to-purple-600',
+    priority: 19,
+    sections: ['quality', 'readability', 'structure', 'engagement']
+  },
+  'links': {
+    icon: Link,
+    color: 'from-green-500 to-emerald-500',
+    priority: 20,
+    sections: ['internal', 'external', 'broken', 'optimization']
+  },
+  'metadata': {
+    icon: Search,
+    color: 'from-blue-500 to-cyan-500',
+    priority: 21,
+    sections: ['tags', 'structure', 'seo', 'validation']
+  },
+  'wallet': {
+    icon: Award,
+    color: 'from-amber-500 to-yellow-500',
+    priority: 22,
+    sections: ['balance', 'transactions', 'tokens', 'activity']
   }
 };
 
@@ -238,13 +299,21 @@ function ResultsHeader({
 // Componente de Resumen Ejecutivo
 function ExecutiveSummary({ results }: { results: ToolResult[] }) {
   const completedResults = results.filter(r => r.status === 'completed');
-  const avgScore = completedResults.reduce((sum, r) => sum + (r.score || 0), 0) / completedResults.length;
+  const avgScore = completedResults.reduce((sum, r) => sum + (r.score || 0), 0) / completedResults.length || 0;
   
   const allInsights = completedResults.flatMap(r => r.insights || []);
   const topInsights = allInsights.slice(0, 3);
   
-  const allRecommendations = completedResults.flatMap(r => r.recommendations || []);
-  const topRecommendations = allRecommendations.slice(0, 3);
+  // Calcular métricas adicionales
+  const performanceScore = completedResults.find(r => r.toolId === 'performance')?.score || 0;
+  const securityScore = completedResults.find(r => r.toolId === 'security')?.score || 0;
+  const seoScore = completedResults.find(r => r.toolId === 'keywords')?.score || avgScore;
+
+  const getScoreColor = (score: number): 'green' | 'yellow' | 'red' => {
+    if (score >= 80) return 'green';
+    if (score >= 60) return 'yellow';
+    return 'red';
+  };
 
   return (
     <Card>
@@ -254,30 +323,74 @@ function ExecutiveSummary({ results }: { results: ToolResult[] }) {
           Resumen Ejecutivo
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="text-center p-4 bg-blue-50 rounded-lg">
-            <div className="text-2xl font-bold text-blue-600">{Math.round(avgScore)}</div>
-            <div className="text-sm text-gray-600">Puntuación Promedio</div>
+      <CardContent className="space-y-6">
+        {/* Círculos de progreso principales tipo Google Speed */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 justify-items-center">
+          <div className="text-center">
+            <CircularProgress 
+              value={avgScore} 
+              size={100} 
+              color={getScoreColor(avgScore)}
+              label="General"
+            />
+            <p className="text-sm text-gray-600 mt-2 font-medium">Puntuación General</p>
           </div>
-          <div className="text-center p-4 bg-green-50 rounded-lg">
-            <div className="text-2xl font-bold text-green-600">{completedResults.length}</div>
-            <div className="text-sm text-gray-600">Análisis Completados</div>
+          
+          <div className="text-center">
+            <CircularProgress 
+              value={performanceScore} 
+              size={100} 
+              color={getScoreColor(performanceScore)}
+              label="Performance"
+            />
+            <p className="text-sm text-gray-600 mt-2 font-medium">Rendimiento</p>
           </div>
-          <div className="text-center p-4 bg-purple-50 rounded-lg">
-            <div className="text-2xl font-bold text-purple-600">{allInsights.length}</div>
-            <div className="text-sm text-gray-600">Insights Generados</div>
+          
+          <div className="text-center">
+            <CircularProgress 
+              value={securityScore} 
+              size={100} 
+              color={getScoreColor(securityScore)}
+              label="Security"
+            />
+            <p className="text-sm text-gray-600 mt-2 font-medium">Seguridad</p>
+          </div>
+          
+          <div className="text-center">
+            <CircularProgress 
+              value={seoScore} 
+              size={100} 
+              color={getScoreColor(seoScore)}
+              label="SEO"
+            />
+            <p className="text-sm text-gray-600 mt-2 font-medium">Optimización SEO</p>
+          </div>
+        </div>
+
+        {/* Estadísticas adicionales */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <div className="text-center p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
+            <div className="text-2xl font-bold text-blue-600">{completedResults.length}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Análisis Completados</div>
+          </div>
+          <div className="text-center p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
+            <div className="text-2xl font-bold text-green-600">{allInsights.length}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Insights Generados</div>
+          </div>
+          <div className="text-center p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
+            <div className="text-2xl font-bold text-purple-600">{results.length}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Herramientas Utilizadas</div>
           </div>
         </div>
 
         {topInsights.length > 0 && (
           <div>
-            <h4 className="font-medium text-gray-900 mb-2">Insights Principales:</h4>
+            <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Insights Principales:</h4>
             <ul className="space-y-1">
               {topInsights.map((insight, index) => (
                 <li key={index} className="flex items-start gap-2 text-sm">
                   <Info className="h-4 w-4 text-blue-500 flex-shrink-0 mt-0.5" />
-                  <span>{insight}</span>
+                  <span className="text-gray-700 dark:text-gray-300">{insight}</span>
                 </li>
               ))}
             </ul>
@@ -296,6 +409,35 @@ function ToolResultCard({
   result: ToolResult;
   config: typeof TOOL_COMPONENTS[string];
 }) {
+  // Verificación de seguridad para config
+  if (!config) {
+    console.warn(`Config no encontrado para herramienta: ${result.toolId}`);
+    return (
+      <Card className="overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-gray-500 to-slate-500 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Search className="h-6 w-6" />
+              <div>
+                <CardTitle className="text-lg">{result.toolName || result.toolId}</CardTitle>
+                <p className="text-white/80 text-sm">
+                  {getStatusText(result.status)}
+                </p>
+              </div>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="text-center py-8">
+            <AlertTriangle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Configuración no encontrada</h3>
+            <p className="text-gray-600">La herramienta {result.toolId} no está configurada correctamente.</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+  
   const Icon = config.icon;
   
   return (

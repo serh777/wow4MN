@@ -2,7 +2,25 @@
  * Configuración de redes blockchain soportadas
  */
 
-import { mainnet, polygon } from '@reown/appkit/networks';
+// Temporalmente comentado para evitar errores de sintaxis
+// import { mainnet, polygon } from '@reown/appkit/networks';
+
+// Definiciones temporales de redes para evitar dependencias de AppKit
+const mainnet = {
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { default: { http: ['https://ethereum.publicnode.com'] } },
+  blockExplorers: { default: { name: 'Etherscan', url: 'https://etherscan.io' } }
+};
+
+const polygon = {
+  id: 137,
+  name: 'Polygon',
+  nativeCurrency: { name: 'MATIC', symbol: 'MATIC', decimals: 18 },
+  rpcUrls: { default: { http: ['https://polygon.llamarpc.com'] } },
+  blockExplorers: { default: { name: 'PolygonScan', url: 'https://polygonscan.com' } }
+};
 
 // Redes soportadas
 export const supportedNetworks = [mainnet, polygon];

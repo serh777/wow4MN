@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ToolLayout } from '@/app/dashboard/content/analysis-results/components/tool-components';
+import { ToolLayout } from '@/app/dashboard/results/content/components/tool-components';
 import { PerformanceAnalysisForm } from './performance-analysis-form';
 import { PerformanceAnalysisResults } from './performance-analysis-results';
 import { usePerformanceAnalysis } from './use-performance-analysis';

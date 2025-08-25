@@ -1,7 +1,7 @@
 // Hook para análisis real de Content Authenticity
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ContentAuthenticityAPIsService } from '@/services/apis/content-authenticity-apis';
 
 interface ContentAuthenticityState {
@@ -23,76 +23,118 @@ export function useContentAuthenticity(contentId: string, options: {
     error: null
   });
 
-  const analyzeAuthenticity = async () => {
-    if (!contentId) {
-      setState(prev => ({ ...prev, error: 'ID de contenido requerido' }));
-      return;
-    }
-
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
-
-    try {
-      // Validar formato del contentId
-      const isValidId = validateContentId(contentId);
-      if (!isValidId.isValid) {
-        throw new Error(isValidId.error);
-      }
-
-      // Realizar análisis completo de autenticidad
-      const authenticityResult = await ContentAuthenticityAPIsService.analyzeContentAuthenticity(
-        contentId,
-        options
-      );
-      
-      // Procesar datos adicionales
-      const processedData = await processAuthenticityData(authenticityResult, options);
-      
-      setState({
-        isLoading: false,
-        data: processedData,
-        error: null
-      });
-
-    } catch (error) {
-      console.error('Error en análisis de autenticidad:', error);
-      setState({
-        isLoading: false,
-        data: null,
-        error: error instanceof Error ? error.message : 'Error desconocido'
-      });
-    }
-  };
-
-  // Función para procesar datos de autenticidad
-  const processAuthenticityData = async (rawData: any, options: any) => {
-    const {
-      includeBlockchain = true,
-      includeIPFS = true,
-      includeSignatures = true
-    } = options;
-
-    // Filtrar datos según las opciones seleccionadas
-    let processedData = { ...rawData };
-
-    // Agregar métricas calculadas
-    processedData.calculatedMetrics = calculateDerivedMetrics(processedData);
+  // Función para analizar patrón de modificaciones
+  const analyzeModificationPattern = useCallback((modifications: any[]): string => {
+    if (modifications.length <= 1) return 'minimal';
     
-    // Agregar insights específicos
-    processedData.insights = generateAuthenticityInsights(processedData, options);
+    const timeGaps = [];
+    for (let i = 1; i < modifications.length; i++) {
+      const gap = new Date(modifications[i].date).getTime() - 
+                   new Date(modifications[i-1].date).getTime();
+      timeGaps.push(gap);
+    }
+    
+    const avgGap = timeGaps.reduce((a, b) => a + b, 0) / timeGaps.length;
+    const dayGap = avgGap / (1000 * 60 * 60 * 24);
+    
+    if (dayGap < 1) return 'rapid';
+    if (dayGap < 7) return 'frequent';
+    if (dayGap < 30) return 'regular';
+    return 'sporadic';
+  }, []);
 
-    // Agregar comparaciones históricas si están disponibles
-    if (processedData.provenanceRecord?.modifications?.length > 0) {
-      processedData.historicalComparison = analyzeHistoricalChanges(processedData);
+  // Función para analizar cambios históricos
+  const analyzeHistoricalChanges = useCallback((data: any) => {
+    const modifications = data.provenanceRecord?.modifications || [];
+    
+    if (modifications.length === 0) {
+      return {
+        changeFrequency: 'none',
+        riskLevel: 'low',
+        pattern: 'original'
+      };
     }
 
-    // Agregar recomendaciones de seguridad
-    processedData.securityRecommendations = generateSecurityRecommendations(processedData);
+    const changeFrequency = modifications.length > 5 ? 'high' : 
+                           modifications.length > 2 ? 'medium' : 'low';
+    
+    const riskLevel = changeFrequency === 'high' ? 'medium' : 'low';
+    
+    return {
+      changeFrequency,
+      riskLevel,
+      pattern: analyzeModificationPattern(modifications),
+      totalChanges: modifications.length,
+      lastModified: modifications[modifications.length - 1]?.date
+    };
+  }, [analyzeModificationPattern]);
 
-    return processedData;
-  };
+  // Función para calcular confiabilidad
+  const calculateTrustworthiness = useCallback((metrics: any): number => {
+    const weights = {
+      blockchain: 0.3,
+      signature: 0.25,
+      hash: 0.2,
+      provenance: 0.15,
+      timestamp: 0.1
+    };
+
+    return Math.round(
+      (metrics.blockchainProof || 0) * weights.blockchain +
+      (metrics.digitalSignature || 0) * weights.signature +
+      (metrics.hashVerification || 0) * weights.hash +
+      (metrics.provenanceChain || 0) * weights.provenance +
+      (metrics.timestampAccuracy || 0) * weights.timestamp
+    );
+  }, []);
+
+  // Función para calcular fuerza de verificación
+  const calculateVerificationStrength = useCallback((proofs: any[], signatures: any[]): number => {
+    const verifiedProofs = proofs.filter(p => p.verified).length;
+    const verifiedSignatures = signatures.filter(s => s.verified).length;
+    
+    const proofScore = Math.min(verifiedProofs * 25, 60);
+    const signatureScore = Math.min(verifiedSignatures * 20, 40);
+    
+    return proofScore + signatureScore;
+  }, []);
+
+  // Función para calcular cadena de custodia
+  const calculateChainOfCustody = useCallback((provenance: any): number => {
+    const ownership = provenance.ownership || [];
+    const modifications = provenance.modifications || [];
+    
+    if (ownership.length === 0) return 0;
+    
+    const ownershipScore = Math.min(ownership.length * 20, 60);
+    const modificationScore = Math.min(modifications.length * 10, 40);
+    
+    return ownershipScore + modificationScore;
+  }, []);
+
+  // Función para calcular verificación cross-chain
+  const calculateCrossChainVerification = useCallback((proofs: any[]): number => {
+    const uniqueNetworks = new Set(proofs.map(p => p.network));
+    return Math.min(uniqueNetworks.size * 25, 100);
+  }, []);
+
+  // Función para calcular verificación de edad
+  const calculateAgeVerification = useCallback((creationDate?: string): number => {
+    if (!creationDate) return 0;
+    
+    const age = Date.now() - new Date(creationDate).getTime();
+    const ageInDays = age / (1000 * 60 * 60 * 24);
+    
+    // Contenido más antiguo tiene mayor verificación de edad
+    if (ageInDays > 365) return 100;
+    if (ageInDays > 180) return 80;
+    if (ageInDays > 90) return 60;
+    if (ageInDays > 30) return 40;
+    return 20;
+  }, []);
 
   // Función para calcular métricas derivadas
-  const calculateDerivedMetrics = (data: any) => {
+  const calculateDerivedMetrics = useCallback((data: any) => {
     const metrics = data.metrics || {};
     const proofs = data.blockchainProofs || [];
     const signatures = data.digitalSignatures || [];
@@ -118,74 +160,11 @@ export function useContentAuthenticity(contentId: string, options: {
       riskScore: 100 - (data.riskAssessment?.confidence || 0),
       vulnerabilityCount: (data.riskAssessment?.factors || []).length
     };
-  };
-
-  // Función para calcular confiabilidad
-  const calculateTrustworthiness = (metrics: any): number => {
-    const weights = {
-      blockchain: 0.3,
-      signature: 0.25,
-      hash: 0.2,
-      provenance: 0.15,
-      timestamp: 0.1
-    };
-
-    return Math.round(
-      (metrics.blockchainProof || 0) * weights.blockchain +
-      (metrics.digitalSignature || 0) * weights.signature +
-      (metrics.hashVerification || 0) * weights.hash +
-      (metrics.provenanceChain || 0) * weights.provenance +
-      (metrics.timestampAccuracy || 0) * weights.timestamp
-    );
-  };
-
-  // Función para calcular fuerza de verificación
-  const calculateVerificationStrength = (proofs: any[], signatures: any[]): number => {
-    const verifiedProofs = proofs.filter(p => p.verified).length;
-    const verifiedSignatures = signatures.filter(s => s.verified).length;
-    
-    const proofScore = Math.min(verifiedProofs * 25, 60);
-    const signatureScore = Math.min(verifiedSignatures * 20, 40);
-    
-    return proofScore + signatureScore;
-  };
-
-  // Función para calcular cadena de custodia
-  const calculateChainOfCustody = (provenance: any): number => {
-    const ownership = provenance.ownership || [];
-    const modifications = provenance.modifications || [];
-    
-    if (ownership.length === 0) return 0;
-    
-    const ownershipScore = Math.min(ownership.length * 20, 60);
-    const modificationScore = Math.min(modifications.length * 10, 40);
-    
-    return ownershipScore + modificationScore;
-  };
-
-  // Función para calcular verificación cross-chain
-  const calculateCrossChainVerification = (proofs: any[]): number => {
-    const uniqueNetworks = new Set(proofs.map(p => p.network));
-    return Math.min(uniqueNetworks.size * 25, 100);
-  };
-
-  // Función para calcular verificación de edad
-  const calculateAgeVerification = (creationDate?: string): number => {
-    if (!creationDate) return 0;
-    
-    const age = Date.now() - new Date(creationDate).getTime();
-    const ageInDays = age / (1000 * 60 * 60 * 24);
-    
-    // Contenido más antiguo tiene mayor verificación de edad
-    if (ageInDays > 365) return 100;
-    if (ageInDays > 180) return 80;
-    if (ageInDays > 90) return 60;
-    if (ageInDays > 30) return 40;
-    return 20;
-  };
+      
+  }, [calculateTrustworthiness, calculateVerificationStrength, calculateChainOfCustody, calculateCrossChainVerification, calculateAgeVerification]);
 
   // Función para generar insights específicos
-  const generateAuthenticityInsights = (data: any, options: any) => {
+  const generateAuthenticityInsights = useCallback((data: any, options: any) => {
     const insights = [];
     const metrics = data.metrics || {};
     const proofs = data.blockchainProofs || [];
@@ -307,108 +286,154 @@ export function useContentAuthenticity(contentId: string, options: {
     }
 
     return insights;
-  };
-
-  // Función para analizar cambios históricos
-  const analyzeHistoricalChanges = (data: any) => {
-    const modifications = data.provenanceRecord?.modifications || [];
-    
-    if (modifications.length === 0) {
-      return {
-        changeFrequency: 'none',
-        riskLevel: 'low',
-        pattern: 'original'
-      };
-    }
-
-    const changeFrequency = modifications.length > 5 ? 'high' : 
-                           modifications.length > 2 ? 'medium' : 'low';
-    
-    const riskLevel = changeFrequency === 'high' ? 'medium' : 'low';
-    
-    return {
-      changeFrequency,
-      riskLevel,
-      pattern: analyzeModificationPattern(modifications),
-      totalChanges: modifications.length,
-      lastModified: modifications[modifications.length - 1]?.date
-    };
-  };
-
-  // Función para analizar patrón de modificaciones
-  const analyzeModificationPattern = (modifications: any[]): string => {
-    if (modifications.length <= 1) return 'minimal';
-    
-    const timeGaps = [];
-    for (let i = 1; i < modifications.length; i++) {
-      const gap = new Date(modifications[i].date).getTime() - 
-                   new Date(modifications[i-1].date).getTime();
-      timeGaps.push(gap);
-    }
-    
-    const avgGap = timeGaps.reduce((a, b) => a + b, 0) / timeGaps.length;
-    const dayGap = avgGap / (1000 * 60 * 60 * 24);
-    
-    if (dayGap < 1) return 'frequent';
-    if (dayGap < 7) return 'regular';
-    if (dayGap < 30) return 'periodic';
-    return 'sporadic';
-  };
+  }, []);
 
   // Función para generar recomendaciones de seguridad
-  const generateSecurityRecommendations = (data: any) => {
+  const generateSecurityRecommendations = useCallback((data: any) => {
     const recommendations = [];
     const metrics = data.metrics || {};
     const riskAssessment = data.riskAssessment || {};
+    const proofs = data.blockchainProofs || [];
+    const signatures = data.digitalSignatures || [];
 
-    if (metrics.blockchainProof < 70) {
+    // Recomendaciones basadas en verificación blockchain
+    if (proofs.length === 0) {
       recommendations.push({
-        category: 'Blockchain Security',
         priority: 'high',
-        title: 'Mejorar Verificación Blockchain',
-        actions: [
-          'Registrar en múltiples blockchains',
-          'Usar contratos de verificación estándar',
-          'Implementar pruebas de existencia temporal'
-        ]
+        category: 'blockchain',
+        title: 'Implementar Verificación Blockchain',
+        description: 'Registrar el contenido en al menos una blockchain para mejorar la autenticidad',
+        implementation: 'Usar servicios como Ethereum, Polygon o Binance Smart Chain',
+        estimatedImpact: 'Alto - Mejora significativa en confiabilidad'
       });
     }
 
-    if (metrics.digitalSignature < 60) {
+    // Recomendaciones basadas en firmas digitales
+    if (signatures.length === 0) {
       recommendations.push({
-        category: 'Digital Signatures',
         priority: 'medium',
-        title: 'Fortalecer Firmas Digitales',
-        actions: [
-          'Implementar multi-sig',
-          'Usar algoritmos criptográficos robustos',
-          'Establecer cadena de confianza'
-        ]
+        category: 'signatures',
+        title: 'Agregar Firmas Digitales',
+        description: 'Implementar firmas digitales para verificar autoría',
+        implementation: 'Usar certificados X.509 o firmas criptográficas',
+        estimatedImpact: 'Medio - Mejora la verificación de autoría'
       });
     }
 
+    // Recomendaciones basadas en integridad
+    if (metrics.hashVerification < 80) {
+      recommendations.push({
+        priority: 'high',
+        category: 'integrity',
+        title: 'Mejorar Verificación de Hash',
+        description: 'Implementar múltiples algoritmos de hash para mayor seguridad',
+        implementation: 'Usar SHA-256, SHA-3 y BLAKE2 simultáneamente',
+        estimatedImpact: 'Alto - Detecta mejor las modificaciones'
+      });
+    }
+
+    // Recomendaciones basadas en riesgo
     if (riskAssessment.riskLevel === 'high' || riskAssessment.riskLevel === 'critical') {
       recommendations.push({
-        category: 'Risk Mitigation',
         priority: 'critical',
-        title: 'Mitigar Riesgos Críticos',
-        actions: [
-          'Auditoría completa de autenticidad',
-          'Implementar verificaciones adicionales',
-          'Establecer monitoreo continuo'
-        ]
+        category: 'risk',
+        title: 'Medidas de Seguridad Urgentes',
+        description: 'Implementar controles adicionales debido al alto riesgo detectado',
+        implementation: 'Auditoría completa, re-verificación y monitoreo continuo',
+        estimatedImpact: 'Crítico - Esencial para mantener confiabilidad'
+      });
+    }
+
+    // Recomendaciones basadas en procedencia
+    const provenance = data.provenanceRecord || {};
+    if (!provenance.creator || !provenance.creationDate) {
+      recommendations.push({
+        priority: 'medium',
+        category: 'provenance',
+        title: 'Completar Información de Procedencia',
+        description: 'Agregar información completa del creador y fecha de creación',
+        implementation: 'Registrar metadatos completos en el momento de creación',
+        estimatedImpact: 'Medio - Mejora la trazabilidad'
       });
     }
 
     return recommendations;
-  };
+  }, []);
+
+  // Función para procesar datos de autenticidad
+  const processAuthenticityData = useCallback(async (rawData: any, options: any) => {
+    const {
+      includeBlockchain = true,
+      includeIPFS = true,
+      includeSignatures = true
+    } = options;
+
+    // Filtrar datos según las opciones seleccionadas
+    let processedData = { ...rawData };
+
+    // Agregar métricas calculadas
+    processedData.calculatedMetrics = calculateDerivedMetrics(processedData);
+    
+    // Agregar insights específicos
+    processedData.insights = generateAuthenticityInsights(processedData, options);
+
+    // Agregar comparaciones históricas si están disponibles
+    if (processedData.provenanceRecord?.modifications?.length > 0) {
+      processedData.historicalComparison = analyzeHistoricalChanges(processedData);
+    }
+
+    // Agregar recomendaciones de seguridad
+    processedData.securityRecommendations = generateSecurityRecommendations(processedData);
+
+    return processedData;
+  }, [analyzeHistoricalChanges, calculateDerivedMetrics, generateAuthenticityInsights, generateSecurityRecommendations]);
+
+  const analyzeAuthenticity = useCallback(async () => {
+    if (!contentId) {
+      setState(prev => ({ ...prev, error: 'ID de contenido requerido' }));
+      return;
+    }
+
+    setState(prev => ({ ...prev, isLoading: true, error: null }));
+
+    try {
+      // Validar formato del contentId
+      const isValidId = validateContentId(contentId);
+      if (!isValidId.isValid) {
+        throw new Error(isValidId.error);
+      }
+
+      // Realizar análisis completo de autenticidad
+      const authenticityResult = await ContentAuthenticityAPIsService.analyzeContentAuthenticity(
+        contentId,
+        options
+      );
+      
+      // Procesar datos adicionales
+      const processedData = await processAuthenticityData(authenticityResult, options);
+      
+      setState({
+        isLoading: false,
+        data: processedData,
+        error: null
+      });
+
+    } catch (error) {
+      console.error('Error en análisis de autenticidad:', error);
+      setState({
+        isLoading: false,
+        data: null,
+        error: error instanceof Error ? error.message : 'Error desconocido'
+      });
+    }
+  }, [contentId, options, processAuthenticityData]);
 
   // Auto-ejecutar análisis cuando cambie el contentId
   useEffect(() => {
     if (contentId) {
       analyzeAuthenticity();
     }
-  }, [contentId]);
+  }, [contentId, analyzeAuthenticity]);
 
   return {
     ...state,

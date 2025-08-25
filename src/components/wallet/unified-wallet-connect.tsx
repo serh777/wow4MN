@@ -324,24 +324,5 @@ export function UnifiedWalletConnect({
     </div>
   );
 }
-            </div>
-          ) : (
-            <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-              <p className="text-sm text-amber-800 font-medium mb-2">
-                ⚠️ No se detectaron wallets instaladas
-              </p>
-              <p className="text-xs text-amber-700">
-                Instala una wallet móvil para continuar
-              </p>
-            </div>
-          )}
-
-          {/* Componente de información móvil completo */}
-          <MobileWalletInfo />
-        </div>
-      )}
-    </div>
-  );
-}
 
 export default UnifiedWalletConnect;

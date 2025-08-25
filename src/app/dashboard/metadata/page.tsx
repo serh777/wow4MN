@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ToolLayout, InputForm } from '@/app/dashboard/content/analysis-results/components/tool-components';
+import { ToolLayout, InputForm } from '@/app/dashboard/results/content/components/tool-components';
 import { useMetadataAnalysis } from '@/hooks/use-metadata-analysis';
 import { useContract } from '@/hooks/use-contract';
 import { useToast } from '@/components/ui/use-toast';
@@ -227,7 +227,7 @@ export default function MetadataToolPage() {
                 <div className="text-sm text-green-600">
                   Si no eres redirigido automáticamente, 
                   <a 
-                    href={`/dashboard/metadata/analysis-results?address=${formData.contractAddress}&blockchain=${formData.blockchain}`}
+                    href={`/dashboard/results/metadata?address=${formData.contractAddress}&blockchain=${formData.blockchain}`}
                     className="underline font-medium hover:text-green-800"
                   >
                     haz clic aquí

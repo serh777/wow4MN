@@ -11,7 +11,7 @@ import {
   AlertTriangle, CheckCircle, Minimize2, Maximize2,
   MessageCircle, Sparkles, Brain, Zap
 } from 'lucide-react';
-import { AIAnalysisAPIsService } from '@/services/apis/anthropic';
+import { AnthropicService } from '@/services/apis/anthropic';
 
 interface Message {
   id: string;
@@ -45,7 +45,7 @@ export function AIAssistantWidget({
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [aiService] = useState(() => new AIAnalysisAPIsService());
+  const [aiService] = useState(() => new AnthropicService());
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -124,13 +124,13 @@ export function AIAssistantWidget({
       const assistantMessage: Message = {
         id: `assistant-${Date.now()}`,
         type: 'assistant',
-        content: response.content,
+        content: response,
         timestamp: new Date(),
         metadata: {
-          insights: response.insights,
-          recommendations: response.recommendations,
-          score: response.score,
-          category: response.category
+          insights: [],
+          recommendations: [],
+          score: 0,
+          category: 'general'
         }
       };
 

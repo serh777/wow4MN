@@ -188,7 +188,7 @@ export function useLinksAnalysis() {
       
       // Redirigir después de 2 segundos
       setTimeout(() => {
-        router.push('/dashboard/links/analysis-results');
+        router.push('/dashboard/results/links');
       }, 2000);
       
     } catch (err) {

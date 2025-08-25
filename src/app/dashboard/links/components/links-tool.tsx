@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ToolLayout } from '@/app/dashboard/content/analysis-results/components/tool-components';
+import { ToolLayout } from '@/app/dashboard/results/content/components/tool-components';
 import { LinksForm } from './links-form';
 import { LinksResults } from './links-results';
 import { useLinksAnalysis } from './use-links-analysis';

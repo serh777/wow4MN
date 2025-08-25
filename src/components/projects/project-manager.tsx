@@ -12,7 +12,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { 
   FolderPlus, Save, Trash2, Copy, Download, Upload, 
   Star, Clock, Settings, Play, Pause, MoreVertical,
-  FileText, Target, Zap, Eye, Edit3, Share2, Archive
+  FileText, Target, Zap, Eye, Edit3, Share2, Archive, X
 } from 'lucide-react';
 
 // Tipos para proyectos y plantillas
@@ -106,9 +106,10 @@ interface ProjectManagerProps {
   onProjectSelect?: (project: AnalysisProject) => void;
   onTemplateApply?: (template: AnalysisTemplate) => void;
   className?: string;
+  onClose?: () => void;
 }
 
-export function ProjectManager({ onProjectSelect, onTemplateApply, className = "" }: ProjectManagerProps) {
+export function ProjectManager({ onProjectSelect, onTemplateApply, className = "", onClose }: ProjectManagerProps) {
   const [projects, setProjects] = useState<AnalysisProject[]>([]);
   const [templates, setTemplates] = useState<AnalysisTemplate[]>(DEFAULT_TEMPLATES);
   const [activeTab, setActiveTab] = useState<'projects' | 'templates'>('projects');
@@ -288,6 +289,17 @@ export function ProjectManager({ onProjectSelect, onTemplateApply, className = "
             <FolderPlus className="h-4 w-4" />
             Nuevo Proyecto
           </Button>
+          {onClose && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="flex items-center gap-2"
+            >
+              <X className="h-4 w-4" />
+              Cerrar
+            </Button>
+          )}
         </div>
       </div>
 

@@ -56,18 +56,47 @@ export class AlchemyService {
   private static readonly BASE_URL = 'https://eth-mainnet.g.alchemy.com/v2';
   private static readonly API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
 
+  // Método de instancia para análisis de NFTs
+  async getNFTAnalysis(address: string): Promise<any> {
+    try {
+      const [ownedNFTs, collectionAnalysis] = await Promise.all([
+        AlchemyService.getNFTsForOwner(address),
+        this.isContractAddress(address) ? AlchemyService.analyzeNFTCollection(address) : null
+      ]);
+      
+      return {
+        address,
+        ownedNFTs: ownedNFTs.slice(0, 10), // Limitar a 10 NFTs para evitar respuestas muy grandes
+        totalNFTs: ownedNFTs.length,
+        collectionAnalysis,
+        isCollection: this.isContractAddress(address),
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      console.error('Error analyzing NFTs:', error);
+      return { error: 'Failed to analyze NFT data' };
+    }
+  }
+
+  private isContractAddress(address: string): boolean {
+    // Verificación básica si es una dirección de contrato
+    return address.length === 42 && address.startsWith('0x');
+  }
+
   static async getNFTsForOwner(ownerAddress: string, contractAddresses?: string[]): Promise<AlchemyNFT[]> {
     try {
       const url = `${this.BASE_URL}/${this.API_KEY}/getNFTs`;
-      const params = new URLSearchParams({
+      const baseParams = {
         owner: ownerAddress,
         withMetadata: 'true',
         pageSize: '100'
-      });
+      };
 
-      if (contractAddresses && contractAddresses.length > 0) {
-        params.append('contractAddresses', JSON.stringify(contractAddresses));
-      }
+      const allParams = contractAddresses && contractAddresses.length > 0
+        ? { ...baseParams, contractAddresses: JSON.stringify(contractAddresses) }
+        : baseParams;
+
+      const params = new URLSearchParams(allParams);
 
       const response = await fetch(`${url}?${params}`);
       const data = await response.json();
@@ -105,15 +134,17 @@ export class AlchemyService {
   static async getNFTsForCollection(contractAddress: string, startToken?: string): Promise<AlchemyNFT[]> {
     try {
       const url = `${this.BASE_URL}/${this.API_KEY}/getNFTsForCollection`;
-      const params = new URLSearchParams({
+      const baseParams = {
         contractAddress,
         withMetadata: 'true',
         limit: '100'
-      });
+      };
 
-      if (startToken) {
-        params.append('startToken', startToken);
-      }
+      const allParams = startToken
+        ? { ...baseParams, startToken }
+        : baseParams;
+
+      const params = new URLSearchParams(allParams);
 
       const response = await fetch(`${url}?${params}`);
       const data = await response.json();
@@ -192,15 +223,17 @@ export class AlchemyService {
   static async getNFTSales(contractAddress: string, tokenId?: string): Promise<any[]> {
     try {
       const url = `${this.BASE_URL}/${this.API_KEY}/getNFTSales`;
-      const params = new URLSearchParams({
+      const baseParams = {
         contractAddress,
         order: 'desc',
         limit: '100'
-      });
+      };
 
-      if (tokenId) {
-        params.append('tokenId', tokenId);
-      }
+      const allParams = tokenId
+        ? { ...baseParams, tokenId }
+        : baseParams;
+
+      const params = new URLSearchParams(allParams);
 
       const response = await fetch(`${url}?${params}`);
       const data = await response.json();
@@ -276,26 +309,25 @@ export class AlchemyService {
     try {
       const url = `${this.BASE_URL}/${this.API_KEY}/getAssetTransfers`;
       
+      const baseParams = {
+        category: ['erc20', 'erc721', 'erc1155'],
+        maxCount: '0x64', // 100 in hex
+        order: 'desc'
+      };
+
+      const transferParams = {
+        ...baseParams,
+        ...(fromAddress && { fromAddress }),
+        ...(toAddress && { toAddress }),
+        ...(contractAddress && { contractAddresses: [contractAddress] })
+      };
+
       const params: any = {
         id: 1,
         jsonrpc: '2.0',
         method: 'alchemy_getAssetTransfers',
-        params: [{
-          category: ['erc20', 'erc721', 'erc1155'],
-          maxCount: '0x64', // 100 in hex
-          order: 'desc'
-        }]
+        params: [transferParams]
       };
-
-      if (fromAddress) {
-        params.params[0].fromAddress = fromAddress;
-      }
-      if (toAddress) {
-        params.params[0].toAddress = toAddress;
-      }
-      if (contractAddress) {
-        params.params[0].contractAddresses = [contractAddress];
-      }
 
       const response = await fetch(url, {
         method: 'POST',
@@ -383,14 +415,14 @@ export class AlchemyService {
 
     const analysis = {
       totalTraitTypes: attributeMap.size,
-      traitDistribution: {},
-      rarityScores: {}
+      traitDistribution: {} as Record<string, Record<string, { count: number; rarity: number }>>,
+      rarityScores: {} as Record<string, number>
     };
 
     // Convert maps to objects for JSON serialization
     attributeMap.forEach((valueMap, traitType) => {
       analysis.traitDistribution[traitType] = {};
-      valueMap.forEach((count, value) => {
+      valueMap.forEach((count: number, value: string) => {
         analysis.traitDistribution[traitType][value] = {
           count,
           rarity: count / nfts.length

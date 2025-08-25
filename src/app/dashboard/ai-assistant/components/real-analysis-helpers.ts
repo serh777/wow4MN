@@ -25,6 +25,10 @@ export function extractContractAddress(url: string): string | null {
 
 export function generateRealResults(realAnalysisResults: any, params: any) {
   return {
+    id: `analysis-${Date.now()}`,
+    type: params.analysisType,
+    timestamp: new Date(),
+    data: realAnalysisResults,
     overallScore: realAnalysisResults.overallScore,
     riskLevel: getRiskLevel(realAnalysisResults.overallScore),
     opportunities: realAnalysisResults.recommendations || [],
@@ -52,6 +56,12 @@ export function generateRealResults(realAnalysisResults: any, params: any) {
       effort: ['Bajo', 'Medio', 'Alto'][Math.floor(Math.random() * 3)],
       roi: (Math.floor(Math.random() * 50) + 10) * 1000
     })) || [],
+    aiInsights: {
+      sentiment: Math.floor(realAnalysisResults.overallScore * 0.8),
+      contentQuality: Math.floor(realAnalysisResults.overallScore * 0.9),
+      userExperience: Math.floor(realAnalysisResults.overallScore * 0.85),
+      technicalDebt: Math.floor((100 - realAnalysisResults.overallScore) * 0.7)
+    },
     marketTrends: {
       industry: 'Smart Contracts',
       trendScore: Math.floor(realAnalysisResults.overallScore * 0.9),

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { InputForm } from '@/app/dashboard/content/analysis-results/components/tool-components';
+import { InputForm } from '@/app/dashboard/results/content/components/tool-components';
 
 interface HistoricalFormProps {
   onSubmit: (data: any) => Promise<void>;

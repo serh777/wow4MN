@@ -49,7 +49,7 @@ export function useSecurityAnalysis() {
         
         // Obtener información del contrato desde Etherscan
         const contractInfo = await EtherscanService.getContractInfo(contractAddress);
-        const sourceCode = contractInfo.SourceCode || '';
+        const sourceCode = contractInfo?.sourceCode || '';
         
         // Realizar análisis de seguridad del contrato
         const [securityAudit, knownVulns, complianceData] = await Promise.all([
@@ -85,18 +85,19 @@ export function useSecurityAnalysis() {
       
       // Redirigir a resultados después de 3 segundos
       setTimeout(() => {
+        const targetValue = isUrl ? extractDomainFromUrl(data.contractAddress || '') : (data.contractAddress || '');
         const params = new URLSearchParams({
           type: isUrl ? 'web' : 'contract',
-          target: isUrl ? extractDomainFromUrl(data.contractAddress) : data.contractAddress,
+          target: targetValue,
           analysisType: data.analysisType,
           checks: data.securityChecks.join(',')
         });
-        router.push(`/dashboard/security/analysis-results?${params.toString()}`);
+        router.push(`/dashboard/results/security?${params.toString()}`);
       }, 3000);
       
     } catch (error) {
       console.error('Error en análisis de seguridad:', error);
-      notifyAnalysisError('Error en el análisis de seguridad');
+      notifyAnalysisError('Auditoría de Seguridad', 'Error en el análisis de seguridad');
       setResults(null);
     } finally {
       setLoading(false);

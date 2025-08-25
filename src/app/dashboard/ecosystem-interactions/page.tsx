@@ -1,7 +1,5 @@
 'use client';
 
-'use client';
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -41,7 +39,12 @@ export default function EcosystemInteractionsPage() {
     includeProtocols: true,
     includeCrossChain: true,
     includeRiskAnalysis: true,
-    timeframe: 'month'
+    includeTransactions: true,
+    includeSocial: false,
+    includeGovernance: false,
+    includeNFTs: false,
+    timeframe: 'month',
+    analysisDepth: 'standard'
   });
 
   const handleInputChange = (field: string, value: string | boolean | string[]) => {
@@ -73,7 +76,12 @@ export default function EcosystemInteractionsPage() {
         includeProtocols: formData.includeProtocols,
         includeCrossChain: formData.includeCrossChain,
         includeRiskAnalysis: formData.includeRiskAnalysis,
+        includeTransactions: formData.includeTransactions,
+        includeSocial: formData.includeSocial,
+        includeGovernance: formData.includeGovernance,
+        includeNFTs: formData.includeNFTs,
         timeframe: formData.timeframe,
+        analysisDepth: formData.analysisDepth,
         timestamp: new Date().toISOString()
       };
       
@@ -86,7 +94,7 @@ export default function EcosystemInteractionsPage() {
           networks: formData.includeNetworks.join(','),
           timeframe: formData.timeframe
         });
-        router.push(`/dashboard/ecosystem-interactions/analysis-results?${params.toString()}`);
+        router.push(`/dashboard/results/ecosystem-interactions?${params.toString()}`);
       }, 2000);
       
     } catch (error) {
@@ -110,6 +118,12 @@ export default function EcosystemInteractionsPage() {
     { value: 'month', label: '1 mes' },
     { value: 'quarter', label: '3 meses' },
     { value: 'year', label: '1 año' }
+  ];
+
+  const analysisDepths = [
+    { value: 'basic', label: 'Básico', description: 'Análisis superficial y rápido' },
+    { value: 'standard', label: 'Estándar', description: 'Análisis completo recomendado' },
+    { value: 'deep', label: 'Profundo', description: 'Análisis exhaustivo y detallado' }
   ];
 
   return (
@@ -217,6 +231,25 @@ export default function EcosystemInteractionsPage() {
 
             <TabsContent value="advanced" className="space-y-6">
               <div className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="analysisDepth">Profundidad de Análisis</Label>
+                  <Select value={formData.analysisDepth} onValueChange={(value) => handleInputChange('analysisDepth', value)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {analysisDepths.map((depth) => (
+                        <SelectItem key={depth.value} value={depth.value}>
+                          <div className="flex flex-col">
+                            <span>{depth.label}</span>
+                            <span className="text-xs text-muted-foreground">{depth.description}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <div className="space-y-4">
                   <Label>Opciones de Análisis</Label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -269,42 +302,6 @@ export default function EcosystemInteractionsPage() {
                     </div>
                   </div>
                 </div>
-              </div>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {timeframes.map((timeframe) => (
-                        <SelectItem key={timeframe.value} value={timeframe.value}>
-                          {timeframe.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="advanced" className="space-y-6">
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="analysisDepth">Profundidad de Análisis</Label>
-                  <Select value={formData.analysisDepth} onValueChange={(value) => handleInputChange('analysisDepth', value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {analysisDepths.map((depth) => (
-                        <SelectItem key={depth.value} value={depth.value}>
-                          <div className="flex flex-col">
-                            <span>{depth.label}</span>
-                            <span className="text-xs text-muted-foreground">{depth.description}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
 
                 <div className="space-y-4">
                   <Label>Tipos de Interacciones a Analizar</Label>
@@ -320,20 +317,6 @@ export default function EcosystemInteractionsPage() {
                       />
                       <Label htmlFor="includeTransactions" className="text-sm">
                         Transacciones On-Chain
-                      </Label>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id="includeProtocols"
-                        title="Incluir análisis de interacciones con protocolos"
-                        checked={formData.includeProtocols}
-                        onChange={(e) => handleInputChange('includeProtocols', e.target.checked)}
-                        className="ecosystem-checkbox"
-                      />
-                      <Label htmlFor="includeProtocols" className="text-sm">
-                        Interacciones con Protocolos
                       </Label>
                     </div>
 

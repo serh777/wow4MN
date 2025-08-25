@@ -112,7 +112,7 @@ export function useSmartContractAnalysis() {
       
       // Redirect after 3 seconds
       setTimeout(() => {
-        router.push('/dashboard/smart-contract/analysis-results');
+        router.push('/dashboard/results/smart-contract');
       }, 3000);
     } catch (error) {
       console.error('Error en análisis de smart contract:', error);

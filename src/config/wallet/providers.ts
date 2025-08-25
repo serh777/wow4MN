@@ -2,9 +2,11 @@
  * Configuración de proveedores de wallet
  */
 
-import { createAppKit } from '@reown/appkit/react';
-import { EthersAdapter } from '@reown/appkit-adapter-ethers';
+// Temporalmente comentado para evitar errores de sintaxis de Coinbase SDK
+// import { createAppKit } from '@reown/appkit/react';
+// import { EthersAdapter } from '@reown/appkit-adapter-ethers';
 import { supportedNetworks, defaultNetwork } from './networks';
+// import { customEthersAdapter } from './custom-adapter';
 
 // Función para obtener la URL base
 const getBaseUrl = () => {
@@ -25,8 +27,9 @@ export const appMetadata = {
   icons: [`${getBaseUrl()}/favicon.svg`]
 };
 
-// Configuración del adaptador de Ethers
-export const ethersAdapter = new EthersAdapter();
+// Configuración del adaptador de Ethers personalizado (temporalmente deshabilitado)
+// export const ethersAdapter = customEthersAdapter;
+export const ethersAdapter = null; // Temporalmente deshabilitado
 
 // IDs de wallets móviles priorizadas
 export const mobileWalletIds = [
@@ -57,7 +60,7 @@ export const desktopConfig = {
   ...baseAppKitConfig,
   enableInjected: true,
   enableEIP6963: true,
-  enableCoinbase: true,
+  enableCoinbase: false, // Temporalmente deshabilitado para evitar errores de sintaxis
   enableNetworkView: true,
   enableExplorer: true
 };
@@ -67,7 +70,7 @@ export const mobileConfig = {
   ...baseAppKitConfig,
   enableInjected: true,
   enableEIP6963: true,
-  enableCoinbase: true,
+  enableCoinbase: false, // Temporalmente deshabilitado para evitar errores de sintaxis
   enableNetworkView: false,
   enableExplorer: false,
   mobileWalletIds,
@@ -78,31 +81,47 @@ export const mobileConfig = {
 // Variable global para AppKit
 let appKit: any = null;
 
-// Función para inicializar AppKit
+// Función para inicializar AppKit (temporalmente deshabilitada)
 export const initializeAppKit = () => {
-  if (typeof window === 'undefined') {
-    console.warn('AppKit: No se puede inicializar en el servidor');
-    return null;
-  }
-
-  if (appKit) {
-    console.log('AppKit: Ya está inicializado');
-    return appKit;
-  }
-
   try {
+    console.log('AppKit temporalmente deshabilitado para evitar errores de sintaxis');
+    return null;
+    
+    /* CÓDIGO ORIGINAL COMENTADO TEMPORALMENTE
+    if (typeof window === 'undefined') {
+      console.warn('AppKit: No se puede inicializar en el servidor');
+      return null;
+    }
+
+    if (appKit) {
+      console.log('AppKit: Ya está inicializado');
+      return appKit;
+    }
+
+    // Verificar que createAppKit esté disponible
+    if (typeof createAppKit !== 'function') {
+      console.error('AppKit: createAppKit no es una función válida');
+      return null;
+    }
+
     const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || process.env.NEXT_PUBLIC_REOWN_API_KEY || '717c912a-af06-42ea-817e-06d64c964a69';
     
     if (!projectId || projectId === '717c912a-af06-42ea-817e-06d64c964a69') {
       console.warn('AppKit: Usando PROJECT_ID de desarrollo. Configura NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID para producción.');
     }
 
-    // Detectar si es móvil
-    const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+    // Detectar si es móvil de forma más segura
+    const isMobile = typeof navigator !== 'undefined' && /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
       navigator.userAgent.toLowerCase()
     );
 
     const config = isMobile ? mobileConfig : desktopConfig;
+    
+    // Verificar que la configuración sea válida
+    if (!config || !config.adapters || !Array.isArray(config.adapters)) {
+      console.error('AppKit: Configuración inválida', config);
+      return null;
+    }
     
     console.log('AppKit: Inicializando con configuración:', isMobile ? 'móvil' : 'escritorio');
     
@@ -110,8 +129,12 @@ export const initializeAppKit = () => {
     
     console.log('AppKit: Inicializado correctamente');
     return appKit;
+    */
+    
   } catch (error) {
     console.error('AppKit: Error durante la inicialización:', error);
+    // Limpiar appKit si hay error
+    appKit = null;
     return null;
   }
 };

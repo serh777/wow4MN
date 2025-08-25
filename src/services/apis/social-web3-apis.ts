@@ -81,12 +81,43 @@ interface SocialWeb3AnalysisResult {
 }
 
 export class SocialWeb3APIsService {
-  // URLs de APIs (en producción usar APIs reales)
+  // APIs de plataformas Web3 sociales
   private static readonly LENS_API = 'https://api.lens.dev';
   private static readonly FARCASTER_API = 'https://api.farcaster.xyz';
   private static readonly MASTODON_API = 'https://mastodon.social/api/v1';
   private static readonly HIVE_API = 'https://api.hive.blog';
   private static readonly MIRROR_API = 'https://mirror.xyz/api';
+
+  // Método de instancia para análisis de redes sociales Web3
+  async analyzeSocialWeb3(address: string, options?: any): Promise<any> {
+    try {
+      const identifier = this.extractIdentifierFromAddress(address);
+      const analysis = await SocialWeb3APIsService.analyzeSocialWeb3Presence(identifier);
+      
+      return {
+        address,
+        identifier,
+        analysis,
+        platforms: options?.platforms || ['lens', 'farcaster', 'mastodon'],
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      console.error('Error analyzing social Web3:', error);
+      return { error: 'Failed to analyze social Web3 presence' };
+    }
+  }
+
+  private extractIdentifierFromAddress(address: string): string {
+    // Si es una dirección de contrato, usar los últimos 8 caracteres
+    if (address.startsWith('0x')) {
+      return address.slice(-8);
+    }
+    // Si es un dominio, usar el nombre del dominio
+    if (address.includes('.')) {
+      return address.split('.')[0];
+    }
+    return address;
+  }
 
   // Análisis completo de presencia en redes sociales Web3
   static async analyzeSocialWeb3Presence(identifier: string): Promise<SocialWeb3AnalysisResult> {

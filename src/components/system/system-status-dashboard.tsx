@@ -11,7 +11,7 @@ import {
   Activity, Server, Database, Wifi, Clock, AlertTriangle, 
   CheckCircle, XCircle, RefreshCw, TrendingUp, TrendingDown,
   Cpu, HardDrive, MemoryStick, Network, Zap, Shield,
-  Users, BarChart3, Globe, Eye, Settings
+  Users, BarChart3, Globe, Eye, Settings, X
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
@@ -45,7 +45,11 @@ interface SystemAlert {
   resolved: boolean;
 }
 
-export function SystemStatusDashboard() {
+interface SystemStatusDashboardProps {
+  onClose?: () => void;
+}
+
+export function SystemStatusDashboard({ onClose }: SystemStatusDashboardProps = {}) {
   const [metrics, setMetrics] = useState<SystemMetrics>({
     cpu: 45,
     memory: 62,
@@ -240,6 +244,18 @@ export function SystemStatusDashboard() {
             <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
             Actualizar
           </Button>
+          
+          {onClose && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onClose}
+              className="flex items-center gap-2"
+            >
+              <X className="h-4 w-4" />
+              Cerrar
+            </Button>
+          )}
         </div>
       </div>
 

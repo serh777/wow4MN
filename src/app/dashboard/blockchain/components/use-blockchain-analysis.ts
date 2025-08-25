@@ -321,7 +321,7 @@ export function useBlockchainAnalysis() {
         tokenMetadata,
         assetTransfers,
         aiAnalysis
-      );
+      ) as BlockchainResults;
 
       setProgress({
         percentage: 100,
@@ -333,7 +333,7 @@ export function useBlockchainAnalysis() {
 
       // Redirigir a resultados después de un breve delay
       setTimeout(() => {
-        router.push(`/dashboard/blockchain/analysis-results?address=${formData.contractAddress}&network=${formData.network}`);
+        router.push(`/dashboard/results/blockchain?address=${formData.contractAddress}&network=${formData.network}`);
       }, 2000);
 
     } catch (error) {
@@ -343,114 +343,6 @@ export function useBlockchainAnalysis() {
       setIsLoading(false);
     }
   }, [router]);
-      setError(null);
-      setResults(null);
-
-      // Validaciones
-      if (!formData.contractAddress || formData.contractAddress.trim() === '') {
-        throw new Error('La dirección del contrato es obligatoria');
-      }
-
-      if (!formData.contractAddress.match(/^0x[a-fA-F0-9]{40}$/)) {
-        throw new Error('La dirección del contrato no tiene un formato válido');
-      }
-
-      // Simular análisis
-      await simulateAnalysisSteps(formData);
-      
-      // Generar resultados
-      const mockResults = generateMockResults(formData);
-      setResults(mockResults);
-      
-      // Guardar resultados en sessionStorage
-      sessionStorage.setItem('blockchainAnalysisResults', JSON.stringify({
-        overallScore: mockResults.score,
-        analysisType: formData.analysisType || 'comprehensive',
-        url: formData.contractAddress,
-        riskLevel: mockResults.score >= 80 ? 'low' : mockResults.score >= 60 ? 'medium' : 'high',
-        indexerStatus: {
-          connected: true,
-          dataSource: 'Blockchain Analytics Index',
-          lastUpdate: new Date().toLocaleString()
-        },
-        blockchainMetrics: {
-          smartContracts: 1,
-          transactions: mockResults.transactions.total,
-          securityScore: mockResults.metrics.security,
-          gasOptimization: mockResults.metrics.gasOptimization
-        },
-        securityAnalysis: {
-          vulnerabilities: mockResults.securityAnalysis.vulnerabilities.length,
-          auditScore: mockResults.metrics.security,
-          riskFactors: mockResults.securityAnalysis.vulnerabilities.map(vuln => ({
-            factor: vuln.type,
-            severity: vuln.severity,
-            description: vuln.description
-          }))
-        },
-        performanceMetrics: {
-          gasEfficiency: mockResults.metrics.gasOptimization,
-          executionTime: Math.floor(Math.random() * 500) + 100,
-          throughput: Math.floor(Math.random() * 1000) + 500,
-          scalability: mockResults.metrics.efficiency
-        },
-        complianceStatus: {
-          score: mockResults.complianceCheck.overallCompliance,
-          regulations: mockResults.complianceCheck.standards.map(standard => ({
-            name: standard.name,
-            status: standard.compliant ? 'compliant' : 'non-compliant',
-            description: standard.details
-          }))
-        },
-        opportunities: [
-          {
-            title: 'Optimización de Gas',
-            description: 'Oportunidad de reducir costos de gas mediante optimización de contratos',
-            solution: 'Implementar técnicas de optimización de gas en smart contracts',
-            implementation: 'Revisar y refactorizar contratos para usar menos gas, implementar batch operations',
-            estimatedImpact: '-30% costos de gas',
-            difficulty: 'medium',
-            category: 'optimization'
-          },
-          {
-            title: 'Mejora de Seguridad',
-            description: 'Implementar auditorías de seguridad adicionales',
-            solution: 'Realizar auditorías de seguridad regulares y implementar mejores prácticas',
-            implementation: 'Contratar firmas de auditoría especializadas, implementar testing automatizado',
-            estimatedImpact: '+25% seguridad',
-            difficulty: 'hard',
-            category: 'security'
-          }
-        ],
-        diagnostics: [
-          {
-            issue: 'Alto Consumo de Gas',
-            severity: 'medium',
-            description: 'Algunos contratos consumen más gas del necesario',
-            recommendation: 'Optimizar funciones de contratos para reducir consumo de gas'
-          },
-          {
-            issue: 'Falta de Documentación',
-            severity: 'low',
-            description: 'Algunos contratos carecen de documentación técnica completa',
-            recommendation: 'Mejorar la documentación técnica de todos los smart contracts'
-          }
-        ]
-      }));
-      
-      // Redireccionar después de 2 segundos
-      setTimeout(() => {
-        router.push(`/dashboard/blockchain/analysis-results?type=${encodeURIComponent(formData.analysisType || 'comprehensive')}&url=${encodeURIComponent(formData.contractAddress)}`);
-      }, 2000);
-
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error desconocido en el análisis';
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
-      setProgress({ currentStep: '', message: '', percentage: 0 });
-    }
-  }, [simulateAnalysisSteps, generateMockResults, router]);
 
   const resetAnalysis = useCallback(() => {
     setResults(null);

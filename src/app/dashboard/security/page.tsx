@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ToolLayout } from '@/app/dashboard/content/analysis-results/components/tool-components';
+import { ToolLayout } from '@/app/dashboard/results/content/components/tool-components';
 import { SecurityAnalysisForm } from './components/security-analysis-form';
 import { useSecurityAnalysis } from './components/use-security-analysis';
 import ErrorBoundary from '@/components/error-boundary';
@@ -60,7 +60,7 @@ export default function SecurityAuditPage() {
                 <div className="text-sm text-green-600">
                   Si no eres redirigido automáticamente, 
                   <a 
-                    href="/dashboard/security/analysis-results"
+                    href="/dashboard/results/security"
                     className="underline font-medium hover:text-green-800"
                   >
                     haz clic aquí

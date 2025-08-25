@@ -73,7 +73,7 @@ export function useMetadataAnalysis() {
       
       // Redirigir automáticamente a la página de resultados después de 2 segundos
       setTimeout(() => {
-        router.push(`/dashboard/metadata/analysis-results?address=${encodeURIComponent(data.contractAddress)}&blockchain=${encodeURIComponent(data.blockchain)}&projectType=${encodeURIComponent(data.projectType)}`);
+        router.push(`/dashboard/results/metadata?address=${encodeURIComponent(data.contractAddress)}&blockchain=${encodeURIComponent(data.blockchain)}&projectType=${encodeURIComponent(data.projectType)}`);
       }, 2000);
     } catch (err) {
       const errorMessage = 'Error al analizar los metadatos. Por favor, inténtalo de nuevo.';

@@ -102,7 +102,7 @@ export class ContentAuthenticityAPIsService {
   private static readonly ETHEREUM_RPC = 'https://mainnet.infura.io/v3/';
   private static readonly POLYGON_RPC = 'https://polygon-rpc.com/';
   private static readonly ARWEAVE_GATEWAY = 'https://arweave.net/';
-  
+
   // Contratos conocidos para verificación
   private static readonly KNOWN_CONTRACTS = {
     'OpenSea': '0x495f947276749ce646f68ac8c248420045cb7b5e',
@@ -112,9 +112,23 @@ export class ContentAuthenticityAPIsService {
     'KnownOrigin': '0xfbeef911dc5821886e1dda71586d90ed28174b7d'
   };
 
-  /**
-   * Analiza la autenticidad de contenido
-   */
+  // Método de instancia para análisis de autenticidad
+  async analyzeContentAuthenticity(contentId: string, options?: any): Promise<any> {
+    try {
+      const analysis = await ContentAuthenticityAPIsService.analyzeContentAuthenticity(contentId, options || {});
+      return {
+        contentId,
+        analysis,
+        verificationLevel: options?.verificationLevel || 'standard',
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      console.error('Error analyzing content authenticity:', error);
+      return { error: 'Failed to analyze content authenticity' };
+    }
+  }
+
+  // Análisis completo de autenticidad de contenido
   static async analyzeContentAuthenticity(
     contentId: string,
     options: {
@@ -741,6 +755,25 @@ export class ContentAuthenticityAPIsService {
     const mean = numbers.reduce((a, b) => a + b, 0) / numbers.length;
     const squaredDiffs = numbers.map(n => Math.pow(n - mean, 2));
     return squaredDiffs.reduce((a, b) => a + b, 0) / numbers.length;
+  }
+
+  /**
+   * Función principal para verificar autenticidad de contenido
+   */
+  async verifyAuthenticity(address: string, options?: any): Promise<any> {
+    try {
+      const result = await ContentAuthenticityAPIsService.analyzeContentAuthenticity(address, options || {});
+      return {
+        address,
+        verification: result,
+        includeBlockchainVerification: options?.includeBlockchainVerification || true,
+        includeIPFSCheck: options?.includeIPFSCheck || true,
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      console.error('Error verifying content authenticity:', error);
+      return { error: 'Failed to verify content authenticity' };
+    }
   }
 }
 

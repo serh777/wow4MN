@@ -479,11 +479,11 @@ function generateOptimizationPlan(data: any): any {
   );
   
   // Calcular beneficios potenciales
-  const potentialSavings = optimizations.reduce((total, opt) => 
+  const potentialSavings = optimizations.reduce((total: number, opt: any) =>
     total + (opt.originalSize - opt.optimizedSize), 0
   );
   
-  const potentialPerformanceGain = optimizations.reduce((total, opt) => 
+  const potentialPerformanceGain = optimizations.reduce((total: number, opt: any) =>
     total + opt.performanceGain, 0
   ) / optimizations.length || 0;
   
@@ -608,9 +608,9 @@ function analyzePerformance(data: any): any {
   const metrics = data.metrics || {};
   
   // Calcular métricas de rendimiento
-  const totalSize = assets.reduce((sum, asset) => sum + asset.size, 0);
-  const totalMemory = assets.reduce((sum, asset) => sum + asset.performance.memoryUsage, 0);
-  const avgRenderTime = assets.reduce((sum, asset) => sum + asset.performance.renderTime, 0) / assets.length || 0;
+  const totalSize = assets.reduce((sum: number, asset: any) => sum + asset.size, 0);
+  const totalMemory = assets.reduce((sum: number, asset: any) => sum + asset.performance.memoryUsage, 0);
+  const avgRenderTime = assets.reduce((sum: number, asset: any) => sum + asset.performance.renderTime, 0) / assets.length || 0;
   
   // Identificar cuellos de botella
   const bottlenecks = identifyBottlenecks(assets, userExperience);
@@ -718,7 +718,7 @@ function calculatePerformanceProjections(metrics: any, assets: any[]): any {
  * Genera recomendaciones de rendimiento
  */
 function generatePerformanceRecommendations(bottlenecks: any[]): string[] {
-  const recommendations = [];
+  const recommendations: string[] = [];
   
   bottlenecks.forEach(bottleneck => {
     switch (bottleneck.type) {
@@ -744,7 +744,7 @@ function generatePerformanceRecommendations(bottlenecks: any[]): string[] {
  * Genera benchmarks de rendimiento
  */
 function generatePerformanceBenchmarks(platforms: any[]): any {
-  const benchmarks = {};
+  const benchmarks: { [key: string]: any } = {};
   
   platforms.forEach(platform => {
     benchmarks[platform.name] = {
@@ -768,12 +768,12 @@ function analyzeMarket(data: any): any {
   const metrics = data.metrics || {};
   
   // Calcular tamaño de mercado total
-  const totalUserBase = platforms.reduce((sum, platform) => sum + platform.userBase, 0);
-  const avgEngagement = platforms.reduce((sum, platform) => sum + platform.engagement, 0) / platforms.length || 0;
+  const totalUserBase = platforms.reduce((sum: number, platform: any) => sum + platform.userBase, 0);
+  const avgEngagement = platforms.reduce((sum: number, platform: any) => sum + platform.engagement, 0) / platforms.length || 0;
   
   // Identificar oportunidades principales
   const topOpportunities = opportunities
-    .filter(opp => opp.potential === 'high')
+    .filter((opp: any) => opp.potential === 'high')
     .slice(0, 3);
   
   return {
@@ -963,7 +963,7 @@ function generateTechnicalSummary(metrics: any, assets: any[]): any {
  * Genera desglose de assets
  */
 function generateAssetBreakdown(assets: any[]): any {
-  const breakdown = {};
+  const breakdown: { [key: string]: any } = {};
   
   assets.forEach(asset => {
     if (!breakdown[asset.type]) {
@@ -1028,7 +1028,7 @@ function generateOptimizationReport(optimizations: any[]): any {
  * Genera matriz de compatibilidad
  */
 function generateCompatibilityMatrix(platforms: any[]): any {
-  const matrix = {};
+  const matrix: { [key: string]: any } = {};
   
   platforms.forEach(platform => {
     matrix[platform.name] = {

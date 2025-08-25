@@ -34,6 +34,41 @@ export class GoogleAPIsService {
   private static readonly ANALYTICS_API = 'https://analyticsreporting.googleapis.com/v4';
   private static readonly KEYWORD_PLANNER_API = 'https://googleads.googleapis.com/v14';
 
+  // Métodos de instancia para análisis de keywords
+  async analyzeKeywords(address: string, options?: any): Promise<any> {
+    try {
+      const keywords = this.extractKeywordsFromAddress(address);
+      const keywordData = await GoogleAPIsService.getKeywordAnalysis(keywords, address);
+      return {
+        keywords: keywordData,
+        totalKeywords: keywordData.length,
+        avgSearchVolume: keywordData.reduce((sum, k) => sum + k.searchVolume, 0) / keywordData.length,
+        competitiveKeywords: keywordData.filter(k => k.competition === 'high').length
+      };
+    } catch (error) {
+      console.error('Error analyzing keywords:', error);
+      return { error: 'Failed to analyze keywords' };
+    }
+  }
+
+  // Métodos de instancia para análisis de backlinks
+  async analyzeBacklinks(address: string, options?: any): Promise<any> {
+    try {
+      const backlinkData = await GoogleAPIsService.getBacklinkAnalysis(address);
+      return backlinkData;
+    } catch (error) {
+      console.error('Error analyzing backlinks:', error);
+      return { error: 'Failed to analyze backlinks' };
+    }
+  }
+
+  private extractKeywordsFromAddress(address: string): string[] {
+    // Extraer keywords relevantes de la dirección/dominio
+    const domain = address.replace(/^https?:\/\//, '').split('/')[0];
+    const parts = domain.split('.');
+    return parts.concat(['blockchain', 'web3', 'crypto', 'seo']);
+  }
+
   // Simular datos de Google Search Console
   static async getSearchConsoleData(domain: string, startDate: string, endDate: string): Promise<SearchConsoleData[]> {
     try {

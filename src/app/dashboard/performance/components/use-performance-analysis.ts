@@ -79,7 +79,7 @@ export function usePerformanceAnalysis() {
         
         // Obtener información del contrato desde Etherscan
         const contractInfo = await EtherscanService.getContractInfo(contractAddress);
-        const transactionHistory = await EtherscanService.getTransactionHistory(contractAddress, 100);
+        const transactionHistory = await EtherscanService.getContractTransactions(contractAddress, 1, 100);
         
         performanceData = generateContractPerformanceResults(
           contractAddress,
@@ -103,69 +103,13 @@ export function usePerformanceAnalysis() {
           target: isUrl ? extractDomainFromUrl(data.contractAddress) : data.contractAddress,
           blockchain: data.blockchain || 'ethereum'
         });
-        router.push(`/dashboard/performance/analysis-results?${params.toString()}`);
+        router.push(`/dashboard/results/performance?${params.toString()}`);
       }, 3000);
       
     } catch (error) {
       console.error('Error en análisis de rendimiento:', error);
-      notifyAnalysisError('Error en el análisis de rendimiento');
+      notifyAnalysisError('Análisis de Rendimiento', error instanceof Error ? error.message : 'Error desconocido');
       setResults(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-            title: 'Batch processing',
-            description: 'Agrupar múltiples operaciones',
-            impact: 'Alto',
-            difficulty: 'Baja',
-            gasSavings: '40-60%'
-          }
-        ],
-        networkComparison: {
-          gasUsed: {
-            project: 85000,
-            network: 100000,
-            difference: '-15%'
-          },
-          confirmationTime: {
-            project: 45,
-            network: 50,
-            difference: '-10%'
-          }
-        }
-      };
-
-      const score = Math.floor(
-        Object.values(performanceData.metrics).reduce((a, b) => a + b, 0) / 
-        Object.values(performanceData.metrics).length
-      );
-
-      const analysisResults = {
-        type: 'performance',
-        data: performanceData,
-        score
-      };
-
-      setResults(analysisResults);
-      
-      // Save comprehensive results to sessionStorage
-      const detailedResults = {
-        ...performanceData,
-        score,
-        timestamp: new Date().toISOString()
-      };
-      sessionStorage.setItem('performanceAnalysisResults', JSON.stringify(detailedResults));
-      
-      notifyAnalysisCompleted('Monitoreo de Rendimiento', score);
-      
-      // Redirect to results page after 3 seconds
-      setTimeout(() => {
-        router.push('/dashboard/performance/analysis-results');
-      }, 3000);
-    } catch (error) {
-      console.error('Error en análisis de rendimiento:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
-      notifyAnalysisError('Monitoreo de Rendimiento', errorMessage);
     } finally {
       setLoading(false);
     }

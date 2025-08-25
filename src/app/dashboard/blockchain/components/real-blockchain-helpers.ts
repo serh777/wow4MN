@@ -60,7 +60,7 @@ export function generateRealBlockchainResults(
     securityAnalysis: {
       vulnerabilities: aiAnalysis?.vulnerabilities || [],
       overallRisk: aiAnalysis ? getRiskLevel(aiAnalysis.securityScore) : 'medium',
-      auditStatus: isVerified ? 'verified' : 'unverified'
+      auditStatus: isVerified ? 'audited' : 'unaudited'
     },
     gasAnalysis: {
       averageCost: Math.floor(avgGasUsed / 1000),
@@ -176,7 +176,7 @@ function getLastActivity(transactions: any[]): string {
   return new Date(parseInt(newestTx.timeStamp) * 1000).toISOString().split('T')[0];
 }
 
-function getRiskLevel(score: number): string {
+function getRiskLevel(score: number): 'low' | 'medium' | 'high' {
   if (score >= 90) return 'low';
   if (score >= 70) return 'medium';
   return 'high';

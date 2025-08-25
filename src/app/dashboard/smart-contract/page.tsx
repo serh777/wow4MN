@@ -50,7 +50,7 @@ export default function SmartContractSEOPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link href="/dashboard/smart-contract/analysis-results">
+              <Link href="/dashboard/results/smart-contract">
                 <Button className="w-full sm:w-auto">
                   Ver Resultados Detallados
                   <ExternalLink className="ml-2 h-4 w-4" />

@@ -54,6 +54,13 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
+    
+    /* Variables adicionales para tema oscuro */
+    --bg-glass: rgba(15, 23, 42, 0.2);
+    --bg-glass-hover: rgba(15, 23, 42, 0.3);
+    --border-accent: rgba(59, 130, 246, 0.5);
+    --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --backdrop-blur: blur(24px);
   }
 
   * {
@@ -64,7 +71,57 @@
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
-}
+  
+  /* Estilos futuristas para páginas no-dashboard */
+  body:not(.dashboard-page) {
+    background: linear-gradient(135deg, 
+      rgba(248, 250, 252, 0.95) 0%, 
+      rgba(241, 245, 249, 0.95) 25%,
+      rgba(248, 250, 252, 0.95) 50%,
+      rgba(241, 245, 249, 0.95) 75%,
+      rgba(248, 250, 252, 0.95) 100%);
+    min-height: 100vh;
+    position: relative;
+  }
+  
+  .dark body:not(.dashboard-page) {
+    background: linear-gradient(135deg, 
+      rgba(0, 0, 0, 0.98) 0%, 
+      rgba(17, 17, 17, 0.98) 25%,
+      rgba(0, 0, 0, 0.98) 50%,
+      rgba(17, 17, 17, 0.98) 75%,
+      rgba(0, 0, 0, 0.98) 100%);
+  }
+  
+  /* Efectos de fondo animados para páginas no-dashboard */
+  body:not(.dashboard-page)::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba(226, 232, 240, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(203, 213, 225, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(241, 245, 249, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+    animation: backgroundPulse 20s ease-in-out infinite;
+  }
+  
+  .dark body:not(.dashboard-page)::before {
+    background: 
+      radial-gradient(circle at 20% 80%, rgba(64, 64, 64, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(51, 51, 51, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(34, 34, 34, 0.05) 0%, transparent 50%);
+  }
+  
+  @keyframes backgroundPulse {
+     0%, 100% { opacity: 0.3; }
+     50% { opacity: 0.6; }
+   }
+ }
 
 @layer components {
   .circular-progress {
@@ -372,5 +429,178 @@
   @apply rounded border-gray-300;
 }
 
+/* Analysis Results Page Styles */
+.analysis-circular-progress {
+  transform: rotate(-90deg);
+}
+
+.analysis-circular-progress-background {
+  fill: none;
+  stroke: #e5e7eb;
+  stroke-width: 8;
+}
+
+.analysis-circular-progress-foreground {
+  fill: none;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 2s ease-in-out;
+}
+
+.analysis-circular-progress-excellent {
+  stroke: #10b981;
+}
+
+.analysis-circular-progress-good {
+  stroke: #f59e0b;
+}
+
+.analysis-circular-progress-poor {
+  stroke: #ef4444;
+}
+
+.analysis-circular-progress-text {
+  transform: rotate(90deg);
+  text-anchor: middle;
+  dominant-baseline: middle;
+  font-size: 24px;
+  font-weight: bold;
+  fill: #1f2937;
+}
+
+.dark .analysis-circular-progress-text {
+  fill: #f9fafb;
+}
+
+.dark .analysis-circular-progress-background {
+  stroke: #374151;
+}
+
+/* Loading State Styles */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes loading-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Chart tooltip styles */
+.chart-tooltip {
+  background-color: white !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Dynamic circular progress container */
+.circular-progress-dynamic {
+  width: var(--size, 120px);
+  height: var(--size, 120px);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Dynamic width progress bars */
+.progress-bar-width-dynamic {
+  width: var(--width, 0%);
+}
+
+/* Dynamic Progress Bar Styles */
+.progress-bar-dynamic {
+  @apply h-full transition-all duration-1000 ease-out rounded-full;
+}
+
+.progress-bar-blue-gradient {
+  @apply bg-gradient-to-r from-blue-400 to-blue-600;
+}
+
+.progress-bar-purple-gradient {
+  @apply bg-gradient-to-r from-purple-400 to-purple-600;
+}
+
+/* Circular Progress Container */
+.circular-progress-container {
+  @apply relative inline-block;
+}
+
+/* Particles Background Animation */
+.particles-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: linear-gradient(45deg, #3b82f6, #8b5cf6, #06b6d4);
+  border-radius: 50%;
+  opacity: 0;
+  animation: particleFloat 10s infinite linear;
+}
+
+@keyframes particleFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(100vh) scale(0);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(90vh) scale(1);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(-10vh) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20vh) scale(0);
+  }
+}
+
+/* Particle variations for different sizes */
+.particle:nth-child(3n) {
+  width: 6px;
+  height: 6px;
+  background: linear-gradient(45deg, #f59e0b, #ef4444, #ec4899);
+}
+
+.particle:nth-child(5n) {
+  width: 3px;
+  height: 3px;
+  background: linear-gradient(45deg, #10b981, #06b6d4, #8b5cf6);
+}
+
+.particle:nth-child(7n) {
+  width: 5px;
+  height: 5px;
+  background: linear-gradient(45deg, #6366f1, #a855f7, #ec4899);
+}
 
 }

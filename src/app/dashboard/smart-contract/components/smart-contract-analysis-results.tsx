@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { AnalysisResults, Visualization } from '@/app/dashboard/content/analysis-results/components/tool-components';
+import { AnalysisResults, Visualization } from '@/app/dashboard/results/content/components/tool-components';
 import { SaveAnalysisButton } from '@/components/notifications/notification-system';
 import type { AnalysisResult } from '@/types';
 import { SmartContractMetrics } from './smart-contract-metrics';
