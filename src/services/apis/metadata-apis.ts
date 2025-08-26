@@ -51,6 +51,11 @@ export class MetadataAPIsService {
   private static etherscanService = new EtherscanService();
   private static alchemyService = new AlchemyService();
 
+  // Método de instancia para compatibilidad con orchestrator
+  async analyzeMetadata(address: string, options: MetadataAnalysisOptions = {}): Promise<MetadataAnalysisResult> {
+    return MetadataAPIsService.analyzeMetadata(address, options);
+  }
+
   static async analyzeMetadata(address: string, options: MetadataAnalysisOptions = {}): Promise<MetadataAnalysisResult> {
     try {
       // Determinar el tipo de análisis

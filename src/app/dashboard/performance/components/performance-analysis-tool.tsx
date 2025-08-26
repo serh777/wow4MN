@@ -5,6 +5,7 @@ import { ToolLayout } from '@/app/dashboard/results/content/components/tool-comp
 import { PerformanceAnalysisForm } from './performance-analysis-form';
 import { PerformanceAnalysisResults } from './performance-analysis-results';
 import { usePerformanceAnalysis } from './use-performance-analysis';
+import { DataSourcesInfo } from '@/components/tooltips';
 
 export function PerformanceAnalysisTool() {
   const { loading, results, handleSubmit } = usePerformanceAnalysis();
@@ -15,6 +16,13 @@ export function PerformanceAnalysisTool() {
       description="Analiza y optimiza el rendimiento de tus contratos y transacciones"
       icon="performance"
     >
+      <div className="mb-6">
+        <DataSourcesInfo 
+          toolId="performance" 
+          variant="detailed"
+          showStats={true}
+        />
+      </div>
       <PerformanceAnalysisForm onSubmit={handleSubmit} loading={loading} />
       {results && <PerformanceAnalysisResults results={results} />}
     </ToolLayout>

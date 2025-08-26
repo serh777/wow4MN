@@ -604,3 +604,62 @@
 }
 
 }
+
+/* Estilos extraídos de componentes inline */
+
+/* Historical Visualization Styles */
+.historical-bar {
+  position: relative;
+}
+
+.historical-bar-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+}
+
+/* Dashboard Particles Animation */
+.dashboard-particle {
+  animation-delay: var(--animation-delay, 0s);
+}
+
+/* Color Indicators for Charts */
+.color-indicator {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 9999px;
+  background-color: var(--indicator-color, #ccc);
+}
+
+/* Progress Bars */
+.progress-bar-container {
+  width: 100%;
+  background-color: #e5e7eb;
+  border-radius: 9999px;
+  height: 0.5rem;
+}
+
+.progress-bar-fill {
+  background-color: #2563eb;
+  height: 0.5rem;
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+  width: var(--progress-width, 0%);
+}
+
+.progress-bar-compact {
+  width: 8rem;
+  background-color: #e5e7eb;
+  border-radius: 9999px;
+  height: 0.5rem;
+}
+
+.progress-bar-compact-fill {
+  background-color: #2563eb;
+  height: 0.5rem;
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+  width: var(--progress-width, 0%);
+}

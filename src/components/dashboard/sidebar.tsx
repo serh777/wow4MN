@@ -144,7 +144,7 @@ export function Sidebar() {
         </div>
 
         {/* Herramientas de Análisis SEO */}
-        <CollapsibleSection sectionKey="seo" title="SEO & Análisis Web">
+        <CollapsibleSection sectionKey="seo" title="SEO & Análisis Web3">
           <NavLink href="/dashboard/metadata" icon="metadata" tooltip="Metadatos">
             Metadatos
           </NavLink>
@@ -236,6 +236,9 @@ export function Sidebar() {
 
         {/* Configuración y Soporte */}
         <CollapsibleSection sectionKey="system" title="Sistema">
+          <NavLink href="/dashboard/test-tools" icon="activity" tooltip="Test Herramientas">
+            Test Herramientas
+          </NavLink>
           <NavLink href="/dashboard/settings" icon="settings" tooltip="Configuración">
             Configuración
           </NavLink>

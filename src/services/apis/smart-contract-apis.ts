@@ -68,6 +68,11 @@ export class SmartContractAPIsService {
   private static etherscanService = new EtherscanService();
   private static alchemyService = new AlchemyService();
 
+  // Método de instancia para compatibilidad con orchestrator
+  async analyzeSmartContract(address: string, options: any = {}): Promise<any> {
+    return SmartContractAPIsService.analyzeSmartContract(address, options);
+  }
+
   static async analyzeSmartContract(
     contractAddress: string, 
     options: SmartContractAnalysisOptions = {}

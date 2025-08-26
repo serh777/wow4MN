@@ -57,6 +57,11 @@ export class LinksAPIsService {
   private static googleService = new GoogleAPIsService();
   private static anthropicService = new AnthropicService();
 
+  // Método de instancia para compatibilidad con orchestrator
+  async analyzeLinks(domain: string, options: LinksAnalysisOptions = {}): Promise<LinksAnalysisResult> {
+    return LinksAPIsService.analyzeLinks(domain, options);
+  }
+
   static async analyzeLinks(domain: string, options: LinksAnalysisOptions = {}): Promise<LinksAnalysisResult> {
     try {
       // Simular análisis de enlaces

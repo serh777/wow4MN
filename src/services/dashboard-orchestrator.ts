@@ -20,6 +20,7 @@ import { LinksAPIsService } from './apis/links-apis';
 import { CompetitionAPIsService } from './apis/competition-apis';
 import { SmartContractAPIsService } from './apis/smart-contract-apis';
 import { HistoricalAPIsService } from './apis/historical-apis';
+import { NFTTrackingAPIsService } from './apis/nft-tracking-apis';
 import { apiCall, ApiRetryHandler } from '../utils/api-retry-handler';
 
 export interface AnalysisRequest {
@@ -89,7 +90,7 @@ class DashboardOrchestratorService {
     // Inicializar todos los servicios de herramientas
     this.services.set('ai-assistant', new AnthropicService());
     this.services.set('blockchain', new EtherscanService());
-    this.services.set('nft-tracking', new AlchemyService());
+    this.services.set('nft-tracking', new NFTTrackingAPIsService());
     this.services.set('keywords', new GoogleAPIsService());
     this.services.set('backlinks', new GoogleAPIsService());
     this.services.set('performance', new PerformanceAPIsService());
@@ -239,7 +240,15 @@ class DashboardOrchestratorService {
 
         case 'nft-tracking':
           this.updateProgress(requestId, toolId, 'running', 35);
-          data = await service.getNFTAnalysis(address);
+          data = await service.analyzeNFT({
+            collectionAddress: address,
+            blockchain: 'ethereum',
+            includePrice: true,
+            includeRarity: true,
+            includeHistory: true,
+            includeMarketplace: true,
+            timeframe: '30d'
+          });
           break;
 
         case 'keywords':
@@ -326,7 +335,7 @@ class DashboardOrchestratorService {
 
         case 'ecosystem-interactions':
           this.updateProgress(requestId, toolId, 'running', 75);
-          data = await service.analyzeEcosystem(address, {
+          data = await service.analyzeEcosystemInteractions(address, {
             includeNetworks: ['ethereum', 'polygon', 'bsc'],
             includeCrossChain: true
           });

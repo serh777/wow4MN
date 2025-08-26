@@ -82,6 +82,11 @@ export class HistoricalAPIsService {
   private static etherscanService = new EtherscanService();
   private static alchemyService = new AlchemyService();
 
+  // Método de instancia para compatibilidad con orchestrator
+  async analyzeHistorical(domain: string, options: any = {}): Promise<any> {
+    return HistoricalAPIsService.analyzeHistoricalData(domain, options);
+  }
+
   static async analyzeHistoricalData(
     domain: string, 
     options: HistoricalAnalysisOptions = {}

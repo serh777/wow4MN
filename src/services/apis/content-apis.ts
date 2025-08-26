@@ -53,6 +53,11 @@ export interface ContentAnalysisResult {
 export class ContentAPIsService {
   private static anthropicService = new AnthropicService();
 
+  // Método de instancia para compatibilidad con orchestrator
+  async analyzeContent(url: string, options: ContentAnalysisOptions = {}): Promise<ContentAnalysisResult> {
+    return ContentAPIsService.analyzeContent(url, options);
+  }
+
   static async analyzeContent(url: string, options: ContentAnalysisOptions = {}): Promise<ContentAnalysisResult> {
     try {
       // Simular análisis de contenido

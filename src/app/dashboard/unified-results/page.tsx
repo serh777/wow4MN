@@ -507,51 +507,17 @@ export default function UnifiedResultsPage() {
     }
   });
 
-  // Estados adicionales para compatibilidad
-  const [analysisData, setAnalysisData] = useState<DashboardAnalysisResponse | null>(null);
+
 
   useEffect(() => {
-    const loadAnalysisResults = async () => {
-      if (!address || selectedTools.length === 0) {
-        router.push('/dashboard');
-        return;
-      }
+    if (!address || selectedTools.length === 0) {
+      router.push('/dashboard');
+      return;
+    }
 
-      try {
-        // Usar la nueva API de análisis unificado
-        const unifiedResults = await fetchUnifiedResults(selectedTools, address);
-        
-        if (unifiedResults && unifiedResults.success) {
-          // Convertir resultados de la API al formato esperado
-          const convertedResults = unifiedResults.results.map((result: any) => ({
-            toolId: result.toolId,
-            toolName: result.toolName,
-            status: result.status === 'success' ? 'completed' : 'error',
-            data: result.data || {},
-            insights: [],
-            recommendations: [],
-            score: result.score || 0,
-            metrics: result.data || {},
-            timestamp: new Date().toISOString(),
-            error: result.error
-          }));
-          
-          // Actualizar el estado con los resultados reales
-          // Nota: Esto requeriría modificar el hook useDynamicResults para aceptar resultados externos
-          console.log('Resultados del análisis unificado:', convertedResults);
-        } else {
-          // Fallback al sistema dinámico existente
-          startAnalysis(address, selectedTools);
-        }
-      } catch (error) {
-        console.error('Error loading analysis results:', error);
-        // Fallback al sistema dinámico existente
-        startAnalysis(address, selectedTools);
-      }
-    };
-
-    loadAnalysisResults();
-  }, [address, selectedTools, requestId, router, startAnalysis]);
+    // Iniciar análisis usando el hook dinámico
+    startAnalysis(address, selectedTools);
+  }, [address, selectedTools, router, startAnalysis]);
 
   const exportResults = () => {
     const dataStr = JSON.stringify(results, null, 2);
@@ -629,13 +595,25 @@ export default function UnifiedResultsPage() {
   // Mostrar estado de error si hay algún problema
   if (error) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-red-500" />
-            <p className="text-xl font-medium text-red-600">Error en el Análisis</p>
-            <p className="text-muted-foreground mb-4">{error}</p>
-            <Button onClick={() => router.push('/dashboard')}>Volver al Dashboard</Button>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <Card className="max-w-md w-full border-0 shadow-2xl bg-gradient-to-br from-red-50 to-rose-100 dark:from-red-950/20 dark:to-rose-950/20">
+              <CardContent className="p-8 text-center">
+                <div className="p-4 bg-red-100 dark:bg-red-900/30 rounded-full w-fit mx-auto mb-6">
+                  <AlertTriangle className="h-12 w-12 text-red-600 dark:text-red-400" />
+                </div>
+                <h2 className="text-2xl font-bold text-red-800 dark:text-red-200 mb-3">Error en el Análisis</h2>
+                <p className="text-red-600 dark:text-red-300 mb-6 leading-relaxed">{error}</p>
+                <Button 
+                  onClick={() => router.push('/dashboard')} 
+                  className="w-full shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Volver al Dashboard
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
@@ -643,84 +621,131 @@ export default function UnifiedResultsPage() {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      {/* Header con información del análisis */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-2xl font-bold">Resultados del Análisis Unificado</h1>
-            <p className="text-muted-foreground">Dirección: {address}</p>
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={exportResults} variant="outline">
-              <Download className="h-4 w-4 mr-2" />
-              Exportar
-            </Button>
-            <Button onClick={shareResults} variant="outline">
-              <Share2 className="h-4 w-4 mr-2" />
-              Compartir
-            </Button>
-            <Button onClick={() => {
-              clearResults();
-              router.push('/dashboard');
-            }}>
-              Nuevo Análisis
-            </Button>
-          </div>
-        </div>
-        
-        {/* Barra de progreso si está cargando */}
-        {isLoading && (
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Progreso del análisis</span>
-              <span className="text-sm text-muted-foreground">{Math.round(progress)}%</span>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header con información del análisis */}
+        <div className="mb-8">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+            <div className="space-y-2">
+              <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                Resultados del Análisis Unificado
+              </h1>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Globe className="h-4 w-4" />
+                <span className="font-mono bg-muted px-2 py-1 rounded text-xs">{address}</span>
+              </div>
             </div>
-            <Progress value={progress} className="w-full" />
-            {currentTool && (
-              <p className="text-sm text-muted-foreground mt-2">
-                Analizando: {getToolName(currentTool)}
-              </p>
-            )}
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={exportResults} variant="outline" className="shadow-sm hover:shadow-md transition-shadow">
+                <Download className="h-4 w-4 mr-2" />
+                Exportar
+              </Button>
+              <Button onClick={shareResults} variant="outline" className="shadow-sm hover:shadow-md transition-shadow">
+                <Share2 className="h-4 w-4 mr-2" />
+                Compartir
+              </Button>
+              <Button onClick={() => {
+                clearResults();
+                router.push('/dashboard');
+              }} className="shadow-sm hover:shadow-md transition-shadow">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Nuevo Análisis
+              </Button>
+            </div>
           </div>
-        )}
         
-        {/* Estadísticas */}
-        <div className="grid grid-cols-4 gap-4 mb-4">
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold">{stats.total}</div>
-              <p className="text-xs text-muted-foreground">Total herramientas</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-green-600">{stats.completed}</div>
-              <p className="text-xs text-muted-foreground">Completadas</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-red-600">{stats.failed}</div>
-              <p className="text-xs text-muted-foreground">Fallidas</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-blue-600">{Math.round(stats.successRate)}%</div>
-              <p className="text-xs text-muted-foreground">Tasa de éxito</p>
-            </CardContent>
-          </Card>
+          {/* Barra de progreso si está cargando */}
+          {isLoading && (
+            <Card className="mb-6 border-0 shadow-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Activity className="h-5 w-5 text-blue-600 animate-pulse" />
+                    <span className="text-sm font-semibold text-blue-900 dark:text-blue-100">Progreso del análisis</span>
+                  </div>
+                  <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                    {Math.round(progress)}%
+                  </Badge>
+                </div>
+                <Progress value={progress} className="w-full h-2 mb-3" />
+                {currentTool && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Clock className="h-4 w-4" />
+                    <span>Analizando: <span className="font-medium">{getToolName(currentTool)}</span></span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+          
+          {/* Estadísticas */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-slate-100">{stats.total}</div>
+                    <p className="text-sm text-muted-foreground font-medium">Total herramientas</p>
+                  </div>
+                  <div className="p-3 bg-slate-200 dark:bg-slate-700 rounded-full">
+                    <BarChart3 className="h-6 w-6 text-slate-600 dark:text-slate-300" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950/20 dark:to-emerald-950/20">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-2xl lg:text-3xl font-bold text-green-700 dark:text-green-400">{stats.completed}</div>
+                    <p className="text-sm text-green-600 dark:text-green-300 font-medium">Completadas</p>
+                  </div>
+                  <div className="p-3 bg-green-200 dark:bg-green-800 rounded-full">
+                    <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-300" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-red-50 to-rose-100 dark:from-red-950/20 dark:to-rose-950/20">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-2xl lg:text-3xl font-bold text-red-700 dark:text-red-400">{stats.failed}</div>
+                    <p className="text-sm text-red-600 dark:text-red-300 font-medium">Fallidas</p>
+                  </div>
+                  <div className="p-3 bg-red-200 dark:bg-red-800 rounded-full">
+                    <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-300" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-blue-50 to-cyan-100 dark:from-blue-950/20 dark:to-cyan-950/20">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-2xl lg:text-3xl font-bold text-blue-700 dark:text-blue-400">{Math.round(stats.successRate)}%</div>
+                    <p className="text-sm text-blue-600 dark:text-blue-300 font-medium">Tasa de éxito</p>
+                  </div>
+                  <div className="p-3 bg-blue-200 dark:bg-blue-800 rounded-full">
+                    <TrendingUp className="h-6 w-6 text-blue-600 dark:text-blue-300" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+      </div>
+        
+        {/* Componente de resultados dinámicos */}
+        <div className="space-y-6">
+          <DynamicResultsRenderer
+            results={results}
+            selectedTools={selectedTools}
+            address={address}
+            isLoading={isLoading}
+            className="animate-in fade-in-50 duration-500"
+          />
         </div>
       </div>
-      
-      {/* Componente de resultados dinámicos */}
-      <DynamicResultsRenderer
-        results={results}
-        selectedTools={selectedTools}
-        address={address}
-        isLoading={isLoading}
-      />
     </div>
   );
 }

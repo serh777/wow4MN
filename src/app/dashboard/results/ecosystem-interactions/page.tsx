@@ -532,7 +532,7 @@ export default function EcosystemInteractionsResults() {
             <div className="grid grid-cols-2 gap-2 mt-4">
               {results.categoryDistribution.map((item: any, index: number) => (
                 <div key={index} className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
+                  <div className="color-indicator" style={{ '--indicator-color': item.color } as React.CSSProperties}></div>
                   <span className="text-sm">{item.name}: {item.value}%</span>
                 </div>
               ))}

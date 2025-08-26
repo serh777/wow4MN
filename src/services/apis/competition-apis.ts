@@ -83,6 +83,11 @@ export class CompetitionAPIsService {
   private static googleService = new GoogleAPIsService();
   private static anthropicService = new AnthropicService();
 
+  // Método de instancia para compatibilidad con orchestrator
+  async analyzeCompetition(domain: string, options: CompetitionAnalysisOptions = {}): Promise<CompetitionAnalysisResult> {
+    return CompetitionAPIsService.analyzeCompetition(domain, options);
+  }
+
   static async analyzeCompetition(domain: string, options: CompetitionAnalysisOptions = {}): Promise<CompetitionAnalysisResult> {
     try {
       // Simular análisis de competencia

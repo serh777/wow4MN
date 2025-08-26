@@ -8,8 +8,9 @@ import { useToast } from '@/components/ui/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, AlertCircle, CheckCircle2, Search, Star, Check, BarChart } from 'lucide-react';
+import { Loader2, AlertCircle, CheckCircle2, Search, Star, Check, BarChart, Info } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { DataSourcesInfo } from '@/components/tooltips';
 
 export default function MetadataToolPage() {
   const { toast } = useToast();
@@ -111,9 +112,15 @@ export default function MetadataToolPage() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Search className="h-5 w-5 mr-2" />
-                ¿Qué analiza esta herramienta?
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Search className="h-5 w-5 mr-2" />
+                  ¿Qué analiza esta herramienta?
+                </div>
+                <DataSourcesInfo 
+                  toolId="metadata" 
+                  variant="compact"
+                />
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -156,6 +163,13 @@ export default function MetadataToolPage() {
                 <Star className="h-5 w-5 mr-2" />
                 Características principales
               </CardTitle>
+              <CardDescription>
+                <DataSourcesInfo 
+                  toolId="metadata" 
+                  variant="detailed"
+                  showStats={true}
+                />
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2 text-sm">

@@ -135,7 +135,7 @@ export function useDynamicResults(options: UseDynamicResultsOptions = {}) {
       }));
       options.onError?.(errorMessage);
     }
-  }, [options, orchestrator]);
+  }, [orchestrator, options]);
 
   // Función para limpiar resultados
   const clearResults = useCallback(() => {
@@ -256,7 +256,7 @@ export function useDynamicResults(options: UseDynamicResultsOptions = {}) {
     }, options.refreshInterval || 5000);
 
     return () => clearInterval(interval);
-  }, [options.autoRefresh, options.refreshInterval, state.isLoading, options]);
+  }, [options.autoRefresh, options.refreshInterval, state.isLoading]);
 
   return {
     ...state,

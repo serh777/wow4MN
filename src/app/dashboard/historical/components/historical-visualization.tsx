@@ -43,18 +43,14 @@ export function HistoricalVisualization({ metrics }: HistoricalVisualizationProp
                     return (
                       <div 
                         key={index}
-                        className="bg-primary/20 hover:bg-primary/40 transition-colors"
+                        className="bg-primary/20 hover:bg-primary/40 transition-colors historical-bar"
                         style={{ 
                           height, 
-                          width,
-                          position: 'relative'
+                          width
                         }}
                         title={`${item.date}: ${item.value}`}
                       >
-                        <div 
-                          className="absolute bottom-0 left-0 right-0 bg-primary" 
-                          style={{ height: '2px' }}
-                        ></div>
+                        <div className="historical-bar-indicator bg-primary"></div>
                       </div>
                     );
                   })}

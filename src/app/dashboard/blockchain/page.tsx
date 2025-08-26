@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Loader2 } from 'lucide-react';
 import ErrorBoundary from '@/components/error-boundary';
+import { DataSourcesInfo } from '@/components/tooltips';
 
 export default function BlockchainAnalysisPage() {
   const {
@@ -30,6 +31,13 @@ export default function BlockchainAnalysisPage() {
         icon="🔗"
       >
         <div className="space-y-6">
+          <div className="mb-4">
+            <DataSourcesInfo 
+              toolId="blockchain" 
+              variant="detailed"
+              showStats={true}
+            />
+          </div>
           <InputForm onSubmit={handleSubmit} isLoading={loading} />
           
           {/* Estado de Carga */}

@@ -28,6 +28,7 @@ import { useIndexerOrchestrator, useIndexerStatus, IndexerRequirement } from '@/
 import { IndexerStatusCard } from '@/components/dashboard/indexer-status-card';
 import { dashboardOrchestrator, AnalysisRequest } from '@/services/dashboard-orchestrator';
 import { AIAssistantWidget } from '@/components/ai/ai-assistant-widget';
+import APIStatusDashboard from '@/components/api/api-status-dashboard';
 // Sidebar removido - ya se renderiza en layout.tsx
 import { useRouter } from 'next/navigation';
 import { 
@@ -528,12 +529,12 @@ export default function DashboardPage() {
         {[...Array(20)].map((_, i) => (
           <div
             key={i}
-            className="particle"
+            className="particle dashboard-particle"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 6}s`
-            }}
+              '--animation-delay': `${Math.random() * 6}s`
+            } as React.CSSProperties}
           />
         ))}
       </div>
@@ -901,6 +902,20 @@ export default function DashboardPage() {
                 );
               })}
             </div>
+          </div>
+
+          {/* Sección de Estado de APIs */}
+          <div className="api-status-section mb-8">
+            <div className="section-header">
+              <h2 className="section-title">
+                <Activity className="w-8 h-8" />
+                Estado de Conectividad
+              </h2>
+              <p className="section-subtitle">
+                Monitoreo en tiempo real de las APIs y servicios externos
+              </p>
+            </div>
+            <APIStatusDashboard compact={true} showControls={false} />
           </div>
 
           {/* Sección de Configuración de Análisis */}

@@ -8,7 +8,7 @@ import { CircularProgress } from '@/components/ui/circular-progress';
 import { 
   Brain, Globe, Search, Zap, Shield, Link, Users, 
   BarChart3, Crown, Gamepad2, CheckCircle, Award,
-  TrendingUp, AlertTriangle, Info, ExternalLink
+  TrendingUp, AlertTriangle, Info, ExternalLink, Database
 } from 'lucide-react';
 
 // Tipos para los resultados dinámicos
@@ -179,6 +179,24 @@ const TOOL_COMPONENTS: Record<string, {
     color: 'from-amber-500 to-yellow-500',
     priority: 22,
     sections: ['balance', 'transactions', 'tokens', 'activity']
+  },
+  'competition': {
+    icon: BarChart3,
+    color: 'from-orange-500 to-red-500',
+    priority: 23,
+    sections: ['competitors', 'market-share', 'analysis', 'opportunities']
+  },
+  'smart-contract': {
+    icon: Shield,
+    color: 'from-cyan-500 to-blue-500',
+    priority: 24,
+    sections: ['code-analysis', 'security', 'functions', 'events']
+  },
+  'historical': {
+    icon: TrendingUp,
+    color: 'from-indigo-500 to-purple-500',
+    priority: 25,
+    sections: ['trends', 'performance', 'metrics', 'analysis']
   }
 };
 
@@ -255,33 +273,49 @@ function ResultsHeader({
   overallScore: number;
   completedCount: number;
 }) {
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return 'from-green-500 to-emerald-600';
+    if (score >= 60) return 'from-yellow-500 to-orange-500';
+    return 'from-red-500 to-rose-600';
+  };
+
   return (
-    <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-2xl font-bold text-gray-900">
+    <Card className="mb-8 border-0 shadow-xl bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900">
+      <CardHeader className="pb-6">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="space-y-2">
+            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
               Resultados del Análisis
             </CardTitle>
-            <p className="text-gray-600 mt-1">
-              Dirección: <code className="bg-gray-100 px-2 py-1 rounded text-sm">{address}</code>
+            <p className="text-muted-foreground">
+              Dirección: <code className="bg-muted px-2 py-1 rounded text-sm font-mono">{address}</code>
             </p>
-          </div>
-          
-          <div className="text-right">
-            <div className="text-3xl font-bold text-blue-600">
-              {overallScore}/100
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <CheckCircle className="h-4 w-4 text-green-500" />
+              <span className="text-sm font-medium">
+                {completedCount} de {toolCount} herramientas completadas
+              </span>
             </div>
-            <p className="text-sm text-gray-500">Puntuación General</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="text-center">
+              <div className={`text-4xl font-bold bg-gradient-to-r ${getScoreColor(overallScore)} bg-clip-text text-transparent`}>
+                {overallScore}/100
+              </div>
+              <div className="text-sm text-muted-foreground font-medium">Puntuación General</div>
+            </div>
+            <div className="h-12 w-px bg-border"></div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-slate-700 dark:text-slate-300">
+                {Math.round((completedCount / toolCount) * 100)}%
+              </div>
+              <div className="text-sm text-muted-foreground font-medium">Completado</div>
+            </div>
           </div>
         </div>
         
-        <div className="flex items-center gap-4 mt-4">
-          <Badge variant="outline" className="flex items-center gap-1">
-            <CheckCircle className="h-3 w-3" />
-            {completedCount}/{toolCount} Completadas
-          </Badge>
-          <Badge variant="secondary">
+        <div className="flex items-center gap-4 mt-6">
+          <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200">
             {new Date().toLocaleDateString('es-ES', {
               year: 'numeric',
               month: 'long',
@@ -315,12 +349,22 @@ function ExecutiveSummary({ results }: { results: ToolResult[] }) {
     return 'red';
   };
 
+  const getGradientColor = (score: number) => {
+    if (score >= 80) return 'from-green-500 to-emerald-600';
+    if (score >= 60) return 'from-yellow-500 to-orange-500';
+    return 'from-red-500 to-rose-600';
+  };
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <TrendingUp className="h-5 w-5 text-blue-500" />
-          Resumen Ejecutivo
+    <Card className="border-0 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 shadow-lg">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center gap-3 text-xl">
+          <div className="p-2 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-lg">
+            <TrendingUp className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+          </div>
+          <span className="bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent font-bold">
+            Resumen Ejecutivo
+          </span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -369,17 +413,47 @@ function ExecutiveSummary({ results }: { results: ToolResult[] }) {
 
         {/* Estadísticas adicionales */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-          <div className="text-center p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
-            <div className="text-2xl font-bold text-blue-600">{completedResults.length}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Análisis Completados</div>
+          <div className="group">
+            <Card className="p-6 border-0 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 hover:shadow-md transition-all duration-300">
+              <div className="text-center space-y-3">
+                <div className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-cyan-600 bg-clip-text text-transparent group-hover:scale-105 transition-transform">
+                  {completedResults.length}
+                </div>
+                <div className="text-sm text-muted-foreground font-medium">Análisis Completados</div>
+                <div className="flex items-center justify-center gap-1 text-xs text-blue-600 dark:text-blue-400">
+                  <CheckCircle className="w-3 h-3" />
+                  <span>Procesamiento completo</span>
+                </div>
+              </div>
+            </Card>
           </div>
-          <div className="text-center p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
-            <div className="text-2xl font-bold text-green-600">{allInsights.length}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Insights Generados</div>
+          <div className="group">
+            <Card className="p-6 border-0 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 hover:shadow-md transition-all duration-300">
+              <div className="text-center space-y-3">
+                <div className="text-3xl font-bold bg-gradient-to-r from-green-500 to-emerald-600 bg-clip-text text-transparent group-hover:scale-105 transition-transform">
+                  {allInsights.length}
+                </div>
+                <div className="text-sm text-muted-foreground font-medium">Insights Generados</div>
+                <div className="flex items-center justify-center gap-1 text-xs text-green-600 dark:text-green-400">
+                  <Info className="w-3 h-3" />
+                  <span>Análisis completado</span>
+                </div>
+              </div>
+            </Card>
           </div>
-          <div className="text-center p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
-            <div className="text-2xl font-bold text-purple-600">{results.length}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Herramientas Utilizadas</div>
+          <div className="group">
+            <Card className="p-6 border-0 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 hover:shadow-md transition-all duration-300">
+              <div className="text-center space-y-3">
+                <div className="text-3xl font-bold bg-gradient-to-r from-purple-500 to-violet-600 bg-clip-text text-transparent group-hover:scale-105 transition-transform">
+                  {results.length}
+                </div>
+                <div className="text-sm text-muted-foreground font-medium">Herramientas Utilizadas</div>
+                <div className="flex items-center justify-center gap-1 text-xs text-purple-600 dark:text-purple-400">
+                  <Database className="w-3 h-3" />
+                  <span>Herramientas activas</span>
+                </div>
+              </div>
+            </Card>
           </div>
         </div>
 
@@ -413,7 +487,7 @@ function ToolResultCard({
   if (!config) {
     console.warn(`Config no encontrado para herramienta: ${result.toolId}`);
     return (
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden border-0 shadow-lg">
         <CardHeader className="bg-gradient-to-r from-gray-500 to-slate-500 text-white">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -440,26 +514,58 @@ function ToolResultCard({
   
   const Icon = config.icon;
   
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'completed': return <CheckCircle className="h-5 w-5" />;
+      case 'running': return <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>;
+      case 'error': return <AlertTriangle className="h-5 w-5" />;
+      default: return <div className="h-5 w-5 rounded-full bg-white/30"></div>;
+    }
+  };
+  
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed': return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800';
+      case 'running': return 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800';
+      case 'error': return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/20 dark:text-gray-300 dark:border-gray-800';
+    }
+  };
+  
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className={`bg-gradient-to-r ${config.color} text-white`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+    <Card className="overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900">
+      <CardHeader className={`bg-gradient-to-r ${config.color} text-white relative overflow-hidden`}>
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="relative flex items-center gap-4">
+          <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
             <Icon className="h-6 w-6" />
-            <div>
-              <CardTitle className="text-lg">{result.toolName}</CardTitle>
-              <p className="text-white/80 text-sm">
-                {getStatusText(result.status)}
-              </p>
-            </div>
           </div>
-          
-          {result.score !== undefined && (
-            <div className="text-right">
-              <div className="text-2xl font-bold">{result.score}</div>
-              <div className="text-white/80 text-xs">Puntuación</div>
-            </div>
-          )}
+          <div className="flex-1">
+            <CardTitle className="text-xl font-bold">{result.toolName}</CardTitle>
+            <p className="text-white/90 text-sm font-medium">
+              {result.status === 'completed' ? 'Análisis completado exitosamente' : 
+               result.status === 'running' ? 'Procesando análisis...' :
+               result.status === 'error' ? 'Error durante el análisis' : 'En cola de procesamiento'}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            {result.score !== undefined && (
+              <div className="text-center">
+                <div className="text-2xl font-bold">{Math.round(result.score)}</div>
+                <div className="text-xs text-white/80">Score</div>
+              </div>
+            )}
+            <Badge className={`${getStatusColor(result.status)} border`}>
+              <div className="flex items-center gap-1">
+                {getStatusIcon(result.status)}
+                <span className="font-medium">
+                  {result.status === 'completed' ? 'Completado' :
+                   result.status === 'running' ? 'En Progreso' :
+                   result.status === 'error' ? 'Error' : 'Pendiente'}
+                </span>
+              </div>
+            </Badge>
+          </div>
         </div>
       </CardHeader>
       
@@ -485,18 +591,22 @@ function CompletedToolResult({
   sections: string[];
 }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Métricas principales */}
       {result.metrics && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {Object.entries(result.metrics).slice(0, 4).map(([key, value]) => (
-            <div key={key} className="text-center p-3 bg-gray-50 rounded-lg">
-              <div className="text-lg font-semibold text-gray-900">
-                {formatMetricValue(value)}
-              </div>
-              <div className="text-xs text-gray-600 capitalize">
-                {key.replace(/([A-Z])/g, ' $1').trim()}
-              </div>
+            <div key={key} className="group">
+              <Card className="p-4 border-0 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 hover:shadow-md transition-all duration-300">
+                <div className="text-center space-y-2">
+                  <div className="text-2xl font-bold text-slate-900 dark:text-slate-100 group-hover:scale-105 transition-transform">
+                    {formatMetricValue(value)}
+                  </div>
+                  <div className="text-xs text-muted-foreground font-medium capitalize leading-tight">
+                    {key.replace(/([A-Z])/g, ' $1').trim()}
+                  </div>
+                </div>
+              </Card>
             </div>
           ))}
         </div>
@@ -504,16 +614,25 @@ function CompletedToolResult({
 
       {/* Insights */}
       {result.insights && result.insights.length > 0 && (
-        <div>
-          <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-            <Info className="h-4 w-4 text-blue-500" />
-            Insights
-          </h4>
-          <div className="space-y-2">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+              <Info className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            </div>
+            <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Insights Clave</h4>
+          </div>
+          <div className="grid gap-3">
             {result.insights.map((insight, index) => (
-              <div key={index} className="p-3 bg-blue-50 rounded-lg border-l-4 border-blue-500">
-                <p className="text-sm text-gray-700">{insight}</p>
-              </div>
+              <Card key={index} className="border-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-l-4 border-l-blue-500">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="p-1 bg-blue-200 dark:bg-blue-800 rounded-full mt-1">
+                      <div className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full"></div>
+                    </div>
+                    <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed flex-1">{insight}</p>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
@@ -521,16 +640,25 @@ function CompletedToolResult({
 
       {/* Recomendaciones */}
       {result.recommendations && result.recommendations.length > 0 && (
-        <div>
-          <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-green-500" />
-            Recomendaciones
-          </h4>
-          <div className="space-y-2">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+              <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Recomendaciones</h4>
+          </div>
+          <div className="grid gap-3">
             {result.recommendations.map((recommendation, index) => (
-              <div key={index} className="p-3 bg-green-50 rounded-lg border-l-4 border-green-500">
-                <p className="text-sm text-gray-700">{recommendation}</p>
-              </div>
+              <Card key={index} className="border-0 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-l-4 border-l-green-500">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="p-1 bg-green-200 dark:bg-green-800 rounded-full mt-1">
+                      <CheckCircle className="w-3 h-3 text-green-600 dark:text-green-400" />
+                    </div>
+                    <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed flex-1">{recommendation}</p>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
@@ -599,42 +727,105 @@ function ChartPlaceholder({ chart }: { chart: ChartData }) {
 // Componente de carga
 function LoadingResults({ selectedTools }: { selectedTools: string[] }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* Header de carga */}
+      <Card className="border-0 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 shadow-lg animate-pulse">
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-600 rounded-lg"></div>
+            <div className="space-y-2 flex-1">
+              <div className="h-6 bg-gradient-to-r from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-600 rounded w-1/3"></div>
+              <div className="h-4 bg-gradient-to-r from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-600 rounded w-1/2"></div>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="text-center space-y-3">
+                <div className="w-16 h-16 bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-600 rounded-full mx-auto"></div>
+                <div className="h-4 bg-gradient-to-r from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-600 rounded w-3/4 mx-auto"></div>
+                <div className="h-3 bg-gradient-to-r from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-600 rounded w-1/2 mx-auto"></div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Cards de herramientas cargando */}
       {selectedTools.map((toolId) => {
         const config = TOOL_COMPONENTS[toolId];
         const Icon = config?.icon || Search;
         
         return (
-          <Card key={toolId} className="overflow-hidden">
-            <CardHeader className={`bg-gradient-to-r ${config?.color || 'from-gray-400 to-gray-500'} text-white`}>
-              <div className="flex items-center gap-3">
-                <Icon className="h-6 w-6" />
-                <div>
-                  <CardTitle className="text-lg">
-                    {toolId.split('-').map(word => 
-                      word.charAt(0).toUpperCase() + word.slice(1)
-                    ).join(' ')}
-                  </CardTitle>
-                  <p className="text-white/80 text-sm">Iniciando análisis...</p>
+          <Card key={toolId} className="border-0 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 shadow-lg animate-pulse">
+            <CardHeader className={`bg-gradient-to-r ${config?.color || 'from-gray-400 to-gray-500'} text-white relative overflow-hidden`}>
+              <div className="absolute inset-0 bg-black/10"></div>
+              <div className="relative flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg font-bold">
+                      {toolId.split('-').map(word => 
+                        word.charAt(0).toUpperCase() + word.slice(1)
+                      ).join(' ')}
+                    </CardTitle>
+                    <p className="text-white/90 text-sm font-medium">Iniciando análisis...</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <Badge className="bg-white/20 text-white border-white/30">
+                    <span className="font-medium">Procesando</span>
+                  </Badge>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="p-6">
-              <div className="animate-pulse space-y-4">
-                <div className="grid grid-cols-4 gap-4">
+              <div className="space-y-6">
+                {/* Métricas simuladas */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="h-16 bg-gray-200 rounded"></div>
+                    <Card key={i} className="p-4 border-0 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700">
+                      <div className="text-center space-y-2">
+                        <div className="h-8 bg-gradient-to-r from-slate-300 to-slate-400 dark:from-slate-600 dark:to-slate-500 rounded w-12 mx-auto animate-pulse"></div>
+                        <div className="h-3 bg-gradient-to-r from-slate-300 to-slate-400 dark:from-slate-600 dark:to-slate-500 rounded w-16 mx-auto animate-pulse"></div>
+                      </div>
+                    </Card>
                   ))}
                 </div>
-                <div className="space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                
+                {/* Contenido simulado */}
+                <div className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="h-4 bg-gradient-to-r from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-600 rounded animate-pulse"></div>
+                    <div className="h-4 bg-gradient-to-r from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-600 rounded w-5/6 animate-pulse"></div>
+                    <div className="h-4 bg-gradient-to-r from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-600 rounded w-4/6 animate-pulse"></div>
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
         );
       })}
+      
+      {/* Indicador de progreso global */}
+      <Card className="border-0 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 shadow-lg">
+        <CardContent className="p-6">
+          <div className="text-center space-y-4">
+            <div className="flex items-center justify-center gap-2">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+              <span className="text-lg font-semibold text-slate-900 dark:text-slate-100">Procesando análisis...</span>
+            </div>
+            <p className="text-sm text-muted-foreground">Esto puede tomar unos momentos mientras procesamos todos los datos</p>
+            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+              <div className="h-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -642,30 +833,101 @@ function LoadingResults({ selectedTools }: { selectedTools: string[] }) {
 // Componente de recomendaciones consolidadas
 function ConsolidatedRecommendations({ results }: { results: ToolResult[] }) {
   const allRecommendations = results
-    .filter(r => r.status === 'completed')
-    .flatMap(r => r.recommendations || []);
-    
+    .filter(r => r.status === 'completed' && r.recommendations)
+    .flatMap(r => r.recommendations!)
+    .filter((rec, index, arr) => arr.indexOf(rec) === index); // Eliminar duplicados
+
   if (allRecommendations.length === 0) return null;
 
+  const priorityRecommendations = allRecommendations.slice(0, 5);
+  const additionalRecommendations = allRecommendations.slice(5, 10);
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <TrendingUp className="h-5 w-5 text-green-500" />
-          Plan de Acción Consolidado
+    <Card className="mt-8 border-0 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 shadow-lg">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center gap-3 text-xl">
+          <div className="p-2 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-lg">
+            <TrendingUp className="h-6 w-6 text-green-600 dark:text-green-400" />
+          </div>
+          <span className="bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent font-bold">
+            Recomendaciones Consolidadas
+          </span>
         </CardTitle>
+        <p className="text-sm text-muted-foreground mt-2">
+          Acciones prioritarias basadas en el análisis completo
+        </p>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          {allRecommendations.slice(0, 5).map((recommendation, index) => (
-            <div key={index} className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
-              <div className="flex-shrink-0 w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
-                {index + 1}
-              </div>
-              <p className="text-sm text-gray-700">{recommendation}</p>
+      <CardContent className="space-y-6">
+        {/* Recomendaciones prioritarias */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="p-1 bg-red-100 dark:bg-red-900/30 rounded-full">
+              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
             </div>
-          ))}
+            <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wide">Prioridad Alta</h4>
+          </div>
+          <div className="grid gap-3">
+            {priorityRecommendations.map((recommendation, index) => (
+              <Card key={index} className="border-0 bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-950/20 dark:to-rose-950/20 border-l-4 border-l-red-500 hover:shadow-md transition-all duration-300">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-red-100 dark:bg-red-900/50 rounded-lg mt-0.5">
+                      <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">{recommendation}</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Badge variant="destructive" className="text-xs">
+                          Crítico
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">#{index + 1}</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
+
+        {/* Recomendaciones adicionales */}
+        {additionalRecommendations.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="p-1 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
+                <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+              </div>
+              <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wide">Recomendaciones Adicionales</h4>
+            </div>
+            <div className="grid gap-3">
+              {additionalRecommendations.map((recommendation, index) => (
+                <Card key={index + 5} className="border-0 bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-950/20 dark:to-amber-950/20 border-l-4 border-l-yellow-500 hover:shadow-md transition-all duration-300">
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="p-1 bg-yellow-200 dark:bg-yellow-800 rounded-full mt-1">
+                        <CheckCircle className="w-3 h-3 text-yellow-600 dark:text-yellow-400" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">{recommendation}</p>
+                        <span className="text-xs text-muted-foreground">#{index + 6}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Contador de recomendaciones adicionales */}
+        {allRecommendations.length > 10 && (
+          <div className="text-center pt-4 border-t border-slate-200 dark:border-slate-700">
+            <Badge variant="secondary" className="bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 text-slate-700 dark:text-slate-300">
+              <Info className="w-3 h-3 mr-1" />
+              +{allRecommendations.length - 10} recomendaciones adicionales disponibles
+            </Badge>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
