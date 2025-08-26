@@ -13,6 +13,7 @@ import Web3SeoMetrics from './components/Web3SeoMetrics';
 import SmartContractMetrics from './components/SmartContractMetrics';
 import OpportunitiesSection from './components/OpportunitiesSection';
 import DiagnosticsSection from './components/DiagnosticsSection';
+import ComplexTaskResults from './components/ComplexTaskResults';
 import LoadingState from './components/LoadingState';
 import ErrorState from './components/ErrorState';
 import { AnalysisResults } from './types';
@@ -30,6 +31,7 @@ function AnalysisResultsPage() {
   const [indexerConnecting, setIndexerConnecting] = useState(true);
   const [indexerProgress, setIndexerProgress] = useState(0);
   const [hasAIResults, setHasAIResults] = useState(false);
+  const [complexTasks, setComplexTasks] = useState<any[]>([]);
 
   const getAnalysisTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
@@ -274,6 +276,17 @@ function AnalysisResultsPage() {
   }, [url]);
 
   useEffect(() => {
+    // Intentar cargar resultados de tareas complejas del sessionStorage
+    try {
+      const storedComplexTasks = sessionStorage.getItem('complexTaskResults');
+      if (storedComplexTasks) {
+        const parsedTasks = JSON.parse(storedComplexTasks);
+        setComplexTasks(parsedTasks);
+      }
+    } catch (error) {
+      console.error('Error loading complex task results:', error);
+    }
+
     // Simular carga de análisis
     const timer = setTimeout(() => {
       const mockResults = generateMockResults(analysisType as 'comprehensive' | 'predictive' | 'anomaly' | 'opportunity');
@@ -347,6 +360,11 @@ function AnalysisResultsPage() {
         </div>
 
         <div className="space-y-8">
+          {/* Mostrar resultados de tareas complejas si están disponibles */}
+          {complexTasks.length > 0 && (
+            <ComplexTaskResults tasks={complexTasks} />
+          )}
+          
           {/* Web3 SEO Section */}
           <Web3SeoMetrics 
             metrics={{

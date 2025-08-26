@@ -37,7 +37,7 @@ export default function TestToolsPage() {
   const [address, setAddress] = useState('');
   const [selectedTool, setSelectedTool] = useState('');
   const [testResults, setTestResults] = useState<Map<string, TestResult>>(new Map());
-  const [orchestrator] = useState(() => dashboardOrchestrator);
+  const orchestrator = dashboardOrchestrator;
 
   const runSingleTool = async (toolId: string) => {
     if (!address.trim()) {
