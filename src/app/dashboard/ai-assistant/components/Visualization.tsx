@@ -204,7 +204,8 @@ export function Visualization({ specialResults, indexerResults, analysisType }: 
                   contentStyle={{ 
                     backgroundColor: '#F9FAFB', 
                     border: '1px solid #E5E7EB',
-                    borderRadius: '6px'
+                    borderRadius: '6px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                   }}
                 />
                 <Bar dataKey="value" fill={COLORS.primary} radius={[4, 4, 0, 0]} />
@@ -243,7 +244,8 @@ export function Visualization({ specialResults, indexerResults, analysisType }: 
                   contentStyle={{ 
                     backgroundColor: '#F9FAFB', 
                     border: '1px solid #E5E7EB',
-                    borderRadius: '6px'
+                    borderRadius: '6px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                   }}
                 />
               </RadarChart>
@@ -289,7 +291,8 @@ export function Visualization({ specialResults, indexerResults, analysisType }: 
                   contentStyle={{ 
                     backgroundColor: '#F9FAFB', 
                     border: '1px solid #E5E7EB',
-                    borderRadius: '6px'
+                    borderRadius: '6px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                   }}
                 />
                 <Line 
@@ -331,11 +334,12 @@ export function Visualization({ specialResults, indexerResults, analysisType }: 
                   <Tooltip 
                     formatter={(value) => [`$${value.toLocaleString()}`, 'ROI Estimado']}
                     labelStyle={{ color: '#374151' }}
-                    contentStyle={{ 
-                      backgroundColor: '#F9FAFB', 
-                      border: '1px solid #E5E7EB',
-                      borderRadius: '6px'
-                    }}
+                  contentStyle={{ 
+                    backgroundColor: '#F9FAFB', 
+                    border: '1px solid #E5E7EB',
+                    borderRadius: '6px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
                   />
                   <Bar dataKey="roi" fill={COLORS.secondary} radius={[0, 4, 4, 0]} />
                 </BarChart>
@@ -375,11 +379,12 @@ export function Visualization({ specialResults, indexerResults, analysisType }: 
                   <Tooltip 
                     formatter={(value) => [value, 'Cantidad']}
                     labelStyle={{ color: '#374151' }}
-                    contentStyle={{ 
-                      backgroundColor: '#F9FAFB', 
-                      border: '1px solid #E5E7EB',
-                      borderRadius: '6px'
-                    }}
+                  contentStyle={{ 
+                    backgroundColor: '#F9FAFB', 
+                    border: '1px solid #E5E7EB',
+                    borderRadius: '6px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
                   />
                 </PieChart>
               </ResponsiveContainer>

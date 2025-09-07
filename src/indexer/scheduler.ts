@@ -1,78 +1,123 @@
-import { DatabaseService } from '@/services/database-service';
-import { Database } from '@/lib/database.types';
-import { indexer } from './indexer';
-import { config } from './config';
-import { supabase } from '@/lib/supabase-client';
-
-const databaseService = new DatabaseService();
-
 /**
- * Planificador de tareas para el indexador
+ * Scheduler para indexadores - versión simplificada
  */
+
+// Clase que no hace nada (para cliente)
+class NoOpScheduler {
+  start() {}
+  stop() {}
+}
+
+// Clase principal del scheduler
 export class IndexerScheduler {
-  private intervalId: NodeJS.Timeout | null = null;
-  
-  /**
-   * Inicia el planificador para ejecutar indexadores periódicamente
-   * @param intervalMs Intervalo en milisegundos entre ejecuciones
-   */
-  start(intervalMs: number = 60000) {
-    if (this.intervalId) {
-      this.stop();
-    }
+  private impl: any = null;
+  private isInitialized = false;
+
+  private async initialize() {
+    if (this.isInitialized) return;
     
-    console.log(`Iniciando planificador de indexación con intervalo de ${intervalMs}ms`);
-    
-    this.intervalId = setInterval(async () => {
-      await this.runPendingIndexers();
-    }, intervalMs);
-  }
-  
-  /**
-   * Detiene el planificador
-   */
-  stop() {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-      this.intervalId = null;
-      console.log('Planificador de indexación detenido');
+    // Solo en el servidor
+    if (typeof window !== 'undefined') {
+      this.impl = new NoOpScheduler();
+      this.isInitialized = true;
+      return;
     }
-  }
-  
-  /**
-   * Ejecuta todos los indexadores pendientes
-   */
-  async runPendingIndexers() {
-    try {
-      // Buscar indexadores activos que no se hayan ejecutado recientemente
-      const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
-      const { data: activeIndexers, error } = await supabase
-        .from('indexers')
-        .select('*')
-        .eq('status', 'active')
-        .or(`last_run.is.null,last_run.lt.${oneHourAgo}`);
+
+    // En el servidor, crear implementación lazy
+    this.impl = {
+      intervalId: null,
+      dependencies: null,
       
-      if (error) {
-        console.error('Error al buscar indexadores activos:', error);
-        return;
-      }
-      
-      console.log(`Encontrados ${activeIndexers.length} indexadores pendientes de ejecución`);
-      
-      // Ejecutar cada indexador
-      for (const indexerData of activeIndexers) {
+      async loadDependencies() {
+        if (this.dependencies) return this.dependencies;
+        
         try {
-          console.log(`Iniciando indexador: ${indexerData.name} (${indexerData.id})`);
-          await indexer.startIndexer(indexerData.id);
+          const [dbModule, configModule, supabaseModule, indexerModule] = await Promise.all([
+            import('@/services/database-service'),
+            import('./config'),
+            import('@/lib/supabase-client'),
+            import('./indexer')
+          ]);
+          
+          this.dependencies = {
+            databaseService: new dbModule.DatabaseService(),
+            getIndexer: indexerModule.getIndexer
+          };
+          
+          return this.dependencies;
         } catch (error) {
-          console.error(`Error al ejecutar indexador ${indexerData.id}:`, error);
+          console.warn('No se pudieron cargar las dependencias del servidor:', error);
+          return null;
+        }
+      },
+      
+      async start(intervalMs = 300000) {
+        if (this.intervalId) {
+          console.log('El planificador ya está ejecutándose');
+          return;
+        }
+        
+        const deps = await this.loadDependencies();
+        if (!deps) {
+          console.warn('No se pudieron cargar las dependencias del scheduler');
+          return;
+        }
+        
+        console.log(`Iniciando planificador de indexación cada ${intervalMs}ms`);
+        
+        const runCycle = async () => {
+          try {
+            const indexer = deps.getIndexer();
+            if (!indexer) return;
+            
+            const activeIndexers = await deps.databaseService.getActiveIndexers();
+            
+            for (const indexerData of activeIndexers) {
+              try {
+                console.log(`Iniciando indexador: ${indexerData.name} (${indexerData.id})`);
+                await indexer.startIndexer(indexerData.id);
+              } catch (error) {
+                console.error(`Error al ejecutar indexador ${indexerData.id}:`, error);
+              }
+            }
+          } catch (error) {
+            console.error('Error en el planificador de indexación:', error);
+          }
+        };
+        
+        // Ejecutar inmediatamente
+        runCycle();
+        
+        // Programar ejecuciones periódicas
+        this.intervalId = setInterval(runCycle, intervalMs);
+      },
+      
+      stop() {
+        if (this.intervalId) {
+          clearInterval(this.intervalId);
+          this.intervalId = null;
+          console.log('Planificador de indexación detenido');
         }
       }
-    } catch (error) {
-      console.error('Error en el planificador de indexación:', error);
+    };
+    
+    this.isInitialized = true;
+  }
+
+  async start(intervalMs?: number) {
+    await this.initialize();
+    if (this.impl && typeof this.impl.start === 'function') {
+      this.impl.start(intervalMs);
+    }
+  }
+
+  async stop() {
+    await this.initialize();
+    if (this.impl && typeof this.impl.stop === 'function') {
+      this.impl.stop();
     }
   }
 }
 
-// Exportar una instancia por defecto
+// Exportar instancia
 export const scheduler = new IndexerScheduler();

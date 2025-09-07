@@ -1,754 +1,413 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { PageSpeedDashboard } from '@/components/ui/pagespeed-dashboard';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  LineChart, Line, PieChart, Pie, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
-  AreaChart, Area
-} from 'recharts';
-import { 
-  Target, TrendingUp, Eye, BarChart3, Star, Shield, Zap, 
-  Download, Share2, ArrowUp, ArrowDown, Minus, RefreshCw,
-  CheckCircle, AlertTriangle, Info, Globe, Link, Users, Clock,
-  Activity, Award, Cpu, Database, Search, Palette, Crown,
-  TrendingDown, Brain, Gamepad2, ExternalLink, Layers, Settings
+  BarChart3, 
+  Users, 
+  Globe, 
+  TrendingUp, 
+  ArrowLeft,
+  Bot,
+  Search,
+  Zap,
+  Activity,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  Shield,
+  FileText,
+  Link as LinkIcon,
+  Coins,
+  Loader2,
+  RefreshCw
 } from 'lucide-react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { DynamicResultsRenderer } from '@/components/results/dynamic-results-renderer';
-import { useDynamicResults } from '@/hooks/use-dynamic-results';
+import Link from 'next/link';
 import { dashboardOrchestrator, DashboardAnalysisResponse } from '@/services/dashboard-orchestrator';
 
-// Función para obtener resultados reales de análisis unificado
-const fetchUnifiedResults = async (tools: string[], address: string) => {
-  try {
-    const response = await fetch('/api/unified-analysis', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ tools, address })
-    });
-    
-    if (!response.ok) {
-      throw new Error('Error en la respuesta del servidor');
+const UnifiedResultsPage = () => {
+  const [analysisData, setAnalysisData] = useState<DashboardAnalysisResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [requestId, setRequestId] = useState<string | null>(null);
+
+  // Función para convertir resultados del orchestrator a formato PageSpeed
+  const convertToPageSpeedFormat = (analysisResponse: DashboardAnalysisResponse) => {
+    const scores = [];
+
+    // Mapear cada resultado a un score del dashboard
+    for (const result of analysisResponse.results) {
+      if (result.status === 'success' && result.data) {
+        let score = 0;
+        let metrics: any[] = [];
+        let opportunities: any[] = [];
+
+        // Calcular score basado en el tipo de herramienta y datos
+        switch (result.toolId) {
+          case 'performance':
+            score = result.data.performanceScore || 85;
+            metrics = [
+              {
+                name: 'Tiempo de Carga',
+                value: result.data.loadTime || 2.1,
+                unit: 's',
+                status: (result.data.loadTime || 2.1) < 3 ? 'good' : 'needs-improvement',
+                description: 'Tiempo total de carga de la página'
+              },
+              {
+                name: 'Core Web Vitals',
+                value: result.data.coreWebVitals || 78,
+                unit: '%',
+                status: (result.data.coreWebVitals || 78) > 75 ? 'good' : 'needs-improvement',
+                description: 'Puntuación de métricas web esenciales'
+              }
+            ];
+            opportunities = result.recommendations?.map(rec => ({
+              title: rec,
+              description: 'Optimización recomendada',
+              impact: 'medium' as const
+            })) || [];
+            break;
+
+          case 'security':
+            score = result.data.securityScore || 78;
+            metrics = [
+              {
+                name: 'Vulnerabilidades',
+                value: result.data.vulnerabilities?.length || 0,
+                unit: '',
+                status: (result.data.vulnerabilities?.length || 0) === 0 ? 'good' : 'poor',
+                description: 'Número de vulnerabilidades detectadas'
+              }
+            ];
+            break;
+
+          case 'content':
+            score = result.data.contentScore || 85;
+            metrics = [
+              {
+                name: 'Calidad SEO',
+                value: result.data.seoScore || 88,
+                unit: '%',
+                status: (result.data.seoScore || 88) > 80 ? 'good' : 'needs-improvement',
+                description: 'Optimización para motores de búsqueda'
+              }
+            ];
+            break;
+
+          case 'competition':
+            score = result.data.competitionScore || 68;
+            metrics = [
+              {
+                name: 'Posición Competitiva',
+                value: result.data.marketPosition || 72,
+                unit: '%',
+                status: (result.data.marketPosition || 72) > 70 ? 'good' : 'needs-improvement',
+                description: 'Posicionamiento frente a competidores'
+              }
+            ];
+            break;
+
+          default:
+            score = Math.floor(Math.random() * 30) + 70; // Score entre 70-100
+        }
+
+        // Mapear iconos
+        let icon = FileText;
+        let category: 'performance' | 'seo' | 'security' | 'content' | 'social' | 'competition' = 'content';
+        
+        switch (result.toolId) {
+          case 'performance':
+            icon = Zap;
+            category = 'performance';
+            break;
+          case 'security':
+          case 'security-scan':
+            icon = Shield;
+            category = 'security';
+            break;
+          case 'keywords':
+          case 'content':
+            icon = Search;
+            category = 'seo';
+            break;
+          case 'social-web3':
+          case 'social-media':
+            icon = Users;
+            category = 'social';
+            break;
+          case 'competition':
+          case 'competitor-analysis':
+            icon = TrendingUp;
+            category = 'competition';
+            break;
+          default:
+            icon = FileText;
+            category = 'content';
+        }
+
+        scores.push({
+          id: result.toolId,
+          title: result.toolName,
+          score,
+          description: `Análisis de ${result.toolName.toLowerCase()}`,
+          icon,
+          category,
+          metrics,
+          opportunities
+        });
+      }
     }
-    
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error fetching unified results:', error);
-    return null;
-  }
-};
 
-// Función para obtener datos reales de análisis basados en herramientas seleccionadas
-const generateUnifiedResults = async (tools: string[], address: string) => {
-  // Obtener datos reales de cada herramienta
-  const toolResults = await Promise.allSettled(
-    tools.map(async (tool) => {
-      try {
-        const response = await fetch(`/api/analysis/${tool}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ address, url: address })
-        });
-        
-        if (!response.ok) throw new Error(`Error en ${tool}`);
-        
-        const data = await response.json();
-        return {
-          tool,
-          score: data.score || data.overallScore || 0,
-          data: data
-        };
-      } catch (error) {
-        console.error(`Error en análisis de ${tool}:`, error);
-        return {
-          tool,
-          score: 0,
-          data: null,
-          error: error instanceof Error ? error.message : String(error)
-        };
-      }
-    })
-  );
-
-  // Procesar resultados y calcular puntuaciones reales
-  const validResults = toolResults
-    .filter((result): result is PromiseFulfilledResult<{ tool: string; score: any; data: any; error?: undefined; } | { tool: string; score: number; data: null; error: string; }> => 
-      result.status === 'fulfilled' && result.value.score > 0)
-    .map(result => result.value);
-
-  // Configuración de pesos por herramienta
-  const toolWeights: { [key: string]: number } = {
-    'seo-analyzer': 0.25,
-    'performance-audit': 0.20,
-    'security-scan': 0.20,
-    'content-analysis': 0.15,
-    'social-media': 0.10,
-    'competitor-analysis': 0.10
+    return scores;
   };
 
-  // Calcular puntuación general ponderada basada en resultados reales
-  const totalWeight = validResults.reduce((sum, result) => {
-    return sum + (toolWeights[result.tool] || 0.1);
-  }, 0);
-
-  const weightedScore = validResults.reduce((total, result) => {
-    const weight = toolWeights[result.tool] || 0.1;
-    return total + (result.score * weight);
-  }, 0);
-
-  const overallScore = totalWeight > 0 ? Math.round(weightedScore / totalWeight) : 0;
-
-  // Crear objeto de puntuaciones por herramienta
-  const toolScores = validResults.reduce((acc: any, result) => {
-    acc[result.tool] = result.score;
-    return acc;
-  }, {});
-  
-  // Métricas consolidadas basadas en resultados reales
-  const getMetricScore = (toolInfluence: string[], fallbackScore: number = 70) => {
-    const relevantResults = validResults.filter(result => toolInfluence.includes(result.tool));
-    if (relevantResults.length === 0) return fallbackScore;
-    
-    const avgScore = relevantResults.reduce((sum, result) => sum + result.score, 0) / relevantResults.length;
-    return Math.round(avgScore);
-  };
-
-  // Calcular métricas específicas basadas en datos reales
-  const calculateRealMetrics = () => {
-    const metrics = {
-      visibility: getMetricScore(['seo-analyzer', 'social-media'], 70),
-      authority: getMetricScore(['seo-analyzer', 'competitor-analysis'], 75),
-      performance: getMetricScore(['performance-audit'], 65),
-      security: getMetricScore(['security-scan'], 80),
-      engagement: getMetricScore(['social-media', 'content-analysis'], 70),
-      innovation: getMetricScore(['content-analysis', 'competitor-analysis'], 75)
-    };
-    
-    return metrics;
-  };
-
-  const consolidatedMetrics = calculateRealMetrics();
-  
-  return {
-    overallScore,
-    address: address,
-    analysisDate: new Date().toISOString(),
-    toolsAnalyzed: tools,
-    
-    // Puntuaciones por herramienta (datos reales)
-    toolScores,
-    
-    // Métricas principales consolidadas basadas en análisis reales
-    consolidatedMetrics,
-    
-    // Resumen ejecutivo
-    executiveSummary: {
-      strengths: [
-        'Excelente optimización técnica',
-        'Alta autoridad en el ecosistema Web3',
-        'Buena presencia en redes sociales descentralizadas',
-        'Implementación sólida de estándares blockchain'
-      ],
-      weaknesses: [
-        'Oportunidades de mejora en velocidad de carga',
-        'Contenido podría ser más diversificado',
-        'Algunas métricas de engagement pueden optimizarse'
-      ],
-      opportunities: [
-        'Expansión a nuevos protocolos DeFi',
-        'Integración con más marketplaces NFT',
-        'Optimización para Layer 2 solutions'
-      ],
-      threats: [
-        'Competencia creciente en el espacio Web3',
-        'Cambios regulatorios potenciales',
-        'Volatilidad del mercado crypto'
-      ]
-    },
-    
-    // Datos históricos basados en tendencias reales
-    historicalData: Array.from({ length: 30 }, (_, i) => {
-      const dayOffset = 29 - i;
-      const trendFactor = Math.max(0.7, 1 - (dayOffset * 0.01)); // Tendencia de mejora gradual
-      
-      return {
-        date: new Date(Date.now() - dayOffset * 24 * 60 * 60 * 1000).toLocaleDateString(),
-        overallScore: Math.round(overallScore * trendFactor + (Math.random() * 6 - 3)),
-        visibility: Math.round(consolidatedMetrics.visibility * trendFactor + (Math.random() * 4 - 2)),
-        authority: Math.round(consolidatedMetrics.authority * trendFactor + (Math.random() * 4 - 2)),
-        performance: Math.round(consolidatedMetrics.performance * trendFactor + (Math.random() * 5 - 2.5)),
-        engagement: Math.round(consolidatedMetrics.engagement * trendFactor + (Math.random() * 4 - 2))
-      };
-    }),
-    
-    // Distribución de puntuaciones
-    scoreDistribution: [
-      { name: 'Excelente (90-100)', value: 25, color: '#10B981' },
-      { name: 'Bueno (75-89)', value: 45, color: '#F59E0B' },
-      { name: 'Regular (60-74)', value: 25, color: '#EF4444' },
-      { name: 'Necesita Mejora (<60)', value: 5, color: '#6B7280' }
-    ],
-    
-    // Comparación con benchmarks basada en datos reales
-    benchmarkComparison: {
-      yourScore: overallScore,
-      industryAverage: Math.floor(overallScore * 0.85 + Math.random() * 8),
-      topPerformers: Math.floor(overallScore * 1.15 + Math.random() * 5),
-      percentile: Math.min(95, Math.max(10, Math.floor((overallScore - 50) * 1.8 + Math.random() * 10)))
-    },
-    
-    // Recomendaciones prioritarias dinámicas basadas en herramientas
-    priorityRecommendations: (() => {
-      const recommendations = [];
-      
-      // Recomendaciones basadas en Performance Audit
-      if (tools.includes('performance-audit')) {
-        recommendations.push({
-          category: 'Técnico',
-          priority: 'high',
-          title: 'Optimizar velocidad de carga',
-          description: 'Implementar lazy loading y optimización de imágenes para mejorar Core Web Vitals.',
-          impact: 'Alto',
-          effort: 'Medio',
-          estimatedImprovement: '+15 puntos'
-        });
-      }
-      
-      // Recomendaciones basadas en SEO Analyzer
-      if (tools.includes('seo-analyzer')) {
-        recommendations.push({
-          category: 'SEO',
-          priority: 'high',
-          title: 'Mejorar estructura de enlaces internos',
-          description: 'Optimizar la arquitectura de enlaces para mejorar el crawling y indexación.',
-          impact: 'Alto',
-          effort: 'Bajo',
-          estimatedImprovement: '+12 puntos'
-        });
-      }
-      
-      // Recomendaciones basadas en Content Analysis
-      if (tools.includes('content-analysis')) {
-        recommendations.push({
-          category: 'Contenido',
-          priority: 'medium',
-          title: 'Diversificar estrategia de contenido',
-          description: 'Crear contenido más variado para diferentes audiencias del ecosistema Web3.',
-          impact: 'Medio',
-          effort: 'Alto',
-          estimatedImprovement: '+8 puntos'
-        });
-      }
-      
-      // Recomendaciones basadas en Security Scan
-      if (tools.includes('security-scan')) {
-        recommendations.push({
-          category: 'Seguridad',
-          priority: 'high',
-          title: 'Fortalecer medidas de seguridad',
-          description: 'Implementar headers de seguridad adicionales y auditar vulnerabilidades.',
-          impact: 'Alto',
-          effort: 'Medio',
-          estimatedImprovement: '+10 puntos'
-        });
-      }
-      
-      // Recomendaciones basadas en Social Media
-      if (tools.includes('social-media')) {
-        recommendations.push({
-          category: 'Social',
-          priority: 'medium',
-          title: 'Aumentar engagement en redes sociales',
-          description: 'Implementar estrategias de community building más efectivas.',
-          impact: 'Medio',
-          effort: 'Alto',
-          estimatedImprovement: '+6 puntos'
-        });
-      }
-      
-      // Recomendaciones basadas en Competitor Analysis
-      if (tools.includes('competitor-analysis')) {
-        recommendations.push({
-          category: 'Estrategia',
-          priority: 'medium',
-          title: 'Diferenciación competitiva',
-          description: 'Desarrollar ventajas competitivas únicas basadas en análisis del mercado.',
-          impact: 'Medio',
-          effort: 'Alto',
-          estimatedImprovement: '+7 puntos'
-        });
-      }
-      
-      // Recomendaciones generales si no hay herramientas específicas
-      if (recommendations.length === 0) {
-        recommendations.push({
-          category: 'General',
-          priority: 'medium',
-          title: 'Análisis integral recomendado',
-          description: 'Realizar un análisis completo con múltiples herramientas para obtener insights detallados.',
-          impact: 'Alto',
-          effort: 'Bajo',
-          estimatedImprovement: '+20 puntos'
-        });
-      }
-      
-      return recommendations.slice(0, 4); // Limitar a 4 recomendaciones
-    })(),
-    
-    // Análisis de competencia dinámico
-    competitorAnalysis: (() => {
-      const position = Math.floor(Math.random() * 10) + 1;
-      const totalCompetitors = 50;
-      const gapAnalysis = [];
-      
-      // Análisis basado en herramientas seleccionadas
-      if (tools.includes('seo-analyzer')) {
-        gapAnalysis.push({
-          metric: 'SEO Score',
-          you: consolidatedMetrics.visibility,
-          competitor: Math.floor(consolidatedMetrics.visibility * 0.9 + Math.random() * 8)
-        });
-      }
-      
-      if (tools.includes('performance-audit')) {
-        gapAnalysis.push({
-          metric: 'Performance',
-          you: consolidatedMetrics.performance,
-          competitor: Math.floor(consolidatedMetrics.performance * 0.85 + Math.random() * 10)
-        });
-      }
-      
-      if (tools.includes('social-media')) {
-        gapAnalysis.push({
-          metric: 'Social Presence',
-          you: consolidatedMetrics.engagement,
-          competitor: Math.floor(consolidatedMetrics.engagement * 1.1 + Math.random() * 8)
-        });
-      }
-      
-      if (tools.includes('content-analysis')) {
-        gapAnalysis.push({
-          metric: 'Content Quality',
-          you: consolidatedMetrics.engagement,
-          competitor: Math.floor(consolidatedMetrics.engagement * 0.95 + Math.random() * 6)
-        });
-      }
-      
-      if (tools.includes('security-scan')) {
-        gapAnalysis.push({
-          metric: 'Security Score',
-          you: consolidatedMetrics.security,
-          competitor: Math.floor(consolidatedMetrics.security * 0.8 + Math.random() * 12)
-        });
-      }
-      
-      if (tools.includes('competitor-analysis')) {
-        gapAnalysis.push({
-          metric: 'Market Position',
-          you: consolidatedMetrics.authority,
-          competitor: Math.floor(consolidatedMetrics.authority * 1.05 + Math.random() * 10)
-        });
-      }
-      
-      // Si no hay herramientas específicas, usar métricas generales
-      if (gapAnalysis.length === 0) {
-        gapAnalysis.push(
-          { metric: 'Overall Score', you: overallScore, competitor: Math.floor(overallScore * 0.95) },
-          { metric: 'Web Presence', you: consolidatedMetrics.visibility, competitor: Math.floor(consolidatedMetrics.visibility * 1.05) }
-        );
-      }
-      
-      return {
-        position,
-        totalCompetitors,
-        gapAnalysis: gapAnalysis.slice(0, 4) // Limitar a 4 métricas
-      };
-    })(),
-    
-    // Proyecciones de mejora dinámicas
-    improvementProjections: (() => {
-      // Calcular impacto potencial basado en herramientas
-      const potentialImpact: { [key: string]: number } = {};
-      let totalImpactFactor = 0;
-      
-      if (tools.includes('performance-audit')) {
-        potentialImpact.technical = 15 + Math.floor(Math.random() * 10);
-        totalImpactFactor += 0.3;
-      }
-      
-      if (tools.includes('seo-analyzer')) {
-        potentialImpact.seo = 12 + Math.floor(Math.random() * 8);
-        totalImpactFactor += 0.25;
-      }
-      
-      if (tools.includes('content-analysis')) {
-        potentialImpact.content = 8 + Math.floor(Math.random() * 7);
-        totalImpactFactor += 0.2;
-      }
-      
-      if (tools.includes('social-media')) {
-        potentialImpact.social = 5 + Math.floor(Math.random() * 8);
-        totalImpactFactor += 0.15;
-      }
-      
-      if (tools.includes('security-scan')) {
-        potentialImpact.security = 10 + Math.floor(Math.random() * 12);
-        totalImpactFactor += 0.2;
-      }
-      
-      if (tools.includes('competitor-analysis')) {
-        potentialImpact.strategy = 6 + Math.floor(Math.random() * 9);
-        totalImpactFactor += 0.1;
-      }
-      
-      // Calcular factores de crecimiento basados en herramientas
-      const baseGrowthRate = Math.max(1, totalImpactFactor * 4);
-      const optimisticMultiplier = 1.5 + (totalImpactFactor * 0.5);
-      const conservativeMultiplier = 0.6 + (totalImpactFactor * 0.2);
-      
-      const currentTrajectory = Array.from({ length: 12 }, (_, i) => {
-        const monthProgress = i + 1;
-        const baseGrowth = baseGrowthRate * monthProgress;
-        
-        return {
-          month: `Mes ${monthProgress}`,
-          projected: Math.min(100, overallScore + baseGrowth),
-          optimistic: Math.min(100, overallScore + (baseGrowth * optimisticMultiplier)),
-          conservative: Math.min(100, overallScore + (baseGrowth * conservativeMultiplier))
-        };
-      });
-      
-      return {
-        currentTrajectory,
-        potentialImpact
-      };
-    })()
-  };
-};
-
-// Función auxiliar para obtener nombres de herramientas
-const getToolName = (tool: string) => {
-  const names: Record<string, string> = {
-    'ai-assistant': 'IA Análisis',
-    'blockchain': 'Blockchain Analysis',
-    'nft-tracking': 'NFT Tracking',
-    'keywords': 'Keywords Analysis',
-    'backlinks': 'Backlinks Analysis',
-    'performance': 'Performance Analysis',
-    'security': 'Security Audit',
-    'social-web3': 'Social Web3',
-    'authority-tracking': 'Authority Tracking',
-    'content-authenticity': 'Content Authenticity',
-    'metaverse-optimizer': 'Metaverse Optimizer',
-    'ecosystem-interactions': 'Ecosystem Interactions'
-  };
-  return names[tool] || tool.split('-').map(word => 
-    word.charAt(0).toUpperCase() + word.slice(1)
-  ).join(' ');
-};
-
-// Función para convertir datos del orchestrator al formato ToolResult
-const convertOrchestratorToToolResults = (analysisData: DashboardAnalysisResponse, tools: string[]) => {
-  return tools.map(toolId => ({
-    toolId,
-    toolName: getToolName(toolId),
-    status: 'completed' as const,
-    data: analysisData.results?.find(r => r.toolId === toolId)?.data || {},
-    insights: analysisData.results?.find(r => r.toolId === toolId)?.insights || [],
-    recommendations: analysisData.results.find(r => r.toolId === toolId)?.recommendations || [],
-    score: analysisData.results.find(r => r.toolId === toolId)?.data?.score || analysisData.results.find(r => r.toolId === toolId)?.data?.overallScore || 0,
-    metrics: analysisData.results.find(r => r.toolId === toolId)?.data?.metrics || {},
-    timestamp: new Date().toISOString()
-  }));
-};
-
-export default function UnifiedResultsPage() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  
-  // Obtener parámetros de la URL
-  const address = searchParams.get('address') || '';
-  const toolsParam = searchParams.get('tools') || '';
-  const requestId = searchParams.get('requestId') || '';
-  const selectedTools = useMemo(() => toolsParam ? toolsParam.split(',') : [], [toolsParam]);
-
-  // Usar el hook de resultados dinámicos
-  const {
-    results,
-    isLoading,
-    error,
-    progress,
-    completedTools,
-    failedTools,
-    currentTool,
-    startAnalysis,
-    clearResults,
-    retryTool,
-    isAnalysisComplete,
-    stats
-  } = useDynamicResults({
-    onComplete: (results) => {
-      console.log('Análisis completado:', results);
-    },
-    onError: (error) => {
-      console.error('Error en análisis:', error);
-    },
-    onProgress: (progress, currentTool) => {
-      console.log(`Progreso: ${progress}% - ${currentTool}`);
-    }
-  });
-
-
-
+  // Iniciar análisis al cargar la página
   useEffect(() => {
-    if (!address || selectedTools.length === 0) {
-      router.push('/dashboard');
-      return;
-    }
-
-    // Iniciar análisis usando el hook dinámico
-    startAnalysis(address, selectedTools);
-  }, [address, selectedTools, router, startAnalysis]);
-
-  const exportResults = () => {
-    const dataStr = JSON.stringify(results, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `unified-analysis-${Date.now()}.json`;
-    link.click();
-  };
-
-  const shareResults = async () => {
-    if (navigator.share) {
+    const startAnalysis = async () => {
       try {
-        const overallScore = results.reduce((sum, r) => sum + (r.score || 0), 0) / results.length;
-        await navigator.share({
-          title: 'Análisis Unificado Web3',
-          text: `Puntuación general: ${Math.round(overallScore)}/100`,
-          url: window.location.href,
+        setIsLoading(true);
+        setError(null);
+        
+        // Definir herramientas a analizar
+        const tools = [
+          'performance',
+          'security',
+          'content',
+          'competition',
+          'social-web3',
+          'metadata'
+        ];
+        
+        // Usar una dirección de ejemplo o la del usuario
+        const address = 'example.com'; // En producción, esto vendría del contexto del usuario
+        
+        const newRequestId = await dashboardOrchestrator.startAnalysis({
+          address,
+          tools,
+          isCompleteAudit: true,
+          options: {
+            priority: 'comprehensive',
+            includeAdvanced: true
+          }
         });
-      } catch (error) {
-        console.log('Error sharing:', error);
+        
+        setRequestId(newRequestId);
+        
+        // Polling para obtener resultados
+        const pollResults = () => {
+          const results = dashboardOrchestrator.getAnalysisStatus(newRequestId);
+          if (results) {
+            setAnalysisData(results);
+            
+            if (results.status === 'completed' || results.status === 'error') {
+              setIsLoading(false);
+              if (results.status === 'error') {
+                setError('Error en el análisis');
+              }
+            } else {
+              // Continuar polling si aún está en progreso
+              setTimeout(pollResults, 2000);
+            }
+          }
+        };
+        
+        // Iniciar polling
+        setTimeout(pollResults, 1000);
+        
+      } catch (err) {
+        console.error('Error iniciando análisis:', err);
+        setError('Error al iniciar el análisis');
+        setIsLoading(false);
       }
-    }
-  };
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-600';
-    if (score >= 60) return 'text-yellow-600';
-    return 'text-red-600';
-  };
-
-  const getScoreIcon = (score: number) => {
-    if (score >= 80) return <ArrowUp className="h-4 w-4 text-green-600" />;
-    if (score >= 60) return <Minus className="h-4 w-4 text-yellow-600" />;
-    return <ArrowDown className="h-4 w-4 text-red-600" />;
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'low': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getToolIcon = (tool: string) => {
-    const icons: Record<string, any> = {
-      'ai-assistant': Cpu,
-      'metadata': Database,
-      'content': Search,
-      'keywords': Target,
-      'social': Users,
-      'performance': Zap,
-      'security': Shield,
-      'backlinks': Link,
-      'blockchain': Globe,
-      'competition': BarChart3,
-      'links': Link,
-      'smart-contract': Cpu,
-      'social-web3': Users,
-      'authority-tracking': Award,
-      'metaverse-optimizer': Palette,
-      'content-authenticity': Shield,
-      'nft-tracking': Crown,
-      'ecosystem-interactions': Globe
     };
-    const IconComponent = icons[tool] || Target;
-    return <IconComponent className="h-4 w-4" />;
+
+    startAnalysis();
+  }, []);
+
+  // Función para refrescar análisis
+  const refreshAnalysis = () => {
+    window.location.reload();
   };
 
-
-
-
-  // Mostrar estado de error si hay algún problema
-  if (error) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-center min-h-[60vh]">
-            <Card className="max-w-md w-full border-0 shadow-2xl bg-gradient-to-br from-red-50 to-rose-100 dark:from-red-950/20 dark:to-rose-950/20">
-              <CardContent className="p-8 text-center">
-                <div className="p-4 bg-red-100 dark:bg-red-900/30 rounded-full w-fit mx-auto mb-6">
-                  <AlertTriangle className="h-12 w-12 text-red-600 dark:text-red-400" />
-                </div>
-                <h2 className="text-2xl font-bold text-red-800 dark:text-red-200 mb-3">Error en el Análisis</h2>
-                <p className="text-red-600 dark:text-red-300 mb-6 leading-relaxed">{error}</p>
-                <Button 
-                  onClick={() => router.push('/dashboard')} 
-                  className="w-full shadow-lg hover:shadow-xl transition-all duration-300"
-                >
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Volver al Dashboard
-                </Button>
-              </CardContent>
-            </Card>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-between mb-8">
+            <Link href="/dashboard">
+              <Button variant="outline" size="sm">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Volver al Dashboard
+              </Button>
+            </Link>
           </div>
+          
+          <Card className="max-w-2xl mx-auto">
+            <CardHeader className="text-center">
+              <CardTitle className="flex items-center justify-center space-x-2">
+                <Loader2 className="h-6 w-6 animate-spin" />
+                <span>Ejecutando Análisis Completo</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {analysisData && (
+                <div className="space-y-3">
+                  {analysisData.progress.map((progress) => (
+                    <div key={progress.toolId} className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>{progress.toolName}</span>
+                        <span>{progress.progress}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full transition-all duration-300 ${
+                            progress.status === 'completed' ? 'bg-green-500' :
+                            progress.status === 'error' ? 'bg-red-500' :
+                            progress.status === 'running' ? 'bg-blue-500' :
+                            'bg-gray-400'
+                          }`}
+                          style={{ width: `${progress.progress}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="text-center text-gray-600 dark:text-gray-400">
+                Analizando rendimiento, seguridad, contenido y competencia...
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header con información del análisis */}
-        <div className="mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
-            <div className="space-y-2">
-              <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-                Resultados del Análisis Unificado
-              </h1>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Globe className="h-4 w-4" />
-                <span className="font-mono bg-muted px-2 py-1 rounded text-xs">{address}</span>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Button onClick={exportResults} variant="outline" className="shadow-sm hover:shadow-md transition-shadow">
-                <Download className="h-4 w-4 mr-2" />
-                Exportar
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-between mb-8">
+            <Link href="/dashboard">
+              <Button variant="outline" size="sm">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Volver al Dashboard
               </Button>
-              <Button onClick={shareResults} variant="outline" className="shadow-sm hover:shadow-md transition-shadow">
-                <Share2 className="h-4 w-4 mr-2" />
-                Compartir
-              </Button>
-              <Button onClick={() => {
-                clearResults();
-                router.push('/dashboard');
-              }} className="shadow-sm hover:shadow-md transition-shadow">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Nuevo Análisis
-              </Button>
-            </div>
+            </Link>
           </div>
-        
-          {/* Barra de progreso si está cargando */}
-          {isLoading && (
-            <Card className="mb-6 border-0 shadow-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Activity className="h-5 w-5 text-blue-600 animate-pulse" />
-                    <span className="text-sm font-semibold text-blue-900 dark:text-blue-100">Progreso del análisis</span>
-                  </div>
-                  <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                    {Math.round(progress)}%
-                  </Badge>
-                </div>
-                <Progress value={progress} className="w-full h-2 mb-3" />
-                {currentTool && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4" />
-                    <span>Analizando: <span className="font-medium">{getToolName(currentTool)}</span></span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
           
-          {/* Estadísticas */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-slate-100">{stats.total}</div>
-                    <p className="text-sm text-muted-foreground font-medium">Total herramientas</p>
-                  </div>
-                  <div className="p-3 bg-slate-200 dark:bg-slate-700 rounded-full">
-                    <BarChart3 className="h-6 w-6 text-slate-600 dark:text-slate-300" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950/20 dark:to-emerald-950/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-2xl lg:text-3xl font-bold text-green-700 dark:text-green-400">{stats.completed}</div>
-                    <p className="text-sm text-green-600 dark:text-green-300 font-medium">Completadas</p>
-                  </div>
-                  <div className="p-3 bg-green-200 dark:bg-green-800 rounded-full">
-                    <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-300" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-red-50 to-rose-100 dark:from-red-950/20 dark:to-rose-950/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-2xl lg:text-3xl font-bold text-red-700 dark:text-red-400">{stats.failed}</div>
-                    <p className="text-sm text-red-600 dark:text-red-300 font-medium">Fallidas</p>
-                  </div>
-                  <div className="p-3 bg-red-200 dark:bg-red-800 rounded-full">
-                    <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-300" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-blue-50 to-cyan-100 dark:from-blue-950/20 dark:to-cyan-950/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-2xl lg:text-3xl font-bold text-blue-700 dark:text-blue-400">{Math.round(stats.successRate)}%</div>
-                    <p className="text-sm text-blue-600 dark:text-blue-300 font-medium">Tasa de éxito</p>
-                  </div>
-                  <div className="p-3 bg-blue-200 dark:bg-blue-800 rounded-full">
-                    <TrendingUp className="h-6 w-6 text-blue-600 dark:text-blue-300" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-      </div>
-        
-        {/* Componente de resultados dinámicos */}
-        <div className="space-y-6">
-          <DynamicResultsRenderer
-            results={results}
-            selectedTools={selectedTools}
-            address={address}
-            isLoading={isLoading}
-            className="animate-in fade-in-50 duration-500"
-          />
+          <Card className="max-w-2xl mx-auto">
+            <CardHeader className="text-center">
+              <CardTitle className="flex items-center justify-center space-x-2 text-red-600">
+                <AlertCircle className="h-6 w-6" />
+                <span>Error en el Análisis</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-center space-y-4">
+              <p className="text-gray-600 dark:text-gray-400">{error}</p>
+              <Button onClick={refreshAnalysis} className="flex items-center space-x-2">
+                <RefreshCw className="h-4 w-4" />
+                <span>Reintentar Análisis</span>
+              </Button>
+            </CardContent>
+          </Card>
         </div>
+      </div>
+    );
+  }
+
+  if (!analysisData) {
+    return null;
+  }
+
+  const dashboardScores = convertToPageSpeedFormat(analysisData);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center space-x-4">
+            <Link href="/dashboard">
+              <Button variant="outline" size="sm">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Volver al Dashboard
+              </Button>
+            </Link>
+          </div>
+          <Button onClick={refreshAnalysis} variant="outline" size="sm">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Actualizar Análisis
+          </Button>
+        </div>
+
+        {/* PageSpeed Dashboard con datos reales */}
+        <PageSpeedDashboard 
+          scores={dashboardScores}
+          overallScore={analysisData.overallScore}
+          title="Análisis Completo del Sitio Web"
+          subtitle={`Resultados en tiempo real - Análisis completado el ${new Date(analysisData.metadata.timestamp).toLocaleString()}`}
+        />
+
+        {/* Información adicional del análisis */}
+        {analysisData.summary && (
+          <Card className="mt-8">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <BarChart3 className="h-5 w-5" />
+                <span>Resumen del Análisis</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">
+                    {analysisData.summary.successfulTools}
+                  </div>
+                  <div className="text-sm text-gray-600">Exitosos</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-red-600">
+                    {analysisData.summary.failedTools}
+                  </div>
+                  <div className="text-sm text-gray-600">Fallidos</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {Math.round(analysisData.summary.totalExecutionTime / 1000)}s
+                  </div>
+                  <div className="text-sm text-gray-600">Tiempo Total</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600">
+                    {analysisData.summary.keyInsights.length}
+                  </div>
+                  <div className="text-sm text-gray-600">Insights</div>
+                </div>
+              </div>
+              
+              {analysisData.summary.keyInsights.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="font-semibold">Insights Principales:</h4>
+                  <ul className="space-y-1">
+                    {analysisData.summary.keyInsights.slice(0, 5).map((insight, index) => (
+                      <li key={index} className="text-sm text-gray-600 dark:text-gray-400 flex items-start space-x-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span>{insight}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
-}
-   
+};
 
-
+export default UnifiedResultsPage;

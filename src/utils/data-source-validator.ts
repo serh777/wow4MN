@@ -219,7 +219,7 @@ async function testAlchemyAPI(): Promise<boolean> {
  * Prueba la conectividad con Anthropic API
  */
 async function testAnthropicAPI(): Promise<boolean> {
-  const apiKey = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY;
+  const apiKey = process.env.ANTHROPIC_API_KEY || process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY;
   if (!apiKey) return false;
 
   try {

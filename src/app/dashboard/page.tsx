@@ -452,7 +452,7 @@ export default function DashboardPage() {
             });
 
             // Redirigir a página de resultados con el requestId
-            const resultsUrl = `/dashboard/unified-results?requestId=${requestId}&address=${encodeURIComponent(address)}&tools=${encodeURIComponent(selectedTools.join(','))}`;
+            const resultsUrl = `/dashboard/results/unified?requestId=${requestId}&address=${encodeURIComponent(address)}&tools=${encodeURIComponent(selectedTools.join(','))}`;
             
             setTimeout(() => {
               router.push(resultsUrl);
@@ -476,7 +476,7 @@ export default function DashboardPage() {
             variant: 'default'
           });
           
-          const resultsUrl = `/dashboard/unified-results?requestId=${requestId}&address=${encodeURIComponent(address)}&tools=${encodeURIComponent(selectedTools.join(','))}`;
+          const resultsUrl = `/dashboard/results/unified?requestId=${requestId}&address=${encodeURIComponent(address)}&tools=${encodeURIComponent(selectedTools.join(','))}`;
           router.push(resultsUrl);
         }
       }, 300000); // 5 minutos
@@ -529,7 +529,7 @@ export default function DashboardPage() {
         {[...Array(20)].map((_, i) => (
           <div
             key={i}
-            className="particle dashboard-particle"
+            className="particle dashboard-particle animated-particle"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,

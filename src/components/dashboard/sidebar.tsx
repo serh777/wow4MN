@@ -141,6 +141,9 @@ export function Sidebar() {
           <NavLink href="/dashboard" icon="dashboard" tooltip="Dashboard">
             Dashboard
           </NavLink>
+          <NavLink href="/dashboard/ai-assistant" icon="zap" tooltip="Análisis Unificado">
+            Análisis Unificado
+          </NavLink>
         </div>
 
         {/* Herramientas de Análisis SEO */}

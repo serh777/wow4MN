@@ -213,13 +213,13 @@ src/app/dashboard/
 │   │   └── data-sources-guide.tsx
 │   ├── results/
 │   │   ├── dynamic-results-renderer.tsx
-│   │   └── unified-results/
+│   │   └── unified/
 │   └── ui/
 ├── hooks/
 │   ├── use-analysis-with-indexer.ts
 │   ├── use-dynamic-results.ts
 │   └── use-indexer-service.ts
-├── unified-results/
+├── analysis/
 │   └── page.tsx               # Página de resultados unificados
 └── [tool]/
     └── page.tsx               # Páginas de herramientas específicas

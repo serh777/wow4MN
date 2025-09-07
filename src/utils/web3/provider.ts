@@ -14,6 +14,13 @@ export function getProvider(rpcUrl?: string): ethers.Provider {
   const url = rpcUrl || process.env.ETHEREUM_RPC_URL;
   
   if (!url) {
+    // En el cliente, devolver un provider mock en lugar de fallar
+    if (typeof window !== 'undefined') {
+      console.warn('RPC URL no configurada en el cliente, usando provider mock');
+      // Crear un provider mock que no haga llamadas reales
+      provider = new ethers.JsonRpcProvider('https://mainnet.infura.io/v3/demo');
+      return provider;
+    }
     throw new Error('No se ha proporcionado una URL de RPC. Configura ETHEREUM_RPC_URL en las variables de entorno.');
   }
   

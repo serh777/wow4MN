@@ -72,8 +72,28 @@ export class Indexer {
   }
 }
 
-// Exportar una instancia por defecto para facilitar su uso
-export const indexer = new Indexer();
+// Función para obtener el indexer de forma lazy
+let _indexer: Indexer | null = null;
+
+export function getIndexer(): Indexer | null {
+  if (typeof window !== 'undefined') {
+    return null; // No disponible en el cliente
+  }
+  
+  if (!_indexer) {
+    try {
+      _indexer = new Indexer();
+    } catch (error) {
+      console.warn('No se pudo inicializar el indexer:', error);
+      return null;
+    }
+  }
+  
+  return _indexer;
+}
+
+// Solo exportar la función getIndexer para evitar inicialización automática
+// export const indexer = getIndexer(); // Comentado para evitar inicialización en el cliente
 
 
 // Clase base para todos los indexadores

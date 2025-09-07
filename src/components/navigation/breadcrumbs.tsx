@@ -37,7 +37,7 @@ const ROUTE_NAMES: Record<string, string> = {
   'content-authenticity': 'Verificador de Autenticidad',
   'nft-tracking': 'Seguimiento de NFTs',
   'ecosystem-interactions': 'Interacciones de Ecosistema',
-  'unified-results': 'Resultados Unificados',
+  'unified': 'Resultados Unificados',
   'settings': 'Configuración',
   'tools': 'Herramientas',
   'wallet': 'Wallet',

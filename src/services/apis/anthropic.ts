@@ -1,9 +1,83 @@
-// Servicio de Anthropic Claude para análisis IA reales
+// Servicio de IA con DeepSeek como principal y Anthropic como fallback
 import Anthropic from '@anthropic-ai/sdk';
 
+// Configuración de DeepSeek API
+const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY || process.env.NEXT_PUBLIC_DEEPSEEK_API_KEY;
+
+// Configuración de Anthropic como fallback
 const anthropic = new Anthropic({
-  apiKey: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY,
+  apiKey: process.env.ANTHROPIC_API_KEY || process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY,
 });
+
+// Función para llamar a DeepSeek API
+async function callDeepSeekAPI(messages: any[], model: string = 'deepseek-chat'): Promise<any> {
+  try {
+    const response = await fetch(DEEPSEEK_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages,
+        temperature: 0.7,
+        max_tokens: 4000,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`DeepSeek API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.choices[0]?.message?.content || '';
+  } catch (error) {
+    console.error('Error calling DeepSeek API:', error);
+    throw error;
+  }
+}
+
+// Función para llamar a Anthropic como fallback
+async function callAnthropicAPI(messages: any[]): Promise<string> {
+  try {
+    const systemMessage = messages.find(m => m.role === 'system')?.content || '';
+    const userMessages = messages.filter(m => m.role !== 'system');
+    
+    const response = await anthropic.messages.create({
+      model: 'claude-3-sonnet-20240229',
+      max_tokens: 4000,
+      system: systemMessage,
+      messages: userMessages,
+    });
+
+    return response.content[0]?.type === 'text' ? response.content[0].text : '';
+  } catch (error) {
+    console.error('Error calling Anthropic API:', error);
+    throw error;
+  }
+}
+
+// Función principal que usa DeepSeek primero, Anthropic como fallback
+async function callAIService(messages: any[]): Promise<string> {
+  try {
+    // Intentar con DeepSeek primero
+    if (DEEPSEEK_API_KEY) {
+      return await callDeepSeekAPI(messages);
+    }
+  } catch (error) {
+    console.warn('DeepSeek API failed, falling back to Anthropic:', error);
+  }
+
+  // Fallback a Anthropic
+  try {
+    return await callAnthropicAPI(messages);
+  } catch (error) {
+    console.error('Both AI services failed:', error);
+    throw new Error('No AI service available');
+  }
+}
 
 export interface ContractAnalysisRequest {
   contractAddress: string;
@@ -61,26 +135,21 @@ export class AnthropicService {
     try {
       const prompt = this.buildContractAnalysisPrompt(request);
       
-      const message = await anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 4000,
-        temperature: 0.1,
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ]
-      });
+      const messages = [
+        {
+          role: 'system',
+          content: 'Eres un experto auditor de smart contracts. Proporciona análisis detallados en formato JSON estructurado.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ];
 
-      const response = message.content[0];
-      if (response.type === 'text') {
-        return this.parseAnalysisResponse(response.text);
-      }
-      
-      throw new Error('Invalid response format from Claude');
+      const response = await callAIService(messages);
+      return this.parseAnalysisResponse(response);
     } catch (error) {
-      console.error('Error analyzing contract with Claude:', error);
+      console.error('Error analyzing contract with AI:', error);
       throw new Error('Failed to analyze contract');
     }
   }
@@ -92,22 +161,18 @@ export class AnthropicService {
         `Contexto: ${JSON.stringify(context)}\n\nPregunta del usuario: ${message}` : 
         message;
 
-      const response = await anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 2000,
-        temperature: 0.7,
-        messages: [{
+      const messages = [
+        {
+          role: 'system',
+          content: 'Eres un asistente experto en blockchain y contratos inteligentes. Proporciona respuestas útiles y precisas.'
+        },
+        {
           role: 'user',
           content: prompt
-        }]
-      });
+        }
+      ];
 
-      const responseContent = response.content[0];
-      if (responseContent.type === 'text') {
-        return responseContent.text;
-      }
-      
-      throw new Error('Invalid response format from Claude');
+      return await callAIService(messages);
     } catch (error) {
       console.error('Error in chat with AI:', error);
       return 'Lo siento, no pude procesar tu solicitud en este momento. Por favor, inténtalo de nuevo.';
@@ -116,8 +181,14 @@ export class AnthropicService {
 
   static async analyzeContractSecurity(contractAddress: string, sourceCode: string): Promise<any> {
     try {
-      const prompt = `
-        Eres un experto auditor de seguridad de smart contracts. Analiza el siguiente contrato y proporciona un análisis de seguridad detallado.
+      const messages = [
+        {
+          role: 'system',
+          content: 'Eres un experto auditor de seguridad de smart contracts. Proporciona análisis de seguridad detallados en formato JSON estructurado.'
+        },
+        {
+          role: 'user',
+          content: `Analiza el siguiente contrato y proporciona un análisis de seguridad detallado.
 
         Dirección del contrato: ${contractAddress}
         Código fuente: ${sourceCode.substring(0, 4000)} ${sourceCode.length > 4000 ? '...' : ''}
@@ -129,32 +200,23 @@ export class AnthropicService {
         4. Análisis de patrones de riesgo
         5. Evaluación de mejores prácticas
 
-        Responde en formato JSON estructurado.
-      `;
-
-      const message = await anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 3000,
-        temperature: 0.1,
-        messages: [{ role: 'user', content: prompt }]
-      });
-
-      const response = message.content[0];
-      if (response.type === 'text') {
-        try {
-          return JSON.parse(response.text);
-        } catch {
-          // Si no es JSON válido, devolver estructura básica
-          return {
-            securityScore: 75,
-            vulnerabilities: [],
-            recommendations: ['Revisar el contrato manualmente para obtener más detalles'],
-            analysis: response.text
-          };
+        Responde en formato JSON estructurado.`
         }
-      }
+      ];
+
+      const response = await callAIService(messages);
       
-      throw new Error('Invalid response format');
+      try {
+        return JSON.parse(response);
+      } catch {
+        // Si no es JSON válido, devolver estructura básica
+        return {
+          securityScore: 75,
+          vulnerabilities: [],
+          recommendations: ['Revisar el contrato manualmente para obtener más detalles'],
+          analysis: response
+        };
+      }
     } catch (error) {
       console.error('Error analyzing contract security:', error);
       // Devolver análisis básico en caso de error
@@ -169,8 +231,14 @@ export class AnthropicService {
 
   static async analyzeMetadata(contractAddress: string, metadata: any): Promise<any> {
     try {
-      const prompt = `
-        Analiza los siguientes metadatos de un contrato inteligente y proporciona recomendaciones de optimización SEO para Web3:
+      const messages = [
+        {
+          role: 'system',
+          content: 'Eres un experto en optimización SEO para Web3 y análisis de metadatos de contratos inteligentes.'
+        },
+        {
+          role: 'user',
+          content: `Analiza los siguientes metadatos de un contrato inteligente y proporciona recomendaciones de optimización SEO para Web3:
 
         Dirección del contrato: ${contractAddress}
         Metadatos: ${JSON.stringify(metadata, null, 2)}
@@ -182,22 +250,12 @@ export class AnthropicService {
         4. Recomendaciones específicas para mejorar la visibilidad
         5. Mejores prácticas para metadatos Web3
 
-        Responde en formato JSON estructurado.
-      `;
+        Responde en formato JSON estructurado.`
+        }
+      ];
 
-      const message = await anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 2000,
-        temperature: 0.1,
-        messages: [{ role: 'user', content: prompt }]
-      });
-
-      const response = message.content[0];
-      if (response.type === 'text') {
-        return JSON.parse(response.text);
-      }
-      
-      throw new Error('Invalid response format');
+      const response = await callAIService(messages);
+      return JSON.parse(response);
     } catch (error) {
       console.error('Error analyzing metadata:', error);
       throw error;
@@ -206,8 +264,14 @@ export class AnthropicService {
 
   static async analyzeNFTCollection(collectionData: any): Promise<any> {
     try {
-      const prompt = `
-        Analiza la siguiente colección NFT y proporciona insights detallados:
+      const messages = [
+        {
+          role: 'system',
+          content: 'Eres un experto en análisis de colecciones NFT, rareza, tendencias de mercado y estrategias de marketing para NFTs.'
+        },
+        {
+          role: 'user',
+          content: `Analiza la siguiente colección NFT y proporciona insights detallados:
 
         Datos de la colección: ${JSON.stringify(collectionData, null, 2)}
 
@@ -218,22 +282,12 @@ export class AnthropicService {
         4. Recomendaciones de marketing
         5. Optimizaciones de metadatos
 
-        Responde en formato JSON con métricas específicas.
-      `;
+        Responde en formato JSON con métricas específicas.`
+        }
+      ];
 
-      const message = await anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 3000,
-        temperature: 0.1,
-        messages: [{ role: 'user', content: prompt }]
-      });
-
-      const response = message.content[0];
-      if (response.type === 'text') {
-        return JSON.parse(response.text);
-      }
-      
-      throw new Error('Invalid response format');
+      const response = await callAIService(messages);
+      return JSON.parse(response);
     } catch (error) {
       console.error('Error analyzing NFT collection:', error);
       throw error;
@@ -348,18 +402,18 @@ export class AnthropicService {
    */
   async generateInsights(toolId: string, data: any, address: string): Promise<string[]> {
     try {
-      const prompt = `Analiza los siguientes datos de ${toolId} para la dirección ${address} y genera insights clave:\n\n${JSON.stringify(data, null, 2)}\n\nProporciona 3-5 insights importantes en formato de lista.`;
-      
-      const message = await anthropic.messages.create({
-        model: 'claude-3-sonnet-20240229',
-        max_tokens: 1000,
-        messages: [{
+      const messages = [
+        {
+          role: 'system',
+          content: 'Eres un analista experto en blockchain. Genera insights clave y relevantes basados en datos de análisis.'
+        },
+        {
           role: 'user',
-          content: prompt
-        }]
-      });
-
-      const response = message.content[0]?.text || '';
+          content: `Analiza los siguientes datos de ${toolId} para la dirección ${address} y genera insights clave:\n\n${JSON.stringify(data, null, 2)}\n\nProporciona 3-5 insights importantes en formato de lista.`
+        }
+      ];
+      
+      const response = await callAIService(messages);
       return response.split('\n').filter(line => line.trim().startsWith('-') || line.trim().startsWith('•')).map(line => line.trim().replace(/^[-•]\s*/, ''));
     } catch (error) {
       console.error('Error generating insights:', error);
@@ -376,18 +430,18 @@ export class AnthropicService {
    */
   async generateRecommendations(toolId: string, data: any, address: string): Promise<string[]> {
     try {
-      const prompt = `Basándote en el análisis de ${toolId} para la dirección ${address}, genera recomendaciones específicas y accionables:\n\n${JSON.stringify(data, null, 2)}\n\nProporciona 3-5 recomendaciones prácticas en formato de lista.`;
-      
-      const message = await anthropic.messages.create({
-        model: 'claude-3-sonnet-20240229',
-        max_tokens: 1000,
-        messages: [{
+      const messages = [
+        {
+          role: 'system',
+          content: 'Eres un consultor experto en blockchain. Genera recomendaciones específicas y accionables basadas en análisis de datos.'
+        },
+        {
           role: 'user',
-          content: prompt
-        }]
-      });
-
-      const response = message.content[0]?.text || '';
+          content: `Basándote en el análisis de ${toolId} para la dirección ${address}, genera recomendaciones específicas y accionables:\n\n${JSON.stringify(data, null, 2)}\n\nProporciona 3-5 recomendaciones prácticas en formato de lista.`
+        }
+      ];
+      
+      const response = await callAIService(messages);
       return response.split('\n').filter(line => line.trim().startsWith('-') || line.trim().startsWith('•')).map(line => line.trim().replace(/^[-•]\s*/, ''));
     } catch (error) {
       console.error('Error generating recommendations:', error);

@@ -99,7 +99,20 @@ export class AlchemyService {
       const params = new URLSearchParams(allParams);
 
       const response = await fetch(`${url}?${params}`);
-      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const text = await response.text();
+      let data;
+      
+      try {
+        data = JSON.parse(text);
+      } catch (parseError) {
+        console.error('Error parsing JSON response:', text.substring(0, 100));
+        throw new Error('Invalid JSON response from Alchemy API');
+      }
 
       if (data.ownedNfts) {
         return data.ownedNfts;
@@ -122,9 +135,19 @@ export class AlchemyService {
       });
 
       const response = await fetch(`${url}?${params}`);
-      const data = await response.json();
-
-      return data || null;
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const responseText = await response.text();
+      try {
+        return JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('JSON parsing error in getNFTMetadata:', parseError);
+        console.error('Response text:', responseText);
+        throw new Error('Invalid JSON response from Alchemy API');
+      }
     } catch (error) {
       console.error('Error fetching NFT metadata from Alchemy:', error);
       return null;
@@ -147,7 +170,21 @@ export class AlchemyService {
       const params = new URLSearchParams(allParams);
 
       const response = await fetch(`${url}?${params}`);
-      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const responseText = await response.text();
+      let data;
+      
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('JSON parsing error in getNFTsForCollection:', parseError);
+        console.error('Response text:', responseText);
+        throw new Error('Invalid JSON response from Alchemy API');
+      }
 
       if (data.nfts) {
         return data.nfts;
@@ -168,7 +205,21 @@ export class AlchemyService {
       });
 
       const response = await fetch(`${url}?${params}`);
-      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const responseText = await response.text();
+      let data;
+      
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('JSON parsing error in getContractMetadata:', parseError);
+        console.error('Response text:', responseText);
+        throw new Error('Invalid JSON response from Alchemy API');
+      }
 
       return data.contractMetadata || null;
     } catch (error) {
@@ -186,7 +237,21 @@ export class AlchemyService {
       });
 
       const response = await fetch(`${url}?${params}`);
-      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const responseText = await response.text();
+      let data;
+      
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('JSON parsing error in getOwnersForCollection:', parseError);
+        console.error('Response text:', responseText);
+        throw new Error('Invalid JSON response from Alchemy API');
+      }
 
       if (data.ownerAddresses) {
         return data.ownerAddresses;
@@ -207,7 +272,21 @@ export class AlchemyService {
       });
 
       const response = await fetch(`${url}?${params}`);
-      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const responseText = await response.text();
+      let data;
+      
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('JSON parsing error in getFloorPrice:', parseError);
+        console.error('Response text:', responseText);
+        throw new Error('Invalid JSON response from Alchemy API');
+      }
 
       if (data.openSea && data.openSea.floorPrice) {
         return data.openSea.floorPrice;
@@ -236,7 +315,21 @@ export class AlchemyService {
       const params = new URLSearchParams(allParams);
 
       const response = await fetch(`${url}?${params}`);
-      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const responseText = await response.text();
+      let data;
+      
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('JSON parsing error in getNFTSales:', parseError);
+        console.error('Response text:', responseText);
+        throw new Error('Invalid JSON response from Alchemy API');
+      }
 
       if (data.nftSales) {
         return data.nftSales;
@@ -266,7 +359,20 @@ export class AlchemyService {
         })
       });
 
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const responseText = await response.text();
+      let data;
+      
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('JSON parsing error in getTokenBalances:', parseError);
+        console.error('Response text:', responseText);
+        throw new Error('Invalid JSON response from Alchemy API');
+      }
 
       if (data.result && data.result.tokenBalances) {
         return data.result.tokenBalances;
@@ -296,7 +402,20 @@ export class AlchemyService {
         })
       });
 
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const responseText = await response.text();
+      let data;
+      
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('JSON parsing error in getTokenMetadata:', parseError);
+        console.error('Response text:', responseText);
+        throw new Error('Invalid JSON response from Alchemy API');
+      }
 
       return data.result || null;
     } catch (error) {
@@ -337,7 +456,20 @@ export class AlchemyService {
         body: JSON.stringify(params)
       });
 
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const responseText = await response.text();
+      let data;
+      
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('JSON parsing error in getAssetTransfers:', parseError);
+        console.error('Response text:', responseText);
+        throw new Error('Invalid JSON response from Alchemy API');
+      }
 
       if (data.result && data.result.transfers) {
         return data.result.transfers;

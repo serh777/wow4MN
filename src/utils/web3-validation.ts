@@ -1,5 +1,24 @@
 // Utilidades para validación Web3
 
+// Patrones para direcciones de wallet
+const WALLET_ADDRESS_PATTERNS = {
+  ethereum: /^0x[a-fA-F0-9]{40}$/,
+  bitcoin: /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$|^bc1[a-z0-9]{39,59}$/,
+  solana: /^[1-9A-HJ-NP-Za-km-z]{32,44}$/,
+  cardano: /^addr1[a-z0-9]{98}$/,
+  polkadot: /^1[a-zA-Z0-9]{46,47}$/,
+  cosmos: /^cosmos1[a-z0-9]{38}$/,
+  near: /^[a-z0-9_-]{2,64}\.near$/,
+  tezos: /^tz[1-3][1-9A-HJ-NP-Za-km-z]{33}$/,
+  algorand: /^[A-Z2-7]{58}$/,
+  avalanche: /^X-avax1[a-z0-9]{38}$/,
+  fantom: /^0x[a-fA-F0-9]{40}$/,
+  harmony: /^one1[a-z0-9]{38}$/,
+  terra: /^terra1[a-z0-9]{38}$/,
+  flow: /^0x[a-fA-F0-9]{16}$/,
+  ens: /^[a-z0-9-]+\.eth$/
+};
+
 // Patrones de URLs Web3 conocidas
 const WEB3_URL_PATTERNS = [
   // DeFi Protocols
@@ -135,6 +154,53 @@ export function isContractAddress(address: string): boolean {
   return /^0x[a-fA-F0-9]{40}$/.test(address);
 }
 
+// Función para detectar si es una dirección de wallet
+export function isWalletAddress(address: string): boolean {
+  return Object.values(WALLET_ADDRESS_PATTERNS).some(pattern => 
+    pattern.test(address)
+  );
+}
+
+// Función para detectar el tipo de entrada (URL, contrato, wallet)
+export function detectInputType(input: string): 'url' | 'contract' | 'wallet' | 'unknown' {
+  // Limpiar el input
+  const cleanInput = input.trim();
+  
+  // Verificar si es una dirección de wallet primero (incluye ENS que tienen puntos)
+  if (isWalletAddress(cleanInput)) {
+    return 'wallet';
+  }
+  
+  // Verificar si es una dirección de contrato
+  if (isContractAddress(cleanInput)) {
+    return 'contract';
+  }
+  
+  // Verificar si es una URL (después de verificar wallets y contratos)
+  if (cleanInput.startsWith('http://') || cleanInput.startsWith('https://') || 
+      (cleanInput.includes('.') && !cleanInput.endsWith('.eth'))) {
+    return 'url';
+  }
+  
+  return 'unknown';
+}
+
+// Función para validar cualquier tipo de entrada Web3
+export function isValidWeb3Input(input: string): boolean {
+  const inputType = detectInputType(input);
+  
+  switch (inputType) {
+    case 'url':
+      return isWeb3URL(input);
+    case 'contract':
+      return true; // Ya validado por detectInputType
+    case 'wallet':
+      return true; // Ya validado por detectInputType
+    default:
+      return false;
+  }
+}
+
 // Función para validar compatibilidad entre red e indexador
 export function isNetworkIndexerCompatible(network: string, indexerNetwork: string): boolean {
   // Si el indexador no especifica red, es compatible con todas
@@ -216,15 +282,34 @@ export function validateAnalysisViability(data: {
   const errors: string[] = [];
   const warnings: string[] = [];
   
-  // Validar que hay una URL
+  // Validar que hay una entrada
   if (!data.url || data.url.trim() === '') {
-    errors.push('Debes proporcionar una URL para analizar');
+    errors.push('Debes proporcionar una URL, dirección de wallet o contrato para analizar');
   } else {
-    // Validar formato básico de URL
-    try {
-      new URL(data.url);
-    } catch {
-      errors.push('La URL proporcionada no tiene un formato válido');
+    // Usar la nueva validación unificada Web3
+    const inputType = detectInputType(data.url);
+    const isValid = isValidWeb3Input(data.url);
+    
+    if (!isValid) {
+      if (inputType === 'url') {
+        errors.push('La URL proporcionada no es un sitio Web3 válido');
+      } else if (inputType === 'contract') {
+        errors.push('La dirección de contrato no tiene un formato válido');
+      } else if (inputType === 'wallet') {
+        errors.push('La dirección de wallet no tiene un formato válido');
+      } else {
+        errors.push('Formato no reconocido. Ingresa una URL Web3, dirección de wallet o contrato');
+      }
+    } else {
+      // Agregar información específica según el tipo detectado
+      if (inputType === 'url') {
+        const siteType = detectWeb3SiteType(data.url);
+        warnings.push(`Sitio Web3 detectado: ${siteType}. El análisis incluirá métricas específicas de blockchain.`);
+      } else if (inputType === 'contract') {
+        warnings.push('Contrato inteligente detectado. El análisis se enfocará en datos on-chain del contrato.');
+      } else if (inputType === 'wallet') {
+        warnings.push('Dirección de wallet detectada. El análisis incluirá actividad y transacciones de la wallet.');
+      }
     }
   }
   
@@ -236,17 +321,6 @@ export function validateAnalysisViability(data: {
   // Validar compatibilidad red-indexador
   if (data.indexerNetwork && !isNetworkIndexerCompatible(data.network, data.indexerNetwork)) {
     warnings.push(`El indexador está configurado para ${data.indexerNetwork} pero seleccionaste la red ${data.network}. Esto podría afectar la calidad del análisis.`);
-  }
-  
-  // Agregar información si es Web3
-  if (data.url && isWeb3URL(data.url)) {
-    warnings.push('Sitio Web3 detectado. El análisis incluirá métricas específicas de blockchain.');
-  }
-  
-  // Validar dirección de contrato si se proporciona
-  if (data.url && isContractAddress(data.url)) {
-    const siteType = detectWeb3SiteType(data.url);
-    warnings.push(`Detectado: ${siteType}. El análisis se enfocará en datos on-chain del contrato.`);
   }
   
   return {

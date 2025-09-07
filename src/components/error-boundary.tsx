@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
@@ -110,7 +111,7 @@ class ErrorBoundaryComponent extends React.Component<ErrorBoundaryProps, ErrorBo
                 <Button 
                   onClick={() => {
                     if (typeof window !== 'undefined') {
-                      window.location.href = '/dashboard';
+                      window.location.replace('/dashboard');
                     }
                   }}
                   variant="outline"

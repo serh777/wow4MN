@@ -77,6 +77,25 @@ export class EcosystemInteractionsAPIsService {
   }
 
   /**
+   * Función principal para analizar ecosistema
+   */
+  async analyzeEcosystem(address: string, options?: any): Promise<any> {
+    try {
+      const result = await EcosystemInteractionsAPIsService.analyzeEcosystemInteractions(address, options || {});
+      return {
+        address,
+        ecosystem: result,
+        includeNetworks: options?.includeNetworks || ['ethereum', 'polygon', 'bsc'],
+        includeCrossChain: options?.includeCrossChain || true,
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      console.error('Error analyzing ecosystem:', error);
+      return { error: 'Failed to analyze ecosystem' };
+    }
+  }
+
+  /**
    * Analiza las interacciones de un address en múltiples ecosistemas
    */
   static async analyzeEcosystemInteractions(

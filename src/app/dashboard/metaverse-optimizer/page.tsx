@@ -71,7 +71,7 @@ export default function MetaverseOptimizerPage() {
         requestId: `metaverse-${Date.now()}`
       });
       
-      router.push(`/dashboard/unified-results?${params.toString()}`);
+      router.push(`/dashboard/results/unified?${params.toString()}`);
     } catch (error) {
       console.error('Error during analysis:', error);
     } finally {
