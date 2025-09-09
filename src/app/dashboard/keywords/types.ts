@@ -4,6 +4,16 @@ export interface KeywordData {
   volume: number;
   competition: number;
   recommendations: string[];
+  // Campos Web3
+  web3Relevance?: number;
+  blockchainMentions?: number;
+  web3Category?: string;
+  relatedProjects?: string[];
+  blockchainInsights?: {
+    trendingTopics: string[];
+    risingProjects: string[];
+    popularContracts: string[];
+  };
 }
 
 export interface KeywordAnalysisData {

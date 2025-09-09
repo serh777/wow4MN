@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { GoogleAPIsService } from '@/services/apis/google-apis';
+import { Web3APIsService } from '@/services/apis/web3-apis';
 import { extractDomainFromUrl } from '@/app/dashboard/keywords/components/real-keywords-helpers';
 import { generateRealBacklinkResults } from './real-backlinks-helpers';
 

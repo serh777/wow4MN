@@ -35,7 +35,7 @@ export function KeywordsForm({ onSubmit, loading, progress = 0, currentStep }: K
     projectUrl: '',
     keywords: '',
     niche: 'NFT',
-    keywordType: 'general',
+    keywordType: 'web3',
     contractAddress: '',
     competitorUrls: ''
   });
@@ -104,11 +104,14 @@ export function KeywordsForm({ onSubmit, loading, progress = 0, currentStep }: K
             value={formData.keywordType}
             onChange={(value) => setFormData(prev => ({ ...prev, keywordType: value }))}
             options={[
+              { value: 'web3', label: 'Web3 (IA + Blockchain)' },
+              { value: 'defi', label: 'DeFi' },
+              { value: 'nft', label: 'NFT' },
+              { value: 'dao', label: 'DAO' },
+              { value: 'metaverse', label: 'Metaverso' },
               { value: 'general', label: 'General' },
               { value: 'technical', label: 'Técnicas' },
-              { value: 'marketing', label: 'Marketing' },
-              { value: 'defi', label: 'DeFi' },
-              { value: 'nft', label: 'NFT' }
+              { value: 'marketing', label: 'Marketing' }
             ]}
           />
           

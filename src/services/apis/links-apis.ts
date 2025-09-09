@@ -1,6 +1,6 @@
 // Links Analysis APIs Service
 import { AnthropicService } from './anthropic';
-import { GoogleAPIsService } from './google-apis';
+import { Web3APIsService } from './web3-apis';
 
 export interface LinksAnalysisOptions {
   includeInternalLinks?: boolean;
@@ -54,7 +54,7 @@ export interface LinksAnalysisResult {
 }
 
 export class LinksAPIsService {
-  private static googleService = new GoogleAPIsService();
+  private static web3Service = new Web3APIsService();
   private static anthropicService = new AnthropicService();
 
   // Método de instancia para compatibilidad con orchestrator

@@ -6,7 +6,7 @@
 import { AnthropicService } from './apis/anthropic';
 import { EtherscanService } from './apis/etherscan';
 import { AlchemyService } from './apis/alchemy';
-import { GoogleAPIsService } from './apis/google-apis';
+import { Web3APIsService } from './apis/web3-apis';
 import { PerformanceAPIsService } from './apis/performance-apis';
 import { SecurityAPIsService } from './apis/security-apis';
 import { SocialWeb3APIsService } from './apis/social-web3-apis';
@@ -21,6 +21,7 @@ import { CompetitionAPIsService } from './apis/competition-apis';
 import { SmartContractAPIsService } from './apis/smart-contract-apis';
 import { HistoricalAPIsService } from './apis/historical-apis';
 import { NFTTrackingAPIsService } from './apis/nft-tracking-apis';
+// GoogleAPIsService removido - usando CompetitionAPIsService para análisis de competencia
 import { apiCall, ApiRetryHandler } from '../utils/api-retry-handler';
 
 export interface AnalysisRequest {
@@ -91,8 +92,8 @@ class DashboardOrchestratorService {
     this.services.set('ai-assistant', new AnthropicService());
     this.services.set('blockchain', new EtherscanService());
     this.services.set('nft-tracking', new NFTTrackingAPIsService());
-    this.services.set('keywords', new GoogleAPIsService());
-    this.services.set('backlinks', new GoogleAPIsService());
+    this.services.set('keywords', new Web3APIsService());
+    this.services.set('backlinks', new Web3APIsService());
     this.services.set('performance', new PerformanceAPIsService());
     this.services.set('security', new SecurityAPIsService());
     this.services.set('social-web3', new SocialWeb3APIsService());
@@ -112,7 +113,7 @@ class DashboardOrchestratorService {
     // Servicios adicionales para unified results
     this.services.set('security-scan', new SecurityAPIsService());
     this.services.set('social-media', new SocialWeb3APIsService());
-    this.services.set('competitor-analysis', new GoogleAPIsService());
+    this.services.set('competitor-analysis', new CompetitionAPIsService());
   }
 
   /**
@@ -361,10 +362,12 @@ class DashboardOrchestratorService {
 
         case 'competitor-analysis':
           this.updateProgress(requestId, toolId, 'running', 60);
-          data = await service.analyzeKeywords(address, {
-            includeCompetitors: true,
-            includeMarketShare: true,
-            includeCompetitorBacklinks: true
+          data = await service.analyzeCompetition(address, {
+            includeKeywordAnalysis: true,
+            includeBacklinkAnalysis: true,
+            includeContentAnalysis: true,
+            competitorLimit: 5,
+            depth: 'detailed'
           });
           break;
 

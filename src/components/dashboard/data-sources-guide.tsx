@@ -75,19 +75,6 @@ const DATA_SOURCES: DataSource[] = [
     dataTypes: ['Análisis de Código', 'Insights', 'Recomendaciones', 'Auditorías']
   },
   {
-    id: 'google-apis',
-    name: 'Google APIs',
-    type: 'api',
-    status: 'active',
-    description: 'Suite de APIs de Google para SEO y análisis web',
-    tools: ['Keywords Analysis', 'Backlinks Analysis', 'Performance Analysis'],
-    endpoints: ['Search Console API', 'PageSpeed API', 'Analytics API'],
-    rateLimit: '100 req/100sec',
-    cost: 'Gratis con límites',
-    reliability: 'high',
-    dataTypes: ['Keywords', 'Backlinks', 'Performance', 'Search Data']
-  },
-  {
     id: 'social-web3',
     name: 'Social Web3 APIs',
     type: 'hybrid',

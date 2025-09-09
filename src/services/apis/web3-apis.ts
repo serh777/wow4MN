@@ -1,5 +1,5 @@
-// Google APIs Service para análisis SEO reales
-// Incluye Google Search Console, Analytics y otras APIs de Google
+// Web3 APIs Service para reemplazar Google APIs
+// Proporciona funcionalidades similares pero orientadas a Web3
 
 interface SearchConsoleData {
   clicks: number;
@@ -29,16 +29,16 @@ interface KeywordData {
   trend: number[];
 }
 
-export class GoogleAPIsService {
-  private static readonly SEARCH_CONSOLE_API = 'https://searchconsole.googleapis.com/webmasters/v3';
-  private static readonly ANALYTICS_API = 'https://analyticsreporting.googleapis.com/v4';
-  private static readonly KEYWORD_PLANNER_API = 'https://googleads.googleapis.com/v14';
+export class Web3APIsService {
+  private static readonly SEARCH_API = 'https://api.web3keywords.com/search';
+  private static readonly ANALYTICS_API = 'https://api.web3keywords.com/analytics';
+  private static readonly KEYWORD_API = 'https://api.web3keywords.com/keywords';
 
   // Métodos de instancia para análisis de keywords
   async analyzeKeywords(address: string, options?: any): Promise<any> {
     try {
       const keywords = this.extractKeywordsFromAddress(address);
-      const keywordData = await GoogleAPIsService.getKeywordAnalysis(keywords, address);
+      const keywordData = await Web3APIsService.getKeywordAnalysis(keywords, address);
       return {
         keywords: keywordData,
         totalKeywords: keywordData.length,
@@ -54,7 +54,7 @@ export class GoogleAPIsService {
   // Métodos de instancia para análisis de backlinks
   async analyzeBacklinks(address: string, options?: any): Promise<any> {
     try {
-      const backlinkData = await GoogleAPIsService.getBacklinkAnalysis(address);
+      const backlinkData = await Web3APIsService.getBacklinkAnalysis(address);
       return backlinkData;
     } catch (error) {
       console.error('Error analyzing backlinks:', error);
@@ -66,62 +66,54 @@ export class GoogleAPIsService {
     // Extraer keywords relevantes de la dirección/dominio
     const domain = address.replace(/^https?:\/\//, '').split('/')[0];
     const parts = domain.split('.');
-    return parts.concat(['blockchain', 'web3', 'crypto', 'seo']);
+    return parts.concat(['blockchain', 'web3', 'crypto', 'defi', 'nft', 'dao']);
   }
 
-  // Simular datos de Google Search Console
+  // Simular datos de búsqueda Web3
   static async getSearchConsoleData(domain: string, startDate: string, endDate: string): Promise<SearchConsoleData[]> {
     try {
       // En producción, aquí iría la llamada real a la API
-      // const response = await fetch(`${this.SEARCH_CONSOLE_API}/sites/${encodeURIComponent(domain)}/searchAnalytics/query`, {
+      // const response = await fetch(`${this.SEARCH_API}/${encodeURIComponent(domain)}`, {
       //   method: 'POST',
       //   headers: {
-      //     'Authorization': `Bearer ${process.env.GOOGLE_SEARCH_CONSOLE_TOKEN}`,
+      //     'Authorization': `Bearer ${process.env.WEB3_API_TOKEN}`,
       //     'Content-Type': 'application/json'
       //   },
       //   body: JSON.stringify({
       //     startDate,
       //     endDate,
-      //     dimensions: ['query', 'page'],
-      //     rowLimit: 1000
+      //     dimensions: ['query', 'page']
       //   })
       // });
 
       // Por ahora, generar datos realistas basados en el dominio
       return this.generateRealisticSearchConsoleData(domain);
     } catch (error) {
-      console.error('Error obteniendo datos de Search Console:', error);
+      console.error('Error obteniendo datos de búsqueda Web3:', error);
       return this.generateRealisticSearchConsoleData(domain);
     }
   }
 
-  // Simular datos de Google Analytics
+  // Simular datos de Analytics Web3
   static async getAnalyticsData(domain: string, startDate: string, endDate: string): Promise<AnalyticsData> {
     try {
       // En producción, aquí iría la llamada real a la API
-      // const response = await fetch(`${this.ANALYTICS_API}/reports:batchGet`, {
+      // const response = await fetch(`${this.ANALYTICS_API}/${encodeURIComponent(domain)}`, {
       //   method: 'POST',
       //   headers: {
-      //     'Authorization': `Bearer ${process.env.GOOGLE_ANALYTICS_TOKEN}`,
+      //     'Authorization': `Bearer ${process.env.WEB3_API_TOKEN}`,
       //     'Content-Type': 'application/json'
       //   },
       //   body: JSON.stringify({
-      //     reportRequests: [{
-      //       viewId: process.env.GOOGLE_ANALYTICS_VIEW_ID,
-      //       dateRanges: [{ startDate, endDate }],
-      //       metrics: [
-      //         { expression: 'ga:sessions' },
-      //         { expression: 'ga:pageviews' },
-      //         { expression: 'ga:bounceRate' },
-      //         { expression: 'ga:avgSessionDuration' }
-      //       ]
-      //     }]
+      //     startDate,
+      //     endDate,
+      //     metrics: ['sessions', 'pageviews', 'bounceRate', 'avgSessionDuration']
       //   })
       // });
 
       return this.generateRealisticAnalyticsData(domain);
     } catch (error) {
-      console.error('Error obteniendo datos de Analytics:', error);
+      console.error('Error obteniendo datos de Analytics Web3:', error);
       return this.generateRealisticAnalyticsData(domain);
     }
   }
@@ -129,10 +121,10 @@ export class GoogleAPIsService {
   // Análisis de keywords con datos realistas
   static async getKeywordAnalysis(keywords: string[], domain?: string): Promise<KeywordData[]> {
     try {
-      // En producción, aquí iría la llamada real a Keyword Planner API
+      // En producción, aquí iría la llamada real a la API de Keywords
       return keywords.map(keyword => this.generateRealisticKeywordData(keyword, domain));
     } catch (error) {
-      console.error('Error en análisis de keywords:', error);
+      console.error('Error en análisis de keywords Web3:', error);
       return keywords.map(keyword => this.generateRealisticKeywordData(keyword, domain));
     }
   }
@@ -164,7 +156,7 @@ export class GoogleAPIsService {
         recommendations: this.generateSEORecommendations(domain, competitorData)
       };
     } catch (error) {
-      console.error('Error en análisis de competencia:', error);
+      console.error('Error en análisis de competencia Web3:', error);
       return this.generateMockCompetitorAnalysis(domain, competitors);
     }
   }
@@ -172,7 +164,7 @@ export class GoogleAPIsService {
   // Análisis de backlinks (simulado)
   static async getBacklinkAnalysis(domain: string): Promise<any> {
     try {
-      // En producción, integrar con APIs como Ahrefs, SEMrush, etc.
+      // En producción, integrar con APIs Web3 específicas
       return {
         totalBacklinks: Math.floor(Math.random() * 10000) + 1000,
         referringDomains: Math.floor(Math.random() * 1000) + 100,
@@ -188,7 +180,7 @@ export class GoogleAPIsService {
         }
       };
     } catch (error) {
-      console.error('Error en análisis de backlinks:', error);
+      console.error('Error en análisis de backlinks Web3:', error);
       return this.generateMockBacklinkAnalysis(domain);
     }
   }
@@ -222,7 +214,10 @@ export class GoogleAPIsService {
   private static generateRealisticKeywordData(keyword: string, domain?: string): KeywordData {
     const isWeb3Related = keyword.toLowerCase().includes('web3') || 
                          keyword.toLowerCase().includes('crypto') || 
-                         keyword.toLowerCase().includes('blockchain');
+                         keyword.toLowerCase().includes('blockchain') ||
+                         keyword.toLowerCase().includes('defi') ||
+                         keyword.toLowerCase().includes('nft') ||
+                         keyword.toLowerCase().includes('dao');
     
     const baseVolume = isWeb3Related ? 5000 : 2000;
     const competition = isWeb3Related ? 'High' : ['Low', 'Medium', 'High'][Math.floor(Math.random() * 3)];
@@ -246,20 +241,18 @@ export class GoogleAPIsService {
     const web3Queries = [
       'web3 seo', 'blockchain seo', 'crypto seo tools', 'defi seo',
       'nft seo optimization', 'dapp seo', 'smart contract seo',
-      'metaverse seo', 'dao seo tools', 'web3 marketing'
+      'metaverse seo', 'dao seo tools', 'web3 marketing',
+      'token optimization', 'crypto content strategy', 'web3 backlinks'
     ];
 
-    if (domain.includes('web3') || domain.includes('crypto') || domain.includes('blockchain')) {
-      return [...web3Queries, ...baseQueries].slice(0, 20);
-    }
-
-    return baseQueries.slice(0, 15);
+    return [...web3Queries, ...baseQueries].slice(0, 20);
   }
 
   private static generateRealisticBacklinks(domain: string): any[] {
     const sources = [
       'github.com', 'medium.com', 'dev.to', 'hackernoon.com',
-      'coindesk.com', 'cointelegraph.com', 'decrypt.co', 'theblock.co'
+      'coindesk.com', 'cointelegraph.com', 'decrypt.co', 'theblock.co',
+      'defipulse.com', 'opensea.io', 'rarible.com', 'foundation.app'
     ];
 
     return sources.map(source => ({
@@ -278,8 +271,8 @@ export class GoogleAPIsService {
     return [
       { text: domainName, count: Math.floor(Math.random() * 100) + 50 },
       { text: `${domainName} tools`, count: Math.floor(Math.random() * 80) + 30 },
-      { text: 'seo tools', count: Math.floor(Math.random() * 60) + 20 },
-      { text: 'web3 seo', count: Math.floor(Math.random() * 40) + 15 },
+      { text: 'web3 tools', count: Math.floor(Math.random() * 60) + 20 },
+      { text: 'blockchain seo', count: Math.floor(Math.random() * 40) + 15 },
       { text: 'click here', count: Math.floor(Math.random() * 30) + 10 }
     ];
   }
@@ -293,7 +286,9 @@ export class GoogleAPIsService {
       'Strong social media presence',
       'Fast loading speeds',
       'Mobile optimization',
-      'Regular content updates'
+      'Regular content updates',
+      'Web3 integration',
+      'Blockchain verification'
     ];
     return strengths.slice(0, Math.floor(Math.random() * 4) + 3);
   }
@@ -307,7 +302,9 @@ export class GoogleAPIsService {
       'Missing meta descriptions',
       'Broken internal links',
       'Limited social engagement',
-      'Outdated content'
+      'Outdated content',
+      'Weak Web3 integration',
+      'Poor blockchain verification'
     ];
     return weaknesses.slice(0, Math.floor(Math.random() * 3) + 2);
   }
@@ -319,7 +316,9 @@ export class GoogleAPIsService {
       'Create more comprehensive content around core topics',
       'Build relationships with industry publications for backlinks',
       'Optimize for voice search queries',
-      'Improve internal linking structure'
+      'Improve internal linking structure',
+      'Enhance Web3 integration',
+      'Implement blockchain verification for content'
     ];
   }
 
@@ -330,7 +329,9 @@ export class GoogleAPIsService {
       'Build authoritative backlinks from relevant sources',
       'Optimize for featured snippets and rich results',
       'Enhance user experience and site performance',
-      'Develop a consistent content publishing schedule'
+      'Develop a consistent content publishing schedule',
+      'Integrate Web3 technologies',
+      'Implement blockchain verification'
     ];
   }
 
@@ -367,5 +368,70 @@ export class GoogleAPIsService {
       }
     };
   }
+  
+  // Obtener insights de blockchain para keywords
+  static async getBlockchainInsights(keywords: string[], options?: any): Promise<any> {
+    try {
+      // Simulación de datos de blockchain relacionados con las keywords
+      const insights = keywords.map(keyword => ({
+        keyword,
+        tokenMentions: Math.floor(Math.random() * 1000) + 10,
+        nftCollections: Math.floor(Math.random() * 20) + 1,
+        dappsRelated: Math.floor(Math.random() * 15) + 1,
+        marketSentiment: Math.random() > 0.5 ? 'positive' : 'neutral',
+        blockchainActivity: Math.floor(Math.random() * 100) + 20,
+        defiProtocols: Math.floor(Math.random() * 8) + 1,
+        relevantTokens: [
+          { name: `${keyword}Coin`, marketCap: Math.floor(Math.random() * 1000000000) + 1000000 },
+          { name: `${keyword}Token`, marketCap: Math.floor(Math.random() * 500000000) + 500000 }
+        ]
+      }));
+      
+      return {
+        insights,
+        totalMentions: insights.reduce((sum, item) => sum + item.tokenMentions, 0),
+        topNFTCollections: Math.floor(Math.random() * 50) + 10,
+        blockchainDistribution: {
+          ethereum: Math.floor(Math.random() * 60) + 40,
+          solana: Math.floor(Math.random() * 20) + 10,
+          polygon: Math.floor(Math.random() * 15) + 5,
+          other: Math.floor(Math.random() * 10) + 5
+        }
+      };
+    } catch (error) {
+      console.error('Error obteniendo insights de blockchain:', error);
+      return { error: 'Failed to get blockchain insights' };
+    }
+  }
+  
+  // Generar recomendaciones basadas en análisis de keywords y datos de blockchain
+  static async generateRecommendations(keywords: string[], keywordAnalysis: any, blockchainData: any): Promise<any> {
+    try {
+      // Simulación de recomendaciones basadas en los datos analizados
+      return {
+        keywordRecommendations: keywords.map(keyword => ({
+          keyword,
+          recommendation: `Optimizar contenido para "${keyword}" enfocándose en aplicaciones Web3`,
+          difficulty: Math.floor(Math.random() * 10) + 1,
+          potential: Math.floor(Math.random() * 10) + 1,
+          blockchainFocus: Math.random() > 0.5 ? 'high' : 'medium'
+        })),
+        contentSuggestions: [
+          'Crear contenido educativo sobre tokens relacionados',
+          'Desarrollar guías sobre NFTs en el sector',
+          'Publicar análisis de DApps relevantes',
+          'Crear tutoriales sobre integración de Web3'
+        ],
+        technicalRecommendations: [
+          'Implementar verificación en blockchain para contenido',
+          'Integrar wallet connect para mejor engagement',
+          'Optimizar metadatos para búsquedas relacionadas con Web3',
+          'Mejorar velocidad de carga para usuarios de DApps'
+        ]
+      };
+    } catch (error) {
+      console.error('Error generando recomendaciones:', error);
+      return { error: 'Failed to generate recommendations' };
+    }
+  }
 }
-

@@ -1,6 +1,6 @@
 // Competition Analysis APIs Service
 import { AnthropicService } from './anthropic';
-import { GoogleAPIsService } from './google-apis';
+import { Web3APIsService } from './web3-apis';
 
 export interface CompetitionAnalysisOptions {
   includeKeywordAnalysis?: boolean;
@@ -80,7 +80,7 @@ export interface CompetitionAnalysisResult {
 }
 
 export class CompetitionAPIsService {
-  private static googleService = new GoogleAPIsService();
+  private static web3Service = new Web3APIsService();
   private static anthropicService = new AnthropicService();
 
   // Método de instancia para compatibilidad con orchestrator
